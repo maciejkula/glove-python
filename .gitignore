@@ -1,0 +1,10 @@
+*.pyc
+*.*~
+*.so
+*.c
+*.model
+*.corpus
+build/*
+*.txt
+Makefile~
+*.npy
