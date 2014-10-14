@@ -51,7 +51,7 @@ class Corpus(object):
         if self.dictionary is None:
             raise Exception('You must fit the dictionary before transforming the corpus')
 
-        self.matrix = construct_coocurrence_matrix(corpus, 
+        self.matrix = construct_cooccurrence_matrix(corpus, 
                                                    self.dictionary, int(window))
 
     def save(self, filename):
