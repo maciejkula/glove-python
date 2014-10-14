@@ -24,7 +24,7 @@ Producing the embeddings is a two-step process: creating a co-occurrence matrix 
 ## Examples
 `example.py` has some example code for running simple training scripts: `ipython -i -- example.py -c my_corpus.txt -t 10` should process your corpus, run 10 training epochs of GloVe, and drop you into an `ipython` shell where `glove.most_similar('physics')` should produce a list of similar words.
 
-If you want to process a wikipedia corpus, you can pass file from [here](http://dumps.wikimedia.org/enwiki/latest/) into the `example.py` script using the `-w` flag. Running `make all-wiki` should download a small wikipedia dump file, process it, and train the embeddings.
+If you want to process a wikipedia corpus, you can pass file from [here](http://dumps.wikimedia.org/enwiki/latest/) into the `example.py` script using the `-w` flag. Running `make all-wiki` should download a small wikipedia dump file, process it, and train the embeddings. Building the cooccurrence matrix will take some time; training the vectors can be speeded up by increasing the training parallelism to match the number of physical CPU cores available.
 
 Running this on my machine yields roughly the following results:
 
