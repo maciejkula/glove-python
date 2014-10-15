@@ -21,7 +21,7 @@ cdef extern from "math.h":
     double c_abs "fabs"(double)
 
 
-cdef inline int get_word_id(string word, unordered_map[string, int]& dictionary):
+cdef inline int get_word_id(string& word, unordered_map[string, int]& dictionary):
     """
     For creating the token dictionary. Returns the id of the given word; if
     the word is not in the dictionary, it is added and the id is returned.
@@ -29,35 +29,39 @@ cdef inline int get_word_id(string word, unordered_map[string, int]& dictionary)
 
     cdef int word_key
     cdef unordered_map[string,int].iterator it = dictionary.find(word)
+    cdef pair[string, int] dict_key
 
     if it == dictionary.end():
         word_key = dictionary.size()
-        dictionary.insert(pair[string,int](word, word_key))
+        dict_key = pair[string, int](word, word_key)
+        dictionary.insert(dict_key)
     else:
         word_key = deref(it).second
-
+        
     return word_key
 
 
-cdef inline void increment_cooc(int inner_word_key,
-                                int outer_word_key,
-                                double value,
-                                map[pair[int, int], double]& cooc):
+cdef void increment_cooc(int inner_word_key,
+                         int outer_word_key,
+                         double value,
+                         map[pair[int, int], double]& cooc):
         """
         Increment the collocation matrix map.
         """
 
-        cdef pair[int, int] cooc_key
+        cdef pair[int, int] *cooc_key
 
         if inner_word_key < outer_word_key:
-            cooc_key = pair[int, int](inner_word_key, outer_word_key)
+            cooc_key = new pair[int, int](inner_word_key, outer_word_key)
         else:
-            cooc_key = pair[int, int](outer_word_key, inner_word_key)
+            cooc_key = new pair[int, int](outer_word_key, inner_word_key)
+            
+        cooc[deref(cooc_key)] += value
 
-        cooc[cooc_key] += value
+        del cooc_key
 
 
-def cooccurrence_map_to_matrix(int dim, map[pair[int, int], double]& cooc):
+cdef cooccurrence_map_to_matrix(int dim, map[pair[int, int], double]& cooc):
     """
     Creates a scipy.sparse.coo_matrix from the cooccurrence map.
     """
@@ -119,7 +123,7 @@ def construct_cooccurrence_matrix(corpus, int window_size):
     for words in corpus:
         wordslen = len(words)
 
-        for i in range(wordslen):
+        for i in xrange(wordslen):
             outer_word = words[i]
 
             # Update the mapping
@@ -130,7 +134,7 @@ def construct_cooccurrence_matrix(corpus, int window_size):
             window_start = int_max(i - window_size, 0)
             window_stop = int_min(i + window_size, wordslen)
 
-            for j in range(window_stop - window_start):
+            for j in xrange(window_stop - window_start):
                 inner_word = words[window_start + j]
 
                 inner_word_key = get_word_id(inner_word, dictionary)

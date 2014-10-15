@@ -21,6 +21,8 @@ The code uses asynchronous stochastic gradient descent, and is implemented in Cy
 ## Usage
 Producing the embeddings is a two-step process: creating a co-occurrence matrix from the corpus, and then using it to produce the embeddings. The `Corpus` class helps in constructing a corpus from an interable of tokens; the `Glove` class trains the embeddings (with a sklearn-esque API).
 
+There is also support for rudimentary pagragraph vectors. A paragraph vector (in this case) is an embedding of a paragraph (a multi-word piece of text) in the word vector space in such a way that the paragraph representation is close to the words it contains, adjusted for the frequency of words in the corpus (in a manner similar to tf-idf weighting). These can be obtained after having trained word embeddings by calling the `transform_paragraph` method on the trained model.
+
 ## Examples
 `example.py` has some example code for running simple training scripts: `ipython -i -- example.py -c my_corpus.txt -t 10` should process your corpus, run 10 training epochs of GloVe, and drop you into an `ipython` shell where `glove.most_similar('physics')` should produce a list of similar words.
 
