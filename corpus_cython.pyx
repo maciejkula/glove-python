@@ -2,7 +2,6 @@
 #cython: boundscheck=False, wraparound=False
 #distutils: language = c++
 
-# import numpy as np
 import numpy as np
 import scipy.sparse as sp
 
