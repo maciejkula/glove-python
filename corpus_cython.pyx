@@ -133,7 +133,6 @@ def construct_cooccurrence_matrix(corpus, int window_size):
             for j in range(window_stop - window_start):
                 inner_word = words[window_start + j]
 
-                # inner_word_key = dct[inner_word]
                 inner_word_key = get_word_id(inner_word, dictionary)
 
                 if inner_word_key == outer_word_key:
