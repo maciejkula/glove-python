@@ -58,7 +58,7 @@ cdef inline void increment_cooc(int inner_word_key,
         cooc[cooc_key] += value
 
 
-def cooccurrence_map_to_matrix(map[pair[int, int], double]& cooc):
+def cooccurrence_map_to_matrix(int dim, map[pair[int, int], double]& cooc):
     """
     Creates a scipy.sparse.coo_matrix from the cooccurrence map.
     """
@@ -92,8 +92,8 @@ def cooccurrence_map_to_matrix(map[pair[int, int], double]& cooc):
 
     # Create and return the matrix.
     return sp.coo_matrix((data, (row, col)),
-                         shape=(no_collocations,
-                                no_collocations),
+                         shape=(dim,
+                                dim),
                          dtype=np.float64)
 
 
@@ -147,6 +147,6 @@ def construct_cooccurrence_matrix(corpus, int window_size):
                                cooc)
     
     # Create the matrix.
-    mat = cooccurrence_map_to_matrix(cooc)
+    mat = cooccurrence_map_to_matrix(dictionary.size(), cooc)
 
     return dictionary, mat
