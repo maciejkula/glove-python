@@ -17,26 +17,7 @@ class Corpus(object):
         self.dictionary = None
         self.matrix = None
 
-    def fit_dictionary(self, corpus):
-        """
-        Perform a pass through the corpus to
-        construct a word-id mapping.
-        
-        Parameters:
-        - iterable of lists of strings corpus
-        """
-
-        dictionary = {}
-
-        # First pass to construct the dictionary
-        for context in corpus:
-            for word in context:
-                if word not in dictionary:
-                    dictionary[word] = len(dictionary)
-
-        self.dictionary = dictionary
-
-    def fit_matrix(self, corpus, window=10):
+    def fit(self, corpus, window=10):
         """
         Perform a pass through the corpus to construct
         the cooccurrence matrix. 
@@ -48,11 +29,9 @@ class Corpus(object):
         - int window: the length of the (symmetric)
           context window used for cooccurrence.
         """
-        if self.dictionary is None:
-            raise Exception('You must fit the dictionary before transforming the corpus')
 
-        self.matrix = construct_cooccurrence_matrix(corpus, 
-                                                   self.dictionary, int(window))
+        self.dictionary, self.matrix = construct_cooccurrence_matrix(corpus, 
+                                                                     self.dictionary, int(window))
 
     def save(self, filename):
         

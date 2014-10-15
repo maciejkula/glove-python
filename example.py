@@ -66,8 +66,7 @@ if __name__ == '__main__':
             get_data = read_corpus
 
         corpus_model = Corpus()
-        corpus_model.fit_dictionary(get_data(args.create))
-        corpus_model.fit_matrix(get_data(args.create), window=10)
+        corpus_model.fit(get_data(args.create), window=10)
         corpus_model.save('corpus.model')
         
         print 'Dict size: %s' % len(corpus_model.dictionary)
