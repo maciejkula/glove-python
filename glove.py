@@ -1,11 +1,12 @@
 # GloVe model from the NLP lab at Stanford:
 # http://nlp.stanford.edu/projects/glove/.
 
+import collections
 import cPickle as pickle
 import numpy as np
 import scipy.sparse as sp
 
-from glove_cython import fit_vectors
+from glove_cython import fit_vectors, transform_paragraph
 
 
 class Glove(object):
@@ -84,6 +85,50 @@ class Glove(object):
                         self.alpha,
                         int(no_threads))
 
+    def transform_paragraph(self, paragraph, epochs=100, ignore_missing=False):
+        """
+        Transform an iterable of tokens into its vector representation.
+        """
+
+        if self.word_vectors is None:
+            raise Exception('Model must be fit to transform paragraphs')
+
+        if self.dictionary is None:
+            raise Exception('Dictionary must be provided to '
+                            'transform paragraphs')
+
+        cooccurrence = collections.defaultdict(lambda: 0.0)
+            
+        for token in paragraph:
+            try:
+                cooccurrence[self.dictionary[token]] += 10
+            except KeyError:
+                if not ignore_missing:
+                    raise
+
+        word_ids = np.array(cooccurrence.keys(), dtype=np.int32)
+        values = np.array(cooccurrence.values(), dtype=np.float64)
+        shuffle_indices = np.arange(len(word_ids), dtype=np.int32)
+
+        paragraph_vector = np.random.rand(self.no_components)
+
+        for epoch in xrange(epochs):
+
+            # Shuffle the coocurrence matrix
+            np.random.shuffle(shuffle_indices)
+
+            transform_paragraph(self.word_vectors,
+                                self.word_biases,
+                                paragraph_vector,
+                                word_ids,
+                                values,
+                                shuffle_indices,
+                                self.learning_rate,
+                                self.max_count,
+                                self.alpha)
+
+        return paragraph_vector
+
     def add_dictionary(self, dictionary):
         """
         Supply a word-id dictionary to allow similarity queries.
@@ -122,6 +167,15 @@ class Glove(object):
 
         return instance
 
+    def _similarity_query(self, word_vec, number):
+
+        dst = (np.dot(self.word_vectors, word_vec)
+               / np.linalg.norm(self.word_vectors, axis=1))
+        word_ids = np.argsort(-dst)
+
+        return [(self.inverse_dictionary[x], dst[x]) for x in word_ids[1:number]
+                if x in self.inverse_dictionary]
+
     def most_similar(self, word, number=5):
         """
         Run a similarity query, retrieving number
@@ -139,10 +193,12 @@ class Glove(object):
         except KeyError:
             raise Exception('Word not in dictionary')
 
-        word_vec = self.word_vectors[word_idx]
-        dst = (np.dot(self.word_vectors, word_vec)
-               / np.linalg.norm(self.word_vectors, axis=1))
-        word_ids = np.argsort(-dst)
+        return self._similarity_query(self.word_vectors[word_idx], number)
 
-        return [(self.inverse_dictionary[x], dst[x]) for x in word_ids[1:number]
-                if x in self.inverse_dictionary]
+    def most_similar_paragraph(self, paragraph, number=5, **kwargs):
+
+        paragraph_vector = self.transform_paragraph(paragraph, **kwargs)
+
+        return self._similarity_query(paragraph_vector, number)
+
+        

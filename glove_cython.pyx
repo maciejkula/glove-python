@@ -99,3 +99,64 @@ def fit_vectors(double[:, :] wordvec,
             # Update word biases.
             wordbias[word_a] -= learning_rate * loss
             wordbias[word_b] -= learning_rate * loss
+
+
+def transform_paragraph(double[:, :] wordvec,
+                        double[:,] wordbias,
+                        double[:,] paragraphvec,
+                        int[:,] row,
+                        double[:,] counts,
+                        int[:,] shuffle_indices,
+                        double learning_rate,
+                        double max_count,
+                        double alpha):
+
+    # Get number of latent dimensions and
+    # number of cooccurrences.
+    cdef int dim = wordvec.shape[1]
+    cdef int no_cooccurrences = row.shape[0]
+    
+    # Hold indices of current words and
+    # the cooccurrence count.
+    cdef int word_b
+    cdef double count
+
+    # Hold norm of the paragraph vector.
+    cdef double paragraphnorm
+
+    # Loss and gradient variables.
+    cdef double prediction
+    cdef double entry_weight = 0.0
+    cdef double loss = 0.0
+
+    # Iteration variables
+    cdef int j, i, shuffle_index
+
+    # We iterate over random indices to simulate
+    # shuffling the cooccurrence matrix.
+    for j in range(no_cooccurrences):
+        shuffle_index = shuffle_indices[j]
+        word_b = row[shuffle_index]
+        count = counts[shuffle_index]
+
+        # Get prediction, and accumulate
+        # vector norms as we go.
+        prediction = 0.0
+        paragraphnorm = 0.0
+
+        for i in range(dim):
+            prediction = prediction + paragraphvec[i] * wordvec[word_b, i]
+            paragraphnorm += paragraphvec[i] ** 2
+
+        prediction += wordbias[word_b]
+        paragraphnorm = sqrt(paragraphnorm)
+
+        # Compute loss and the example weight.
+        entry_weight = double_min(1.0, (count / max_count)) ** alpha
+        loss = entry_weight * (prediction - c_log(count))
+
+        # Update step: apply gradients and reproject
+        # onto the unit sphere.
+        for i in xrange(dim):
+            paragraphvec[i] = (paragraphvec[i] - learning_rate 
+                                  * loss * wordvec[word_b, i]) / paragraphnorm
