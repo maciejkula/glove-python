@@ -31,7 +31,7 @@ class Corpus(object):
         """
 
         self.dictionary, self.matrix = construct_cooccurrence_matrix(corpus, 
-                                                                     self.dictionary, int(window))
+                                                                     int(window))
 
     def save(self, filename):
         

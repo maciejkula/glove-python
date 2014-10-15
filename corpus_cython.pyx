@@ -23,6 +23,10 @@ cdef extern from "math.h":
 
 
 cdef inline int get_word_id(string word, unordered_map[string, int]& dictionary):
+    """
+    For creating the token dictionary. Returns the id of the given word; if
+    the word is not in the dictionary, it is added and the id is returned.
+    """
 
     cdef int word_key
     cdef unordered_map[string,int].iterator it = dictionary.find(word)
@@ -40,6 +44,9 @@ cdef inline void increment_cooc(int inner_word_key,
                                 int outer_word_key,
                                 double value,
                                 map[pair[int, int], double]& cooc):
+        """
+        Increment the collocation matrix map.
+        """
 
         cdef pair[int, int] cooc_key
 
@@ -51,12 +58,51 @@ cdef inline void increment_cooc(int inner_word_key,
         cooc[cooc_key] += value
 
 
-def construct_cooccurrence_matrix(corpus, dict dct, int window_size):
+def cooccurrence_map_to_matrix(map[pair[int, int], double]& cooc):
     """
-    Construct the cooccurrence matrix for a given corpus, using
-    a word-id dictionary dict and a given window size.
+    Creates a scipy.sparse.coo_matrix from the cooccurrence map.
+    """
 
-    Returns scipy.sparse COO cooccurrence matrix.
+    no_collocations = cooc.size()
+
+    # Create the constituent numpy arrays.
+    row = np.empty(no_collocations, dtype=np.int32)
+    col = np.empty(no_collocations, dtype=np.int32)
+    data = np.empty(no_collocations, dtype=np.float64)
+    cdef int[:,] row_view = row
+    cdef int[:,] col_view = col
+    cdef double[:,] data_view = data
+
+    # Iteration variables
+    cdef int i = 0
+    cdef pair[pair[int, int], double] val
+    cdef map[pair[int, int], double].iterator it = cooc.begin()
+
+
+    # Iterate over the map and populate the arrays.
+    while it != cooc.end():
+        val = deref(it)
+        
+        row_view[i] = val.first.first
+        col_view[i] = val.first.second
+        data_view[i] = val.second
+
+        i += 1
+        inc(it)
+
+    # Create and return the matrix.
+    return sp.coo_matrix((data, (row, col)),
+                         shape=(no_collocations,
+                                no_collocations),
+                         dtype=np.float64)
+
+
+def construct_cooccurrence_matrix(corpus, int window_size):
+    """
+    Construct the word-id dictionary and cooccurrence matrix for
+    a given corpus, using a given window size.
+
+    Returns the dictionary and a scipy.sparse COO cooccurrence matrix.
     """
 
     # Declare the word dictionary and the cooccurrence map
@@ -64,6 +110,7 @@ def construct_cooccurrence_matrix(corpus, dict dct, int window_size):
     cdef map[pair[int, int], double] cooc
     cdef int no_collocations
 
+    # String processing variables.
     cdef list words
     cdef str inner_word, outer_word
     cdef int i, j, outer_word_key, inner_word_key
@@ -99,34 +146,7 @@ def construct_cooccurrence_matrix(corpus, dict dct, int window_size):
                                0.5 / c_abs(i - (window_start + j)),
                                cooc)
     
-    no_collocations = cooc.size()
-    row = np.empty(no_collocations, dtype=np.int32)
-    col = np.empty(no_collocations, dtype=np.int32)
-    data = np.empty(no_collocations, dtype=np.float64)
-
-    cdef int[:,] row_view = row
-    cdef int[:,] col_view = col
-    cdef double[:,] data_view = data
-
-    cdef int r, c
-    cdef pair[pair[int, int], double] val
-
-    i = 0
-    cdef map[pair[int, int], double].iterator it = cooc.begin()
-    while it != cooc.end():
-        val = deref(it)
-        
-        row_view[i] = val.first.first
-        col_view[i] = val.first.second
-        data_view[i] = val.second
-
-        i += 1
-        inc(it)
-
-
-    mat = sp.coo_matrix((data, (row, col)),
-                        shape=(no_collocations,
-                               no_collocations),
-                        dtype=np.float64)
+    # Create the matrix.
+    mat = cooccurrence_map_to_matrix(cooc)
 
     return dictionary, mat
