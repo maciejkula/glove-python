@@ -1,11 +1,12 @@
 # GloVe model from the NLP lab at Stanford:
 # http://nlp.stanford.edu/projects/glove/.
 
+import collections
 import cPickle as pickle
 import numpy as np
 import scipy.sparse as sp
 
-from glove_cython import fit_vectors
+from glove_cython import fit_vectors, transform_paragraph
 
 
 class Glove(object):
@@ -15,7 +16,7 @@ class Glove(object):
     """
 
     def __init__(self, no_components=30, learning_rate=0.05,
-                 alpha=0.75, max_count=50):
+                 alpha=0.75, max_count=100):
         """
         Parameters:
         - int no_components: number of latent dimensions
@@ -84,6 +85,54 @@ class Glove(object):
                         self.alpha,
                         int(no_threads))
 
+    def transform_paragraph(self, paragraph, epochs=50, ignore_missing=False):
+        """
+        Transform an iterable of tokens into its vector representation
+        (a paragraph vector).
+
+        Experimental. This will return something close to a tf-idf
+        weighted average of constituent token vectors by fitting 
+        rare words (with low word bias values) more closely.
+        """
+
+        if self.word_vectors is None:
+            raise Exception('Model must be fit to transform paragraphs')
+
+        if self.dictionary is None:
+            raise Exception('Dictionary must be provided to '
+                            'transform paragraphs')
+
+        cooccurrence = collections.defaultdict(lambda: 0.0)
+            
+        for token in paragraph:
+            try:
+                cooccurrence[self.dictionary[token]] += self.max_count / 10.0
+            except KeyError:
+                if not ignore_missing:
+                    raise
+
+        word_ids = np.array(cooccurrence.keys(), dtype=np.int32)
+        values = np.array(cooccurrence.values(), dtype=np.float64)
+        shuffle_indices = np.arange(len(word_ids), dtype=np.int32)
+
+        # Initialize the vector to mean of constituent word vectors
+        paragraph_vector = np.mean(self.word_vectors[word_ids], axis=0)
+
+        # Shuffle the coocurrence matrix
+        np.random.shuffle(shuffle_indices)
+        transform_paragraph(self.word_vectors,
+                            self.word_biases,
+                            paragraph_vector,
+                            word_ids,
+                            values,
+                            shuffle_indices,
+                            self.learning_rate,
+                            self.max_count,
+                            self.alpha,
+                            epochs)
+
+        return paragraph_vector
+
     def add_dictionary(self, dictionary):
         """
         Supply a word-id dictionary to allow similarity queries.
@@ -122,6 +171,15 @@ class Glove(object):
 
         return instance
 
+    def _similarity_query(self, word_vec, number):
+
+        dst = (np.dot(self.word_vectors, word_vec)
+               / np.linalg.norm(self.word_vectors, axis=1))
+        word_ids = np.argsort(-dst)
+
+        return [(self.inverse_dictionary[x], dst[x]) for x in word_ids[:number]
+                if x in self.inverse_dictionary]
+
     def most_similar(self, word, number=5):
         """
         Run a similarity query, retrieving number
@@ -139,10 +197,13 @@ class Glove(object):
         except KeyError:
             raise Exception('Word not in dictionary')
 
-        word_vec = self.word_vectors[word_idx]
-        dst = (np.dot(self.word_vectors, word_vec)
-               / np.linalg.norm(self.word_vectors, axis=1))
-        word_ids = np.argsort(-dst)
+        return self._similarity_query(self.word_vectors[word_idx], number)[1:]
 
-        return [(self.inverse_dictionary[x], dst[x]) for x in word_ids[1:number]
-                if x in self.inverse_dictionary]
+    def most_similar_paragraph(self, paragraph, number=5, **kwargs):
+        """
+        Return words most similar to a given paragraph (iterable of tokens).
+        """
+
+        paragraph_vector = self.transform_paragraph(paragraph, **kwargs)
+
+        return self._similarity_query(paragraph_vector, number)
