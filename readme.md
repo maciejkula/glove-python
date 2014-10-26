@@ -11,8 +11,9 @@ The code uses asynchronous stochastic gradient descent, and is implemented in Cy
 ## Installation
 1. Clone this repository.
 2. Make sure you have a compiler that supports `OpenMP` and `C++11`. On OSX, you'll need to install `gcc` from `brew` or `ports`. The setup script uses `gcc-4.9`, but you can probably change that.
-3. Run `python setup.py develop` to install in development mode; `python setup.py install` to install normally.
-4. `from glove import Glove, Corpus` should get you started.
+3. Make sure you have Cython installed.
+4. Run `python setup.py develop` to install in development mode; `python setup.py install` to install normally.
+5. `from glove import Glove, Corpus` should get you started.
 
 ## Usage
 Producing the embeddings is a two-step process: creating a co-occurrence matrix from the corpus, and then using it to produce the embeddings. The `Corpus` class helps in constructing a corpus from an interable of tokens; the `Glove` class trains the embeddings (with a sklearn-esque API).

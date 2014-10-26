@@ -3,7 +3,12 @@ import platform
 
 from setuptools import setup, find_packages, Extension
 
-from Cython.Build import cythonize
+try:
+    from Cython.Build import cythonize
+except:
+    print ('You must have Cython installed. '
+           'Run sudo pip install cython to do so.')
+    raise
 
 
 # Use gcc for openMP on OSX
