@@ -10,13 +10,9 @@ The code uses asynchronous stochastic gradient descent, and is implemented in Cy
 
 ## Installation
 1. Clone this repository.
-2. Make sure you have the following packages installed:
-   - `numpy`
-   - `scipy`
-   - `cython`
-   - for running the examples, `gensim`.
-   - On OSX, you'll need to install `gcc` for `OpenMP` support. The setup script uses `gcc-4.9`, but you can probably change that.
-3. Run `make all` to compile the cython files.
+2. Make sure you have a compiler that supports `OpenMP` and `C++11`. On OSX, you'll need to install `gcc` from `brew` or `ports`. The setup script uses `gcc-4.9`, but you can probably change that.
+3. Run `python setup.py develop` to install in development mode; `python setup.py install` to install normally.
+4. `from glove import Glove, Corpus` should get you started.
 
 ## Usage
 Producing the embeddings is a two-step process: creating a co-occurrence matrix from the corpus, and then using it to produce the embeddings. The `Corpus` class helps in constructing a corpus from an interable of tokens; the `Glove` class trains the embeddings (with a sklearn-esque API).
@@ -24,7 +20,7 @@ Producing the embeddings is a two-step process: creating a co-occurrence matrix 
 There is also support for rudimentary pagragraph vectors. A paragraph vector (in this case) is an embedding of a paragraph (a multi-word piece of text) in the word vector space in such a way that the paragraph representation is close to the words it contains, adjusted for the frequency of words in the corpus (in a manner similar to tf-idf weighting). These can be obtained after having trained word embeddings by calling the `transform_paragraph` method on the trained model.
 
 ## Examples
-`example.py` has some example code for running simple training scripts: `ipython -i -- example.py -c my_corpus.txt -t 10` should process your corpus, run 10 training epochs of GloVe, and drop you into an `ipython` shell where `glove.most_similar('physics')` should produce a list of similar words.
+`example.py` has some example code for running simple training scripts: `ipython -i -- examples/example.py -c my_corpus.txt -t 10` should process your corpus, run 10 training epochs of GloVe, and drop you into an `ipython` shell where `glove.most_similar('physics')` should produce a list of similar words.
 
 If you want to process a wikipedia corpus, you can pass file from [here](http://dumps.wikimedia.org/enwiki/latest/) into the `example.py` script using the `-w` flag. Running `make all-wiki` should download a small wikipedia dump file, process it, and train the embeddings. Building the cooccurrence matrix will take some time; training the vectors can be speeded up by increasing the training parallelism to match the number of physical CPU cores available.
 

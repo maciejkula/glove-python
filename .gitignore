@@ -2,6 +2,9 @@
 *.*~
 *.so
 *.c
+*.cpp
+dist/*
+*.egg*
 *.model
 *.corpus
 build/*
