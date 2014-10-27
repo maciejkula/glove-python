@@ -3,7 +3,7 @@ import pprint
 import gensim
 
 from glove import Glove
-from corpus import Corpus
+from glove import Corpus
 
 
 def read_corpus(filename):
