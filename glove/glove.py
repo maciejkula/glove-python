@@ -38,6 +38,9 @@ class Glove(object):
         self.word_vectors = None
         self.word_biases = None
 
+        self.vectors_sum_gradients = None
+        self.biases_sum_gradients = None
+
         self.dictionary = None
         self.inverse_dictionary = None
 
@@ -65,6 +68,10 @@ class Glove(object):
                                            self.no_components)
         self.word_biases = np.zeros(shape[0], 
                                     dtype=np.float64)
+
+        self.vectors_sum_gradients = np.ones_like(self.word_vectors)
+        self.biases_sum_gradients = np.ones_like(self.word_biases)
+
         shuffle_indices = np.arange(matrix.nnz, dtype=np.int32)
 
         if verbose:
@@ -80,7 +87,9 @@ class Glove(object):
             np.random.shuffle(shuffle_indices)
 
             fit_vectors(self.word_vectors,
+                        self.vectors_sum_gradients,
                         self.word_biases,
+                        self.biases_sum_gradients,
                         matrix.row,
                         matrix.col,
                         matrix.data,
@@ -122,12 +131,14 @@ class Glove(object):
 
         # Initialize the vector to mean of constituent word vectors
         paragraph_vector = np.mean(self.word_vectors[word_ids], axis=0)
+        sum_gradients = np.ones_like(paragraph_vector)
 
         # Shuffle the coocurrence matrix
         np.random.shuffle(shuffle_indices)
         transform_paragraph(self.word_vectors,
                             self.word_biases,
                             paragraph_vector,
+                            sum_gradients,
                             word_ids,
                             values,
                             shuffle_indices,
@@ -179,7 +190,8 @@ class Glove(object):
     def _similarity_query(self, word_vec, number):
 
         dst = (np.dot(self.word_vectors, word_vec)
-               / np.linalg.norm(self.word_vectors, axis=1))
+               / np.linalg.norm(self.word_vectors, axis=1)
+               / np.linalg.norm(word_vec))
         word_ids = np.argsort(-dst)
 
         return [(self.inverse_dictionary[x], dst[x]) for x in word_ids[:number]

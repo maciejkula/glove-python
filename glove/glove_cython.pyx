@@ -1,5 +1,5 @@
 #!python
-#cython: boundscheck=False, wraparound=False
+#cython: boundscheck=False, wraparound=False, cdivision=True
 
 import numpy as np
 import scipy.sparse as sp
@@ -19,12 +19,14 @@ cdef extern from "math.h" nogil:
 
 
 def fit_vectors(double[:, :] wordvec,
+                double[:, :] wordvec_sum_gradients,
                 double[:,] wordbias,
+                double[:,] wordbias_sum_gradients,
                 int[:,] row,
                 int[:,] col,
                 double[:,] counts,
                 int[:,] shuffle_indices,
-                double learning_rate,
+                double initial_learning_rate,
                 double max_count,
                 double alpha,
                 int no_threads):
@@ -32,7 +34,8 @@ def fit_vectors(double[:, :] wordvec,
     Estimate GloVe word embeddings given the cooccurrence matrix.
     Modifies the word vector and word bias array in-place.
 
-    Training is performed via asynchronous stochastic gradient descent.
+    Training is performed via asynchronous stochastic gradient descent,
+    using the AdaGrad per-coordinate learning rate.
     """
 
     # Get number of latent dimensions and
@@ -42,21 +45,14 @@ def fit_vectors(double[:, :] wordvec,
     
     # Hold indices of current words and
     # the cooccurrence count.
-    cdef int word_a
-    cdef int word_b
-    cdef double count
-
-    # Hold norms of the word vectors.
-    cdef double word_a_norm
-    cdef double word_b_norm
+    cdef int word_a, word_b
+    cdef double count, learning_rate, gradient
 
     # Loss and gradient variables.
-    cdef double prediction
-    cdef double entry_weight = 0.0
-    cdef double loss = 0.0
+    cdef double prediction, entry_weight, loss
 
     # Iteration variables
-    cdef int j, i, shuffle_index
+    cdef int i, j, shuffle_index
 
     # We iterate over random indices to simulate
     # shuffling the cooccurrence matrix.
@@ -68,21 +64,13 @@ def fit_vectors(double[:, :] wordvec,
             word_b = col[shuffle_index]
             count = counts[shuffle_index]
 
-            # Get prediction, and accumulate
-            # vector norms as we go.
+            # Get prediction
             prediction = 0.0
-            word_a_norm = 0.0
-            word_b_norm = 0.0
 
             for i in range(dim):
                 prediction = prediction + wordvec[word_a, i] * wordvec[word_b, i]
-                word_a_norm += wordvec[word_a, i] ** 2
-                word_b_norm += wordvec[word_b, i] ** 2
 
             prediction = prediction + wordbias[word_a] + wordbias[word_b]
-
-            word_a_norm = sqrt(word_a_norm)
-            word_b_norm = sqrt(word_b_norm)
 
             # Compute loss and the example weight.
             entry_weight = double_min(1.0, (count / max_count)) ** alpha
@@ -91,23 +79,37 @@ def fit_vectors(double[:, :] wordvec,
             # Update step: apply gradients and reproject
             # onto the unit sphere.
             for i in xrange(dim):
+                
+                learning_rate = initial_learning_rate / sqrt(wordvec_sum_gradients[word_a, i])
+                gradient = loss * wordvec[word_b, i]
                 wordvec[word_a, i] = (wordvec[word_a, i] - learning_rate 
-                                      * loss * wordvec[word_b, i]) / word_a_norm
+                                      * gradient)
+                wordvec_sum_gradients[word_a, i] += gradient ** 2
+
+                learning_rate = initial_learning_rate / sqrt(wordvec_sum_gradients[word_b, i])
+                gradient = loss * wordvec[word_a, i]
                 wordvec[word_b, i] = (wordvec[word_b, i] - learning_rate
-                                      * loss * wordvec[word_a, i]) / word_b_norm
+                                      * gradient)
+                wordvec_sum_gradients[word_b, i] += gradient ** 2
 
             # Update word biases.
+            learning_rate = initial_learning_rate / sqrt(wordbias_sum_gradients[word_a])
             wordbias[word_a] -= learning_rate * loss
+            wordbias_sum_gradients[word_a] += loss ** 2
+
+            learning_rate = initial_learning_rate / sqrt(wordbias_sum_gradients[word_b])
             wordbias[word_b] -= learning_rate * loss
+            wordbias_sum_gradients[word_b] += loss ** 2
 
 
 def transform_paragraph(double[:, :] wordvec,
                         double[:,] wordbias,
                         double[:,] paragraphvec,
+                        double[:,] sum_gradients,
                         int[:,] row,
                         double[:,] counts,
                         int[:,] shuffle_indices,
-                        double learning_rate,
+                        double initial_learning_rate,
                         double max_count,
                         double alpha,
                         int epochs):
@@ -132,16 +134,14 @@ def transform_paragraph(double[:, :] wordvec,
     cdef int word_b, word_a
     cdef double count
 
-    # Hold norm of the paragraph vector.
-    cdef double paragraphnorm
-
     # Loss and gradient variables.
     cdef double prediction
-    cdef double entry_weight = 0.0
-    cdef double loss = 0.0
+    cdef double entry_weight
+    cdef double loss
+    cdef double gradient
 
     # Iteration variables
-    cdef int epoch, j, c, i, shuffle_index, start, stop
+    cdef int epoch, i, j, shuffle_index
 
     # We iterate over random indices to simulate
     # shuffling the cooccurrence matrix.
@@ -152,24 +152,20 @@ def transform_paragraph(double[:, :] wordvec,
             word_b = row[shuffle_index]
             count = counts[shuffle_index]
 
-            # Get prediction, and accumulate
-            # vector norms as we go.
+            # Get prediction
             prediction = 0.0
-            paragraphnorm = 0.0
-
             for i in range(dim):
                 prediction = prediction + paragraphvec[i] * wordvec[word_b, i]
-                paragraphnorm += paragraphvec[i] ** 2
-
             prediction += wordbias[word_b]
-            paragraphnorm = sqrt(paragraphnorm)
 
             # Compute loss and the example weight.
             entry_weight = double_min(1.0, (count / max_count)) ** alpha
             loss = entry_weight * (prediction - c_log(count))
 
-            # Update step: apply gradients and reproject
-            # onto the unit sphere.
+            # Update step: apply gradients.
             for i in xrange(dim):
+                learning_rate = initial_learning_rate / sqrt(sum_gradients[i])
+                gradient = loss * wordvec[word_b, i]
                 paragraphvec[i] = (paragraphvec[i] - learning_rate 
-                                      * loss * wordvec[word_b, i]) / paragraphnorm
+                                   * gradient)
+                sum_gradients[i] += gradient ** 2
