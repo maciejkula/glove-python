@@ -1,9 +1,13 @@
 # Cooccurrence matrix construction tools
 # for fitting the GloVe model.
 
-import cPickle as pickle
+try:
+    # Python 2 compat
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
-from corpus_cython import construct_cooccurrence_matrix
+from .corpus_cython import construct_cooccurrence_matrix
 
 
 class Corpus(object):
