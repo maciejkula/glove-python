@@ -18,10 +18,10 @@ if 'darwin' in platform.platform().lower():
 
 
 # Declare extension
-extensions = [Extension("glove_cython", ["glove/glove_cython.pyx"],
+extensions = [Extension("glove.glove_cython", ["glove/glove_cython.pyx"],
                         extra_link_args=["-fopenmp"],
                         extra_compile_args=['-fopenmp']),
-              Extension("corpus_cython", ["glove/corpus_cython.pyx"],
+              Extension("glove.corpus_cython", ["glove/corpus_cython.pyx"],
                         language='C++',
                         extra_compile_args=['-std=c++11', '-O3'])]
 
@@ -31,7 +31,7 @@ setup(
     description=('Python implementation of Global Vectors '
                  'for Word Representation (GloVe)'),
     long_description='',
-    packages=['glove'],
+    packages=["glove"],
     install_requires=['numpy',
                       'cython',
                       'scipy'],

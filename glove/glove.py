@@ -2,11 +2,16 @@
 # http://nlp.stanford.edu/projects/glove/.
 
 import collections
-import cPickle as pickle
+try:
+    # Python 2 compat
+    import cPickle as pickle
+except ImportError:
+    import pickle
+
 import numpy as np
 import scipy.sparse as sp
 
-from glove_cython import fit_vectors, transform_paragraph
+from .glove_cython import fit_vectors, transform_paragraph
 
 
 class Glove(object):
@@ -69,7 +74,7 @@ class Glove(object):
         for epoch in xrange(epochs):
 
             if verbose:
-                print 'Epoch %s' % epoch
+                print('Epoch %s' % epoch)
 
             # Shuffle the coocurrence matrix
             np.random.shuffle(shuffle_indices)
