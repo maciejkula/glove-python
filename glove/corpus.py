@@ -26,8 +26,6 @@ class Corpus(object):
         Perform a pass through the corpus to construct
         the cooccurrence matrix. 
 
-        You must call fit_dictionary first.
-
         Parameters:
         - iterable of lists of strings corpus
         - int window: the length of the (symmetric)
