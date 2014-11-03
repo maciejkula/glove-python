@@ -1,5 +1,5 @@
 #!python
-#cython: boundscheck=False, wraparound=False, cdivision=True
+#cython: boundscheck=False, wraparound=False, cdivision=True, initializedcheck=False
 
 import numpy as np
 import scipy.sparse as sp
@@ -18,14 +18,14 @@ cdef extern from "math.h" nogil:
     double c_abs "fabs"(double)
 
 
-def fit_vectors(double[:, :] wordvec,
-                double[:, :] wordvec_sum_gradients,
-                double[:,] wordbias,
-                double[:,] wordbias_sum_gradients,
-                int[:,] row,
-                int[:,] col,
-                double[:,] counts,
-                int[:,] shuffle_indices,
+def fit_vectors(double[:, ::1] wordvec,
+                double[:, ::1] wordvec_sum_gradients,
+                double[::1] wordbias,
+                double[::1] wordbias_sum_gradients,
+                int[::1] row,
+                int[::1] col,
+                double[::1] counts,
+                int[::1] shuffle_indices,
                 double initial_learning_rate,
                 double max_count,
                 double alpha,
@@ -102,13 +102,13 @@ def fit_vectors(double[:, :] wordvec,
             wordbias_sum_gradients[word_b] += loss ** 2
 
 
-def transform_paragraph(double[:, :] wordvec,
-                        double[:,] wordbias,
-                        double[:,] paragraphvec,
-                        double[:,] sum_gradients,
-                        int[:,] row,
-                        double[:,] counts,
-                        int[:,] shuffle_indices,
+def transform_paragraph(double[:, ::1] wordvec,
+                        double[::1] wordbias,
+                        double[::1] paragraphvec,
+                        double[::1] sum_gradients,
+                        int[::1] row,
+                        double[::1] counts,
+                        int[::1] shuffle_indices,
                         double initial_learning_rate,
                         double max_count,
                         double alpha,
