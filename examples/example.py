@@ -1,3 +1,4 @@
+from __future__ import print_function
 import argparse
 import pprint
 import gensim
@@ -57,10 +58,10 @@ if __name__ == '__main__':
 
     if args.create:
         # Build the corpus dictionary and the cooccurrence matrix.
-        print 'Pre-processing corpus'
+        print('Pre-processing corpus')
 
         if args.wiki:
-            print 'Using wikipedia corpus'
+            print('Using wikipedia corpus')
             get_data = read_wikipedia_corpus
         else:
             get_data = read_corpus
@@ -69,21 +70,21 @@ if __name__ == '__main__':
         corpus_model.fit(get_data(args.create), window=10)
         corpus_model.save('corpus.model')
         
-        print 'Dict size: %s' % len(corpus_model.dictionary)
-        print 'Collocations: %s' % corpus_model.matrix.nnz
+        print('Dict size: %s' % len(corpus_model.dictionary))
+        print('Collocations: %s' % corpus_model.matrix.nnz)
 
     if args.train:
         # Train the GloVe model and save it to disk.
 
         if not args.create:
             # Try to load a corpus from disk.
-            print 'Reading corpus statistics'
+            print('Reading corpus statistics')
             corpus_model = Corpus.load('corpus.model')
 
-            print 'Dict size: %s' % len(corpus_model.dictionary)
-            print 'Collocations: %s' % corpus_model.matrix.nnz
+            print('Dict size: %s' % len(corpus_model.dictionary))
+            print('Collocations: %s' % corpus_model.matrix.nnz)
 
-        print 'Training the GloVe model'
+        print('Training the GloVe model')
 
         glove = Glove(no_components=100, learning_rate=0.05)
         glove.fit(corpus_model.matrix, epochs=int(args.train),
@@ -95,8 +96,8 @@ if __name__ == '__main__':
     if args.query:
         # Finally, query the model for most similar words.
         if not args.train:
-            print 'Loading pre-trained GloVe model'
+            print('Loading pre-trained GloVe model')
             glove = Glove.load('glove.model')
 
-        print 'Querying for %s' % args.query
+        print('Querying for %s' % args.query)
         pprint.pprint(glove.most_similar(args.query, number=10))
