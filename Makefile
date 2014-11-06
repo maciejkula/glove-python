@@ -11,8 +11,3 @@ train-wiki:
 	ipython -i -- examples/example.py -t 30 -p 2
 
 all-wiki: get-wiki process-wiki train-wiki
-
-tests:
-
-	python glove/tests/run.py
-	python3 glove/tests/run.py

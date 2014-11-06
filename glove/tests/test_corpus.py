@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
-
+from nose.tools import raises
 import numpy as np
-import random
-import timeit
-import uuid
 
 
 from glove import Corpus
@@ -20,7 +17,55 @@ def test_corpus_construction():
     for word in corpus_words:
         assert word in model.dictionary
 
-    print(model.dictionary)
-
     assert model.matrix.shape == (len(corpus_words),
                                   len(corpus_words))
+
+    expected = [[0.0, 1.0, 0.5],
+                [0.0, 0.0, 1.0],
+                [0.0, 0.0, 0.0]]
+
+    assert (model.matrix.todense().tolist()
+            == expected)
+
+
+def test_supplied_dictionary():
+
+    dictionary = {'a': 2,
+                  'naïve': 1,
+                  'fox': 0}
+
+    corpus = [['a', 'naïve', 'fox']]
+
+    model = Corpus(dictionary=dictionary)
+    model.fit(corpus, window=10)
+
+    assert model.dictionary == dictionary
+
+    assert model.matrix.shape == (len(dictionary),
+                                  len(dictionary))
+
+    assert (model.matrix.tocsr()[2]).sum() == 0
+
+
+@raises(Exception)
+def test_supplied_dict_checks():
+
+    dictionary = {'a': 4,
+                  'naïve': 1,
+                  'fox': 0}
+
+    corpus = [['a', 'naïve', 'fox']]
+
+    model = Corpus(dictionary=dictionary)
+
+
+@raises(KeyError)
+def test_supplied_dict_missing():
+
+    dictionary = {'a': 1,
+                  'naïve': 0}
+
+    corpus = [['a', 'naïve', 'fox']]
+
+    model = Corpus(dictionary=dictionary)
+    model.fit(corpus, window=10)
