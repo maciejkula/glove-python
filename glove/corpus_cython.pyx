@@ -1,5 +1,5 @@
 #!python
-#cython: boundscheck=False, wraparound=False
+#cython: boundscheck=False, wraparound=False, nonecheck=False, cdivision=True
 #distutils: language = c++
 
 import numpy as np
@@ -11,6 +11,7 @@ from libcpp.map cimport map
 from libcpp.unordered_map cimport unordered_map
 from libcpp.pair cimport pair
 from libcpp.string cimport string
+from libcpp.vector cimport vector
 
 
 cdef inline int int_min(int a, int b): return a if a <= b else b
@@ -21,7 +22,7 @@ cdef extern from "math.h":
     double c_abs "fabs"(double)
 
 
-cdef inline int get_word_id(string& word, unordered_map[string, int]& dictionary):
+cdef inline int get_word_id(string& word, unordered_map[string, int]& dictionary) nogil:
     """
     For creating the token dictionary. Returns the id of the given word; if
     the word is not in the dictionary, it is added and the id is returned.
@@ -44,7 +45,7 @@ cdef inline int get_word_id(string& word, unordered_map[string, int]& dictionary
 cdef void increment_cooc(int inner_word_key,
                          int outer_word_key,
                          double value,
-                         map[pair[int, int], double]& cooc):
+                         map[pair[int, int], double]& cooc) nogil:
         """
         Increment the collocation matrix map.
         """
@@ -115,37 +116,44 @@ def construct_cooccurrence_matrix(corpus, int window_size):
 
     # String processing variables.
     cdef list words
-    cdef str inner_word, outer_word
+    cdef string inner_word, outer_word, word
     cdef int i, j, outer_word_key, inner_word_key
     cdef int wordslen, window_start, window_stop
+    cdef vector[int] words_vector
+
+    words_vector.reserve(1000)
 
     # Iterate over the corpus.
     for words in corpus:
-        wordslen = len(words)
+
+        # Convert the list of words into a vector
+        # of word indices.
+        words_vector.clear()
+        for word in words:
+            words_vector.push_back(get_word_id(word, dictionary))
+
+        wordslen = words_vector.size()
 
         for i in xrange(wordslen):
-            outer_word = words[i]
+            # outer_word = words_vector[i]
 
-            # Update the mapping
-            outer_word_key = get_word_id(outer_word, dictionary)
+            outer_word_key = words_vector[i]
 
             # Define and iterate over the context window for
             # the current word.
-            window_start = int_max(i - window_size, 0)
-            window_stop = int_min(i + window_size, wordslen)
+            window_stop = int_min(i + window_size + 1, wordslen)
 
-            for j in xrange(window_stop - window_start):
-                inner_word = words[window_start + j]
+            for j in xrange(i, window_stop):
+                inner_word_key = words_vector[j]
 
-                inner_word_key = get_word_id(inner_word, dictionary)
-
+                # Do nothing if the words are the same.
                 if inner_word_key == outer_word_key:
                     continue
 
                 # Increment the matrix entry.
                 increment_cooc(inner_word_key,
                                outer_word_key,
-                               0.5 / c_abs(i - (window_start + j)),
+                               1.0 / (j - i),
                                cooc)
     
     # Create the matrix.
