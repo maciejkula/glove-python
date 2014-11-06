@@ -112,13 +112,12 @@ def construct_cooccurrence_matrix(corpus, int window_size):
     # Declare the word dictionary and the cooccurrence map
     cdef unordered_map[string, int] dictionary
     cdef map[pair[int, int], double] cooc
-    cdef int no_collocations
 
     # String processing variables.
     cdef list words
-    cdef string inner_word, outer_word, word
+    cdef string word
     cdef int i, j, outer_word_key, inner_word_key
-    cdef int wordslen, window_start, window_stop
+    cdef int wordslen, window_stop
     cdef vector[int] words_vector
 
     words_vector.reserve(1000)
