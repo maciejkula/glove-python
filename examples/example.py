@@ -14,7 +14,7 @@ def read_corpus(filename):
     delchars.remove(' ')
     delchars = ''.join(delchars)
 
-    with open(filename, 'rb') as datafile:
+    with open(filename, 'r') as datafile:
         for line in datafile:
             yield line.lower().translate(None, delchars).split(' ')
 
