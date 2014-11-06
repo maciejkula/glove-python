@@ -115,7 +115,7 @@ def construct_cooccurrence_matrix(corpus, int window_size):
 
     # String processing variables.
     cdef list words
-    cdef str inner_word, outer_word
+    cdef bytes inner_word, outer_word
     cdef int i, j, outer_word_key, inner_word_key
     cdef int wordslen, window_start, window_stop
 
@@ -123,7 +123,7 @@ def construct_cooccurrence_matrix(corpus, int window_size):
     for words in corpus:
         wordslen = len(words)
 
-        for i in xrange(wordslen):
+        for i in range(wordslen):
             outer_word = words[i]
 
             # Update the mapping
@@ -134,7 +134,7 @@ def construct_cooccurrence_matrix(corpus, int window_size):
             window_start = int_max(i - window_size, 0)
             window_stop = int_min(i + window_size, wordslen)
 
-            for j in xrange(window_stop - window_start):
+            for j in range(window_stop - window_start):
                 inner_word = words[window_start + j]
 
                 inner_word_key = get_word_id(inner_word, dictionary)

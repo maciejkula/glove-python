@@ -9,7 +9,7 @@ from glove import Corpus
 
 def read_corpus(filename):
 
-    delchars = [chr(c) for c in xrange(256)]
+    delchars = [chr(c) for c in range(256)]
     delchars = [x for x in delchars if not x.isalnum()]
     delchars.remove(' ')
     delchars = ''.join(delchars)

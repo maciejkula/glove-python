@@ -77,10 +77,10 @@ class Glove(object):
         shuffle_indices = np.arange(matrix.nnz, dtype=np.int32)
 
         if verbose:
-            print ('Performing %s training epochs '
-                   'with %s threads') % (epochs, no_threads)
+            print('Performing %s training epochs '
+                  'with %s threads' % (epochs, no_threads))
 
-        for epoch in xrange(epochs):
+        for epoch in range(epochs):
 
             if verbose:
                 print('Epoch %s' % epoch)
@@ -164,7 +164,13 @@ class Glove(object):
                             'or equal to the number of word vectors')
 
         self.dictionary = dictionary
-        self.inverse_dictionary = {v: k for k, v in self.dictionary.iteritems()}
+        if hasattr(self.dictionary, 'iteritems'):
+            # Python 2 compat
+            items_iterator = self.dictionary.iteritems()
+        else:
+            items_iterator = self.dictionary.items()
+
+        self.inverse_dictionary = {v: k for k, v in items_iterator}
 
     def save(self, filename):
         """

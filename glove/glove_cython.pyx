@@ -78,8 +78,8 @@ def fit_vectors(double[:, ::1] wordvec,
 
             # Update step: apply gradients and reproject
             # onto the unit sphere.
-            for i in xrange(dim):
-                
+            for i in range(dim):
+
                 learning_rate = initial_learning_rate / sqrt(wordvec_sum_gradients[word_a, i])
                 gradient = loss * wordvec[word_b, i]
                 wordvec[word_a, i] = (wordvec[word_a, i] - learning_rate 
@@ -145,8 +145,8 @@ def transform_paragraph(double[:, ::1] wordvec,
 
     # We iterate over random indices to simulate
     # shuffling the cooccurrence matrix.
-    for epoch in xrange(epochs):
-        for j in xrange(no_cooccurrences):
+    for epoch in range(epochs):
+        for j in range(no_cooccurrences):
             shuffle_index = shuffle_indices[j]
 
             word_b = row[shuffle_index]
@@ -163,7 +163,7 @@ def transform_paragraph(double[:, ::1] wordvec,
             loss = entry_weight * (prediction - c_log(count))
 
             # Update step: apply gradients.
-            for i in xrange(dim):
+            for i in range(dim):
                 learning_rate = initial_learning_rate / sqrt(sum_gradients[i])
                 gradient = loss * wordvec[word_b, i]
                 paragraphvec[i] = (paragraphvec[i] - learning_rate 
