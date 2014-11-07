@@ -1,5 +1,5 @@
 #!python
-#cython: boundscheck=False, wraparound=False
+#cython: boundscheck=False, wraparound=False, nonecheck=False, cdivision=True
 #distutils: language = c++
 
 import numpy as np
@@ -11,6 +11,7 @@ from libcpp.map cimport map
 from libcpp.unordered_map cimport unordered_map
 from libcpp.pair cimport pair
 from libcpp.string cimport string
+from libcpp.vector cimport vector
 
 
 cdef inline int int_min(int a, int b): return a if a <= b else b
@@ -21,30 +22,10 @@ cdef extern from "math.h":
     double c_abs "fabs"(double)
 
 
-cdef inline int get_word_id(string& word, unordered_map[string, int]& dictionary):
-    """
-    For creating the token dictionary. Returns the id of the given word; if
-    the word is not in the dictionary, it is added and the id is returned.
-    """
-
-    cdef int word_key
-    cdef unordered_map[string,int].iterator it = dictionary.find(word)
-    cdef pair[string, int] dict_key
-
-    if it == dictionary.end():
-        word_key = dictionary.size()
-        dict_key = pair[string, int](word, word_key)
-        dictionary.insert(dict_key)
-    else:
-        word_key = deref(it).second
-        
-    return word_key
-
-
 cdef void increment_cooc(int inner_word_key,
                          int outer_word_key,
                          double value,
-                         map[pair[int, int], double]& cooc):
+                         map[pair[int, int], double]& cooc) nogil:
         """
         Increment the collocation matrix map.
         """
@@ -100,7 +81,41 @@ cdef cooccurrence_map_to_matrix(int dim, map[pair[int, int], double]& cooc):
                          dtype=np.float64)
 
 
-def construct_cooccurrence_matrix(corpus, int window_size):
+cdef inline int words_to_ids(list words, vector[int]& word_ids,
+                      dictionary, int supplied):
+    """
+    Convert a list of words into a vector of word ids, using either
+    the supplied dictionary or by consructing a new one.
+
+    If the dictionary was supplied and a word is missing from it
+    an error value of -1 is returned.
+    """
+
+    cdef int word_id
+
+    word_ids.clear()
+
+    if supplied == 1:
+        for word in words:
+            # Raise an error if the word
+            # is missing from the supplied
+            # dictionary.
+            word_id = dictionary.get(word, -1)
+            if word_id == -1:
+                return -1
+            word_ids.push_back(word_id)
+
+    else:
+        for word in words:
+            word_id = dictionary.setdefault(word,
+                                            len(dictionary))
+            word_ids.push_back(word_id)
+
+    return 0
+
+            
+def construct_cooccurrence_matrix(corpus, dictionary, int supplied,
+                                  int window_size, int ignore_missing):
     """
     Construct the word-id dictionary and cooccurrence matrix for
     a given corpus, using a given window size.
@@ -108,47 +123,48 @@ def construct_cooccurrence_matrix(corpus, int window_size):
     Returns the dictionary and a scipy.sparse COO cooccurrence matrix.
     """
 
-    # Declare the word dictionary and the cooccurrence map
-    cdef unordered_map[string, int] dictionary
+    # Declare the cooccurrence map
     cdef map[pair[int, int], double] cooc
-    cdef int no_collocations
 
     # String processing variables.
     cdef list words
-    cdef bytes inner_word, outer_word
-    cdef int i, j, outer_word_key, inner_word_key
-    cdef int wordslen, window_start, window_stop
+    cdef int i, j, outer_word, inner_word
+    cdef int wordslen, window_stop, error
+    cdef vector[int] word_ids
+
+    # Pre-allocate some reasonable size
+    # for the word ids vector.
+    word_ids.reserve(1000)
 
     # Iterate over the corpus.
     for words in corpus:
-        wordslen = len(words)
 
+        # Convert words to a numeric vector.
+        error = words_to_ids(words, word_ids, dictionary, supplied)
+        if ignore_missing == 0 and error == -1:
+            raise KeyError('Word missing from dictionary')
+        wordslen = word_ids.size()
+
+        # Record co-occurrences in a moving window.
         for i in range(wordslen):
-            outer_word = words[i]
+            outer_word = word_ids[i]
 
-            # Update the mapping
-            outer_word_key = get_word_id(outer_word, dictionary)
+            window_stop = int_min(i + window_size + 1, wordslen)
 
-            # Define and iterate over the context window for
-            # the current word.
-            window_start = int_max(i - window_size, 0)
-            window_stop = int_min(i + window_size, wordslen)
+            for j in range(i, window_stop):
+                inner_word = word_ids[j]
 
-            for j in range(window_stop - window_start):
-                inner_word = words[window_start + j]
-
-                inner_word_key = get_word_id(inner_word, dictionary)
-
-                if inner_word_key == outer_word_key:
+                # Do nothing if the words are the same.
+                if inner_word == outer_word:
                     continue
 
                 # Increment the matrix entry.
-                increment_cooc(inner_word_key,
-                               outer_word_key,
-                               0.5 / c_abs(i - (window_start + j)),
+                increment_cooc(inner_word,
+                               outer_word,
+                               1.0 / (j - i),
                                cooc)
     
     # Create the matrix.
-    mat = cooccurrence_map_to_matrix(dictionary.size(), cooc)
+    mat = cooccurrence_map_to_matrix(len(dictionary), cooc)
 
-    return dictionary, mat
+    return mat
