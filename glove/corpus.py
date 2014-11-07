@@ -51,6 +51,9 @@ class Corpus(object):
           context window used for cooccurrence.
         - bool ignore_missing: whether to ignore words missing from
                                the dictionary (if it was supplied).
+                               Context window distances will be preserved
+                               even if out-of-vocabulary words are
+                               ignored.
                                If False, a KeyError is raised.
         """
         

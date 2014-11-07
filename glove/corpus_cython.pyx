@@ -82,13 +82,20 @@ cdef cooccurrence_map_to_matrix(int dim, map[pair[int, int], double]& cooc):
 
 
 cdef inline int words_to_ids(list words, vector[int]& word_ids,
-                      dictionary, int supplied):
+                      dictionary, int supplied, int ignore_missing):
     """
     Convert a list of words into a vector of word ids, using either
     the supplied dictionary or by consructing a new one.
 
-    If the dictionary was supplied and a word is missing from it
-    an error value of -1 is returned.
+    If the dictionary was supplied, a word is missing from it,
+    and we are not ignoring out-of-vocabulary (OOV) words, an
+    error value of -1 is returned.
+
+    If we have an OOV word and we do want to ignore them, we use
+    a -1 placeholder for it in the word_ids vector to preserve
+    correct context windows (otherwise words that are far apart
+    with the full vocabulary could become close together with a
+    filtered vocabulary).
     """
 
     cdef int word_id
@@ -101,8 +108,9 @@ cdef inline int words_to_ids(list words, vector[int]& word_ids,
             # is missing from the supplied
             # dictionary.
             word_id = dictionary.get(word, -1)
-            if word_id == -1:
+            if word_id == -1 and ignore_missing == 0:
                 return -1
+
             word_ids.push_back(word_id)
 
     else:
@@ -140,8 +148,8 @@ def construct_cooccurrence_matrix(corpus, dictionary, int supplied,
     for words in corpus:
 
         # Convert words to a numeric vector.
-        error = words_to_ids(words, word_ids, dictionary, supplied)
-        if ignore_missing == 0 and error == -1:
+        error = words_to_ids(words, word_ids, dictionary, supplied, ignore_missing)
+        if error == -1:
             raise KeyError('Word missing from dictionary')
         wordslen = word_ids.size()
 
@@ -149,10 +157,17 @@ def construct_cooccurrence_matrix(corpus, dictionary, int supplied,
         for i in range(wordslen):
             outer_word = word_ids[i]
 
+            # Continue if we have an OOD token.
+            if outer_word == -1:
+                continue
+
             window_stop = int_min(i + window_size + 1, wordslen)
 
             for j in range(i, window_stop):
                 inner_word = word_ids[j]
+
+                if inner_word == -1:
+                    continue
 
                 # Do nothing if the words are the same.
                 if inner_word == outer_word:

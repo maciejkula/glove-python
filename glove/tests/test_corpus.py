@@ -73,8 +73,8 @@ def test_supplied_dict_missing():
 
 def test_supplied_dict_missing_ignored():
 
-    dictionary = {'a': 1,
-                  'naïve': 0}
+    dictionary = {'a': 0,
+                  'fox': 1}
 
     corpus = [['a', 'naïve', 'fox']]
 
@@ -85,3 +85,12 @@ def test_supplied_dict_missing_ignored():
 
     assert model.matrix.shape == (len(dictionary),
                                   len(dictionary))
+
+    # Ensure that context windows and context window
+    # weights are preserved. 
+    full_model = Corpus()
+    full_model.fit(corpus, window=10)
+
+    assert (full_model.matrix.todense()[0, 2]
+            == model.matrix.todense()[0, 1]
+            == 0.5)
