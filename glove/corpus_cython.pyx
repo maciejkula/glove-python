@@ -108,9 +108,8 @@ cdef inline int words_to_ids(list words, vector[int]& word_ids,
             # is missing from the supplied
             # dictionary.
             word_id = dictionary.get(word, -1)
-            if word_id == -1:
-                if ignore_missing == 0:
-                    return -1
+            if word_id == -1 and ignore_missing == 0:
+                return -1
 
             word_ids.push_back(word_id)
 
