@@ -40,7 +40,7 @@ class Corpus(object):
         if np.min(list(dictionary.values())) != 0:
             raise Exception('Dictionary ids should start at zero')
 
-    def fit(self, corpus, window=10):
+    def fit(self, corpus, window=10, ignore_missing=False):
         """
         Perform a pass through the corpus to construct
         the cooccurrence matrix. 
@@ -49,12 +49,16 @@ class Corpus(object):
         - iterable of lists of strings corpus
         - int window: the length of the (symmetric)
           context window used for cooccurrence.
+        - bool ignore_missing: whether to ignore words missing from
+                               the dictionary (if it was supplied).
+                               If False, a KeyError is raised.
         """
         
         self.matrix = construct_cooccurrence_matrix(corpus,
                                                     self.dictionary,
                                                     int(self.dictionary_supplied),
-                                                    int(window))
+                                                    int(window),
+                                                    int(ignore_missing))
 
     def save(self, filename):
         

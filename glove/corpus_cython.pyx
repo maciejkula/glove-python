@@ -114,7 +114,8 @@ cdef inline int words_to_ids(list words, vector[int]& word_ids,
     return 0
 
             
-def construct_cooccurrence_matrix(corpus, dictionary, int supplied, int window_size):
+def construct_cooccurrence_matrix(corpus, dictionary, int supplied,
+                                  int window_size, int ignore_missing):
     """
     Construct the word-id dictionary and cooccurrence matrix for
     a given corpus, using a given window size.
@@ -140,7 +141,7 @@ def construct_cooccurrence_matrix(corpus, dictionary, int supplied, int window_s
 
         # Convert words to a numeric vector.
         error = words_to_ids(words, word_ids, dictionary, supplied)
-        if error == -1:
+        if ignore_missing == 0 and error == -1:
             raise KeyError('Word missing from dictionary')
         wordslen = word_ids.size()
 

@@ -69,3 +69,19 @@ def test_supplied_dict_missing():
 
     model = Corpus(dictionary=dictionary)
     model.fit(corpus, window=10)
+
+
+def test_supplied_dict_missing_ignored():
+
+    dictionary = {'a': 1,
+                  'naïve': 0}
+
+    corpus = [['a', 'naïve', 'fox']]
+
+    model = Corpus(dictionary=dictionary)
+    model.fit(corpus, window=10, ignore_missing=True)
+
+    assert model.dictionary == dictionary
+
+    assert model.matrix.shape == (len(dictionary),
+                                  len(dictionary))
