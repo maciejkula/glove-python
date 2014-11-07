@@ -11,3 +11,4 @@ build/*
 *.txt
 Makefile~
 *.npy
+*.bz2

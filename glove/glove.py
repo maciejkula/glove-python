@@ -2,6 +2,7 @@
 # http://nlp.stanford.edu/projects/glove/.
 
 import collections
+import sys
 try:
     # Python 2 compat
     import cPickle as pickle
@@ -77,10 +78,10 @@ class Glove(object):
         shuffle_indices = np.arange(matrix.nnz, dtype=np.int32)
 
         if verbose:
-            print ('Performing %s training epochs '
-                   'with %s threads') % (epochs, no_threads)
+            print('Performing %s training epochs '
+                  'with %s threads' % (epochs, no_threads))
 
-        for epoch in xrange(epochs):
+        for epoch in range(epochs):
 
             if verbose:
                 print('Epoch %s' % epoch)
@@ -164,7 +165,13 @@ class Glove(object):
                             'or equal to the number of word vectors')
 
         self.dictionary = dictionary
-        self.inverse_dictionary = {v: k for k, v in self.dictionary.iteritems()}
+        if hasattr(self.dictionary, 'iteritems'):
+            # Python 2 compat
+            items_iterator = self.dictionary.iteritems()
+        else:
+            items_iterator = self.dictionary.items()
+
+        self.inverse_dictionary = {v: k for k, v in items_iterator}
 
     def save(self, filename):
         """
@@ -211,6 +218,11 @@ class Glove(object):
         if self.dictionary is None:
             raise Exception('No word dictionary supplied')
         
+        if sys.version_info[0] >= 3:
+            if hasattr(word, 'encode'):
+                # Under Python 3 and later, unicode string input should be
+                # encoded to a byte string explicitly
+                word = word.encode('utf-8')
         try:
             word_idx = self.dictionary[word]
         except KeyError:
