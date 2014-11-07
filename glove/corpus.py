@@ -1,6 +1,6 @@
 # Cooccurrence matrix construction tools
 # for fitting the GloVe model.
-
+import numpy as np
 try:
     # Python 2 compat
     import cPickle as pickle
@@ -14,12 +14,31 @@ class Corpus(object):
     """
     Class for constructing a cooccurrence matrix
     from a corpus.
+
+    A dictionry mapping words to ids can optionally
+    be supplied. If left None, it will be constructed
+    from the corpus.
     """
     
-    def __init__(self):
+    def __init__(self, dictionary=None):
 
-        self.dictionary = None
+        self.dictionary = {}
+        self.dictionary_supplied = False
         self.matrix = None
+
+        if dictionary is not None:
+            self._check_dict(dictionary)
+            self.dictionary = dictionary
+            self.dictionary_supplied = True
+
+    def _check_dict(self, dictionary):
+
+        if (np.max(list(dictionary.values())) != (len(dictionary) - 1)):
+            raise Exception('The largest id in the dictionary '
+                            'should be equal to its length minus one.')
+
+        if np.min(list(dictionary.values())) != 0:
+            raise Exception('Dictionary ids should start at zero')
 
     def fit(self, corpus, window=10):
         """
@@ -31,9 +50,11 @@ class Corpus(object):
         - int window: the length of the (symmetric)
           context window used for cooccurrence.
         """
-
-        self.dictionary, self.matrix = construct_cooccurrence_matrix(corpus, 
-                                                                     int(window))
+        
+        self.matrix = construct_cooccurrence_matrix(corpus,
+                                                    self.dictionary,
+                                                    int(self.dictionary_supplied),
+                                                    int(window))
 
     def save(self, filename):
         
