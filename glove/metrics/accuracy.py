@@ -86,8 +86,7 @@ def analogy_rank_score(analogies, word_vectors, no_threads=1):
     # the first word.
     input_vectors = (word_vectors[analogies[:, 1]]
                      + word_vectors[analogies[:, 2]]
-                     - word_vectors[analogies[:, 0]]
-                     / 4)
+                     - word_vectors[analogies[:, 0]])
 
     word_vector_norms = np.linalg.norm(word_vectors,
                                        axis=1)
