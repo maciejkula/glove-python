@@ -21,6 +21,10 @@ if 'darwin' in platform.platform().lower():
 extensions = [Extension("glove.glove_cython", ["glove/glove_cython.pyx"],
                         extra_link_args=["-fopenmp"],
                         extra_compile_args=['-fopenmp']),
+              Extension("glove.metrics.accuracy_cython",
+                        ["glove/metrics/accuracy_cython.pyx"],
+                        extra_link_args=["-fopenmp"],
+                        extra_compile_args=['-fopenmp']),
               Extension("glove.corpus_cython", ["glove/corpus_cython.pyx"],
                         language='C++',
                         extra_compile_args=['-std=c++11', '-O3'])]
