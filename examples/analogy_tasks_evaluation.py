@@ -45,7 +45,7 @@ if __name__ == '__main__':
                                                         ignore_missing=True)
 
     # Get the rank array.
-    ranks = metrics.analogy_rank_score(evaluation_ids[:1000], glove.word_vectors,
+    ranks = metrics.analogy_rank_score(evaluation_ids, glove.word_vectors,
                                        no_threads=int(args.parallelism))
 
     print('Mean rank: %s' % ranks.mean())
