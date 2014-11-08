@@ -4,7 +4,7 @@ except ImportError:
     izip = zip
 import numpy as np
 
-from .accuracy_cython import compute_rank
+from .accuracy_cython import compute_rank_violations
 
 
 def read_analogy_file(filename):
@@ -92,14 +92,14 @@ def analogy_rank_score(analogies, word_vectors, no_threads=1):
     word_vector_norms = np.linalg.norm(word_vectors,
                                        axis=1)
 
-    # Pre-allocate the array storing the ranks
-    ranks = np.zeros(input_vectors.shape[0], dtype=np.float64)
+    # Pre-allocate the array storing the rank violations
+    rank_violations = np.zeros(input_vectors.shape[0], dtype=np.int32)
 
-    compute_rank(word_vectors,
-                 word_vector_norms,
-                 input_vectors,
-                 analogies[:, 3],
-                 ranks,
-                 no_threads)
+    compute_rank_violations(word_vectors,
+                            word_vector_norms,
+                            input_vectors,
+                            analogies[:, 3],
+                            rank_violations,
+                            no_threads)
 
-    return ranks
+    return rank_violations / (word_vectors.shape[0])

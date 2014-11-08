@@ -17,22 +17,21 @@ cdef double dot(double[::1] x,
     return result
 
 
-def compute_rank(double[:, ::1] wordvec,
-                 double[::1] wordvec_norm,
-                 double[:, ::1] input,
-                 int[:] expected,
-                 double[::1] ranks,
-                 int no_threads):
+def compute_rank_violations(double[:, ::1] wordvec,
+                            double[::1] wordvec_norm,
+                            double[:, ::1] input,
+                            int[:] expected,
+                            int[::1] rank_violations,
+                            int no_threads):
     """
-    Compute the normalized rank scores (0.0 == best, 1.0 == worst)
+    Compute the rank violations
     of the expected words in the word analogy task.
     """
 
     cdef int i, j, no_input_vectors, no_wordvec
-    cdef int no_components
+    cdef int no_components, violations
 
     cdef double score_of_expected, score
-    cdef double rank_violations
 
     no_input_vectors = input.shape[0]
     no_wordvec = wordvec.shape[0]
@@ -50,11 +49,11 @@ def compute_rank(double[:, ::1] wordvec,
 
             # Compute all other scores and count
             # rank violations.
-            rank_violations = 0.0
+            violations = 0
 
             for j in range(no_wordvec):
 
-                if i == j:
+                if expected[i] == j:
                     continue
 
                 score = (dot(input[i],
@@ -63,8 +62,8 @@ def compute_rank(double[:, ::1] wordvec,
                          / wordvec_norm[j])
 
                 if score >= score_of_expected:
-                    rank_violations = rank_violations + 1
+                    violations = violations + 1
 
             # Update the average rank with the rank
             # of this example.
-            ranks[i] = rank_violations / no_wordvec
+            rank_violations[i] = violations
