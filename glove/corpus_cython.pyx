@@ -162,7 +162,6 @@ def construct_cooccurrence_matrix(corpus, dictionary, int supplied,
     """
 
     # Declare the cooccurrence map
-    cdef map[pair[int, int], double] cooc
     cdef Matrix matrix = Matrix(1000)
 
     # String processing variables.
