@@ -22,63 +22,93 @@ cdef extern from "math.h":
     double c_abs "fabs"(double)
 
 
-cdef void increment_cooc(int inner_word_key,
-                         int outer_word_key,
-                         double value,
-                         map[pair[int, int], double]& cooc) nogil:
-        """
-        Increment the collocation matrix map.
-        """
-
-        cdef pair[int, int] *cooc_key
-
-        if inner_word_key < outer_word_key:
-            cooc_key = new pair[int, int](inner_word_key, outer_word_key)
-        else:
-            cooc_key = new pair[int, int](outer_word_key, inner_word_key)
-            
-        cooc[deref(cooc_key)] += value
-
-        del cooc_key
-
-
-cdef cooccurrence_map_to_matrix(int dim, map[pair[int, int], double]& cooc):
+cdef class Matrix:
     """
-    Creates a scipy.sparse.coo_matrix from the cooccurrence map.
+    A sparse co-occurrence matrix storing
+    its data as a vector of maps.
     """
 
-    no_collocations = cooc.size()
+    cdef vector[unordered_map[int, float]] rows
 
-    # Create the constituent numpy arrays.
-    row = np.empty(no_collocations, dtype=np.int32)
-    col = np.empty(no_collocations, dtype=np.int32)
-    data = np.empty(no_collocations, dtype=np.float64)
-    cdef int[:,] row_view = row
-    cdef int[:,] col_view = col
-    cdef double[:,] data_view = data
+    def __cinit__(self, int initial_size):
 
-    # Iteration variables
-    cdef int i = 0
-    cdef pair[pair[int, int], double] val
-    cdef map[pair[int, int], double].iterator it = cooc.begin()
+        cdef int i
 
+        self.rows = vector[unordered_map[int, float]]()
 
-    # Iterate over the map and populate the arrays.
-    while it != cooc.end():
-        val = deref(it)
-        
-        row_view[i] = val.first.first
-        col_view[i] = val.first.second
-        data_view[i] = val.second
+        for i in range(initial_size):
+            self.rows.push_back(unordered_map[int, float]())
 
-        i += 1
-        inc(it)
+    cdef void increment(self, int row, int col, float value):
+        """
+        Increment the value at (row, col) by value.
+        """
 
-    # Create and return the matrix.
-    return sp.coo_matrix((data, (row, col)),
-                         shape=(dim,
-                                dim),
-                         dtype=np.float64)
+        while row >= self.rows.size():
+            self.rows.push_back(unordered_map[int, float]())
+
+        self.rows[row][col] += value
+
+    cdef int size(self):
+        """
+        Get number of nonzero entries.
+        """
+
+        cdef int i
+        cdef int size = 0
+
+        for i in range(self.rows.size()):
+            size += self.rows[i].size()
+
+        return size
+
+    cpdef to_coo(self, int shape):
+        """
+        Convert to a shape by shape COO matrix.
+        """
+
+        cdef int i
+        cdef int row
+        cdef int rows = self.rows.size()
+        cdef int no_collocations = self.size()
+
+        cdef unordered_map[int, float] row_unordered_map
+        cdef pair[int, float] row_entry
+        cdef unordered_map[int, float].iterator row_iterator
+
+        # Create the constituent numpy arrays.
+        row_np = np.empty(no_collocations, dtype=np.int32)
+        col_np = np.empty(no_collocations, dtype=np.int32)
+        data_np = np.empty(no_collocations, dtype=np.float64)
+        cdef int[:,] row_view = row_np
+        cdef int[:,] col_view = col_np
+        cdef double[:,] data_view = data_np
+
+        i = 0
+
+        for row in range(rows):
+            row_unordered_map = self.rows[row]
+            row_iterator = row_unordered_map.begin()
+
+            while row_iterator != row_unordered_map.end():
+                row_entry = deref(row_iterator)
+
+                row_view[i] = row
+                col_view[i] = row_entry.first
+                data_view[i] = row_entry.second
+
+                i += 1
+                inc(row_iterator)
+
+        # Create and return the matrix.
+        return sp.coo_matrix((data_np, (row_np, col_np)),
+                             shape=(shape,
+                                    shape),
+                             dtype=np.float64)
+
+    def __dealloc__(self):
+
+        self.rows.clear()
 
 
 cdef inline int words_to_ids(list words, vector[int]& word_ids,
@@ -100,7 +130,7 @@ cdef inline int words_to_ids(list words, vector[int]& word_ids,
 
     cdef int word_id
 
-    word_ids.clear()
+    word_ids.resize(0)
 
     if supplied == 1:
         for word in words:
@@ -133,6 +163,7 @@ def construct_cooccurrence_matrix(corpus, dictionary, int supplied,
 
     # Declare the cooccurrence map
     cdef map[pair[int, int], double] cooc
+    cdef Matrix matrix = Matrix(1000)
 
     # String processing variables.
     cdef list words
@@ -173,13 +204,16 @@ def construct_cooccurrence_matrix(corpus, dictionary, int supplied,
                 if inner_word == outer_word:
                     continue
 
-                # Increment the matrix entry.
-                increment_cooc(inner_word,
-                               outer_word,
-                               1.0 / (j - i),
-                               cooc)
+                if inner_word < outer_word:
+                    matrix.increment(inner_word,
+                                     outer_word,
+                                     1.0 / (j - i))
+                else:
+                    matrix.increment(outer_word,
+                                     inner_word,
+                                     1.0 / (j - i))
     
     # Create the matrix.
-    mat = cooccurrence_map_to_matrix(len(dictionary), cooc)
+    mat = matrix.to_coo(len(dictionary))
 
     return mat
