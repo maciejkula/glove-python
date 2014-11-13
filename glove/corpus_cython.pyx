@@ -97,10 +97,71 @@ cdef class Matrix:
     cdef float max_load_factor
     cdef vector[unordered_map[int, float]] rows
 
+    cdef vector[vector[int]] row_indices
+    cdef vector[vector[float]] row_data
+
     def __cinit__(self, float max_load_factor):
 
         self.max_load_factor = max_load_factor
         self.rows = vector[unordered_map[int, float]]()
+
+        self.row_indices = vector[vector[int]]()
+        self.row_data = vector[vector[float]]()
+
+    cdef void compactify_row(self, int row):
+        """
+        Move a row from a map to more efficient
+        vector storage.
+        """
+
+        cdef int i, col
+        cdef int row_length = self.row_indices[row].size()
+
+        cdef pair[int, float] row_entry
+        cdef unordered_map[int, float].iterator row_iterator
+
+        row_unordered_map = self.rows[row]
+
+        # Go through the elements already in vector storage
+        # and update them with the contents of a map, removing
+        # map elements as they are transferred.
+        for i in range(row_length):
+            col = self.row_indices[row][i]
+            if self.rows[row].find(col) != self.rows[row].end():
+
+                self.row_data[row][i] += self.rows[row][col]
+                self.rows[row].erase(col)
+
+        # Resize the vectors to accommodate new
+        # columns from the map.
+        row_length = self.row_indices[row].size()
+        self.row_indices[row].resize(row_length)
+        self.row_data[row].resize(row_length)
+
+
+        # Add any new columns to the vector.
+        row_iterator = self.rows[row].begin()
+        while row_iterator != self.rows[row].end():
+            row_entry = deref(row_iterator)
+            self.row_indices[row].push_back(row_entry.first)
+            self.row_data[row].push_back(row_entry.second)
+            inc(row_iterator)
+
+        self.rows[row].clear()
+
+    cdef void add_row(self):
+        """
+        Add a new row to the matrix.
+        """
+
+        cdef unordered_map[int, float] row_map
+
+        row_map = unordered_map[int, float]()
+        row_map.max_load_factor(self.max_load_factor)
+
+        self.rows.push_back(row_map)
+        self.row_indices.push_back(vector[int]())
+        self.row_data.push_back(vector[float]())
 
     cdef void increment(self, int row, int col, float value):
         """
@@ -108,18 +169,14 @@ cdef class Matrix:
         """
 
         cdef float current_value
-        cdef unordered_map[int, float] row_map
 
         while row >= self.rows.size():
-            row_map = unordered_map[int, float]()
-            row_map.max_load_factor(self.max_load_factor)
-            self.rows.push_back(row_map)
+            self.add_row()        
 
-        map_size = self.rows[row].size()
+        self.rows[row][col] += value
 
-        # self.rows[row][col]++ # += value
-        current_value = self.rows[row][col]
-        current_value += value
+        if self.rows[row].size() > 1000:
+            self.compactify_row(row)
 
     cdef int size(self):
         """
@@ -131,6 +188,7 @@ cdef class Matrix:
 
         for i in range(self.rows.size()):
             size += self.rows[i].size()
+            size += self.row_indices[i].size()
 
         return size
 
@@ -139,14 +197,17 @@ cdef class Matrix:
         Convert to a shape by shape COO matrix.
         """
 
-        cdef int i
+        cdef int i, j
         cdef int row
+        cdef int col
         cdef int rows = self.rows.size()
-        cdef int no_collocations = self.size()
+        cdef int no_collocations
 
-        cdef unordered_map[int, float] row_unordered_map
-        cdef pair[int, float] row_entry
-        cdef unordered_map[int, float].iterator row_iterator
+        # Transform all row maps to row arrays.
+        for i in range(rows):
+            self.compactify_row(i)
+
+        no_collocations = self.size()
 
         # Create the constituent numpy arrays.
         row_np = np.empty(no_collocations, dtype=np.int32)
@@ -156,21 +217,16 @@ cdef class Matrix:
         cdef int[:,] col_view = col_np
         cdef double[:,] data_view = data_np
 
-        i = 0
+        j = 0
 
         for row in range(rows):
-            row_unordered_map = self.rows[row]
-            row_iterator = row_unordered_map.begin()
+            for i in range(self.row_indices[row].size()):
 
-            while row_iterator != row_unordered_map.end():
-                row_entry = deref(row_iterator)
+                row_view[j] = row
+                col_view[j] = self.row_indices[row][i]
+                data_view[j] = self.row_data[row][i]
 
-                row_view[i] = row
-                col_view[i] = row_entry.first
-                data_view[i] = row_entry.second
-
-                i += 1
-                inc(row_iterator)
+                j += 1
 
         # Create and return the matrix.
         return sp.coo_matrix((data_np, (row_np, col_np)),
@@ -181,6 +237,8 @@ cdef class Matrix:
     def __dealloc__(self):
 
         self.rows.clear()
+        self.row_indices.clear()
+        self.row_data.clear()
 
 
 cdef inline int words_to_ids(list words, vector[int]& word_ids,
