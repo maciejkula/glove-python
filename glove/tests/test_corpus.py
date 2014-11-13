@@ -12,7 +12,7 @@ def test_corpus_construction():
     corpus = [corpus_words]
 
     model = Corpus()
-    model.fit(corpus, window=10)
+    model.fit(corpus, max_map_size=0, window=10)
 
     for word in corpus_words:
         assert word in model.dictionary
@@ -37,7 +37,7 @@ def test_supplied_dictionary():
     corpus = [['a', 'naïve', 'fox']]
 
     model = Corpus(dictionary=dictionary)
-    model.fit(corpus, window=10)
+    model.fit(corpus, max_map_size=0, window=10)
 
     assert model.dictionary == dictionary
 
@@ -68,7 +68,7 @@ def test_supplied_dict_missing():
     corpus = [['a', 'naïve', 'fox']]
 
     model = Corpus(dictionary=dictionary)
-    model.fit(corpus, window=10)
+    model.fit(corpus, max_map_size=0, window=10)
 
 
 def test_supplied_dict_missing_ignored():
@@ -79,7 +79,7 @@ def test_supplied_dict_missing_ignored():
     corpus = [['a', 'naïve', 'fox']]
 
     model = Corpus(dictionary=dictionary)
-    model.fit(corpus, window=10, ignore_missing=True)
+    model.fit(corpus, max_map_size=0, window=10, ignore_missing=True)
 
     assert model.dictionary == dictionary
 
