@@ -8,7 +8,7 @@ import scipy.sparse as sp
 
 from cython.operator cimport dereference as deref, preincrement as inc
 from libcpp.map cimport map
-from libcpp.unordered_map cimport unordered_map
+# from libcpp.unordered_map cimport unordered_map
 from libcpp.pair cimport pair
 from libcpp.string cimport string
 from libcpp.vector cimport vector
@@ -22,32 +22,104 @@ cdef extern from "math.h":
     double c_abs "fabs"(double)
 
 
+# We need to use our own std::unordered_map wrapper
+# to be able to set the max load factor.
+cdef extern from "<unordered_map>" namespace "std" nogil:
+    cdef cppclass unordered_map[T, U]:
+        cppclass iterator:
+            pair[T, U]& operator*()
+            iterator operator++()
+            iterator operator--()
+            bint operator==(iterator)
+            bint operator!=(iterator)
+        cppclass reverse_iterator:
+            pair[T, U]& operator*()
+            iterator operator++()
+            iterator operator--()
+            bint operator==(reverse_iterator)
+            bint operator!=(reverse_iterator)
+        #cppclass const_iterator(iterator):
+        #    pass
+        #cppclass const_reverse_iterator(reverse_iterator):
+        #    pass
+        unordered_map() except +
+        unordered_map(unordered_map&) except +
+        #unordered_map(key_compare&)
+        U& operator[](T&)
+        #unordered_map& operator=(unordered_map&)
+        bint operator==(unordered_map&, unordered_map&)
+        bint operator!=(unordered_map&, unordered_map&)
+        bint operator<(unordered_map&, unordered_map&)
+        bint operator>(unordered_map&, unordered_map&)
+        bint operator<=(unordered_map&, unordered_map&)
+        bint operator>=(unordered_map&, unordered_map&)
+        U& at(T&)
+        iterator begin()
+        #const_iterator begin()
+        void clear()
+        size_t count(T&)
+        bint empty()
+        iterator end()
+        #const_iterator end()
+        pair[iterator, iterator] equal_range(T&)
+        #pair[const_iterator, const_iterator] equal_range(key_type&)
+        void erase(iterator)
+        void erase(iterator, iterator)
+        size_t erase(T&)
+        iterator find(T&)
+        #const_iterator find(key_type&)
+        pair[iterator, bint] insert(pair[T, U]) # XXX pair[T,U]&
+        iterator insert(iterator, pair[T, U]) # XXX pair[T,U]&
+        #void insert(input_iterator, input_iterator)
+        #key_compare key_comp()
+        iterator lower_bound(T&)
+        #const_iterator lower_bound(key_type&)
+        size_t max_size()
+        reverse_iterator rbegin()
+        #const_reverse_iterator rbegin()
+        reverse_iterator rend()
+        #const_reverse_iterator rend()
+        size_t size()
+        void swap(unordered_map&)
+        iterator upper_bound(T&)
+        #const_iterator upper_bound(key_type&)
+        #value_compare value_comp()
+        void max_load_factor(float)
+        float max_load_factor()
+
+
 cdef class Matrix:
     """
     A sparse co-occurrence matrix storing
     its data as a vector of maps.
     """
 
+    cdef float max_load_factor
     cdef vector[unordered_map[int, float]] rows
 
-    def __cinit__(self, int initial_size):
+    def __cinit__(self, float max_load_factor):
 
-        cdef int i
-
+        self.max_load_factor = max_load_factor
         self.rows = vector[unordered_map[int, float]]()
-
-        for i in range(initial_size):
-            self.rows.push_back(unordered_map[int, float]())
 
     cdef void increment(self, int row, int col, float value):
         """
         Increment the value at (row, col) by value.
         """
 
-        while row >= self.rows.size():
-            self.rows.push_back(unordered_map[int, float]())
+        cdef float current_value
+        cdef unordered_map[int, float] row_map
 
-        self.rows[row][col] += value
+        while row >= self.rows.size():
+            row_map = unordered_map[int, float]()
+            row_map.max_load_factor(self.max_load_factor)
+            self.rows.push_back(row_map)
+
+        map_size = self.rows[row].size()
+
+        # self.rows[row][col]++ # += value
+        current_value = self.rows[row][col]
+        current_value += value
 
     cdef int size(self):
         """
@@ -162,7 +234,7 @@ def construct_cooccurrence_matrix(corpus, dictionary, int supplied,
     """
 
     # Declare the cooccurrence map
-    cdef Matrix matrix = Matrix(1000)
+    cdef Matrix matrix = Matrix(5)
 
     # String processing variables.
     cdef list words
