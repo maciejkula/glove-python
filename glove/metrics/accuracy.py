@@ -17,7 +17,7 @@ def read_analogy_file(filename):
     with open(filename, 'r') as questions_file:
         for line in questions_file:
             if line.startswith(':'):
-                section = line[:2]
+                section = line[2:].replace('\n', '')
                 continue
             else:
                 words = line.replace('\n', '').split(' ')
@@ -101,4 +101,4 @@ def analogy_rank_score(analogies, word_vectors, no_threads=1):
                             rank_violations,
                             no_threads)
 
-    return rank_violations / (word_vectors.shape[0])
+    return rank_violations / float(word_vectors.shape[0])
