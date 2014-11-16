@@ -17,7 +17,7 @@ def read_analogy_file(filename):
     with open(filename, 'r') as questions_file:
         for line in questions_file:
             if line.startswith(':'):
-                section = line[:2]
+                section = line[2:].replace('\n', '')
                 continue
             else:
                 words = line.replace('\n', '').split(' ')
