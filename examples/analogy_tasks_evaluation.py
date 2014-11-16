@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
         # Get the rank array.
         ranks = metrics.analogy_rank_score(evaluation_ids, glove.word_vectors,
-                                           no_threads=int(args.parallelism))#, dct=glove.inverse_dictionary)
+                                           no_threads=int(args.parallelism))
         section_ranks.append(ranks)
 
         print('Section %s mean rank: %s, accuracy: %s' % (section, ranks.mean(), 
