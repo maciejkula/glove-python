@@ -64,10 +64,9 @@ class Glove(object):
         if not sp.isspmatrix_coo(matrix):
             raise Exception('Coocurrence matrix must be in the COO format')
 
-        self.word_vectors = (np.random.rand(shape[0],
-                                           self.no_components)
-                                           / np.sqrt(shape[0]
-                                                     * self.no_components))
+        self.word_vectors = ((np.random.rand(shape[0],
+                                             self.no_components) - 0.5)
+                                             / self.no_components)
         self.word_biases = np.zeros(shape[0], 
                                     dtype=np.float64)
 
