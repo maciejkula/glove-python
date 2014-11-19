@@ -100,6 +100,10 @@ class Glove(object):
                         self.alpha,
                         int(no_threads))
 
+            if not np.isfinite(self.word_vectors).all():
+                raise Exception('Non-finite values in word vectors. '
+                                'Try reducing the learning rate.')
+
     def transform_paragraph(self, paragraph, epochs=50, ignore_missing=False):
         """
         Transform an iterable of tokens into its vector representation
