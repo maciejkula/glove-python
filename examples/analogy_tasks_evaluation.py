@@ -13,8 +13,10 @@ if __name__ == '__main__':
                         required=True,
                         help='The filename of the analogy test set.')
     parser.add_argument('--model', '-m', action='store',
-                        required=True,
                         help='The filename of the stored GloVe model.')
+    parser.add_argument('--word2vec', '-v', action='store',
+                        default=False,
+                        help=('Evaluate the word2vec model'))
     parser.add_argument('--encode', '-e', action='store_true',
                         default=False,
                         help=('If True, words from the '
@@ -28,8 +30,18 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Load the GloVe model
-    glove = Glove.load(args.model)
+    if args.model:
+        glove = Glove.load(args.model)
 
+        model_dictionary = glove.dictionary
+        word_vectors = glove.word_vectors
+
+    if args.word2vec:
+        from gensim.models import Word2Vec
+        word2vec = Word2Vec.load(args.word2vec)
+
+        model_dictionary = {k: v.index for k, v in word2vec.vocab.items()}
+        word_vectors = word2vec.syn0.astype(np.float64)
 
     if args.encode:
         encode = lambda words: [x.lower().encode('utf-8') for x in words]
@@ -47,11 +59,11 @@ if __name__ == '__main__':
 
     for section, words in sections.items():
         evaluation_ids = metrics.construct_analogy_test_set(words,
-                                                            glove.dictionary,
+                                                            model_dictionary,
                                                             ignore_missing=True)
 
         # Get the rank array.
-        ranks = metrics.analogy_rank_score(evaluation_ids, glove.word_vectors,
+        ranks = metrics.analogy_rank_score(evaluation_ids, word_vectors,
                                            no_threads=int(args.parallelism))
         section_ranks.append(ranks)
 
