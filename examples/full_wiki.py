@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
         for rep in range(reps):
             print('Rep %s' % rep)
-            glove = Glove(no_components=200, learning_rate=0.01)
+            glove = Glove(no_components=100, learning_rate=0.05)
             glove.fit(corpus_model.matrix, epochs=int(args.train),
                       no_threads=args.parallelism, verbose=True)
             glove.add_dictionary(corpus_model.dictionary)
