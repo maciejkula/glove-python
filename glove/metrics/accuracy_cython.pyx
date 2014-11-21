@@ -21,6 +21,7 @@ def compute_rank_violations(double[:, ::1] wordvec,
                             double[::1] wordvec_norm,
                             double[:, ::1] input,
                             int[:] expected,
+                            int[:, ::1] inputs,
                             int[::1] rank_violations,
                             int no_threads):
     """
@@ -28,7 +29,7 @@ def compute_rank_violations(double[:, ::1] wordvec,
     of the expected words in the word analogy task.
     """
 
-    cdef int i, j, no_input_vectors, no_wordvec
+    cdef int i, j, k, no_input_vectors, no_wordvec, skip_word
     cdef int no_components, violations
 
     cdef double score_of_expected, score
@@ -43,9 +44,9 @@ def compute_rank_violations(double[:, ::1] wordvec,
 
             # Compute the score of the expected word.
             score_of_expected = (dot(input[i],
-                                    wordvec[expected[i]],
-                                    no_components)
-                                 / wordvec_norm[expected[i]])
+                                     wordvec[expected[i]],
+                                     no_components)
+                                     / wordvec_norm[expected[i]])
 
             # Compute all other scores and count
             # rank violations.
@@ -53,7 +54,15 @@ def compute_rank_violations(double[:, ::1] wordvec,
 
             for j in range(no_wordvec):
 
-                if expected[i] == j:
+                # Words from the input do not
+                # count as violations.
+                skip_word = 0
+                for k in range(4):
+                    if inputs[i, k] == j:
+                        skip_word = 1
+                        break
+
+                if skip_word == 1:
                     continue
 
                 score = (dot(input[i],

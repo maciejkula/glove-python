@@ -98,6 +98,7 @@ def analogy_rank_score(analogies, word_vectors, no_threads=1):
                             word_vector_norms,
                             input_vectors,
                             analogies[:, 3],
+                            analogies,
                             rank_violations,
                             no_threads)
 
