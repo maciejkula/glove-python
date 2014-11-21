@@ -56,7 +56,7 @@ if __name__ == '__main__':
 
     if args.dictionary:
         # Build dictionary
-        dct = gensim.corpora.dictionary.Dictionary(get_data(args.create))
+        dct = gensim.corpora.dictionary.Dictionary(read_wikipedia_corpus(args.create))
         dct.filter_extremes(no_below=5, no_above=0.5, keep_n=30000)
         dct.save('dct.model')
 
