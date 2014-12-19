@@ -29,6 +29,7 @@ def fit_vectors(double[:, ::1] wordvec,
                 double initial_learning_rate,
                 double max_count,
                 double alpha,
+                double[::1]  global_loss,
                 int no_threads):
     """
     Estimate GloVe word embeddings given the cooccurrence matrix.
@@ -75,6 +76,9 @@ def fit_vectors(double[:, ::1] wordvec,
             # Compute loss and the example weight.
             entry_weight = double_min(1.0, (count / max_count)) ** alpha
             loss = entry_weight * (prediction - c_log(count))
+            
+            # Compute a weighted global loss
+            global_loss[0] += 0.5 * entry_weight * (prediction - c_log(count)) **2
 
             # Update step: apply gradients and reproject
             # onto the unit sphere.
