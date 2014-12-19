@@ -89,9 +89,7 @@ class Glove(object):
             # Shuffle the coocurrence matrix
             np.random.shuffle(shuffle_indices)
             
-            self.global_loss = np.zeros(1,  dtype=np.float64)
-
-            fit_vectors(self.word_vectors,
+            self.global_loss = fit_vectors(self.word_vectors,
                         self.vectors_sum_gradients,
                         self.word_biases,
                         self.biases_sum_gradients,
@@ -102,10 +100,10 @@ class Glove(object):
                         self.learning_rate,
                         self.max_count,
                         self.alpha,
-                        self.global_loss,
                         int(no_threads))
                         
-            print('Global loss: %d' % self.global_loss)
+            if verbose:            
+                print('Global loss: %d' % self.global_loss)
 
             if not np.isfinite(self.word_vectors).all():
                 raise Exception('Non-finite values in word vectors. '
