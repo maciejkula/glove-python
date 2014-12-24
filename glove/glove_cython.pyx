@@ -84,22 +84,22 @@ def fit_vectors(double[:, ::1] wordvec,
                 gradient = loss * wordvec[word_b, i]
                 wordvec[word_a, i] = (wordvec[word_a, i] - learning_rate 
                                       * gradient)
-                wordvec_sum_gradients[word_a, i] += gradient ** 2
+                wordvec_sum_gradients[word_a, i] += (initial_learning_rate * gradient) ** 2
 
                 learning_rate = initial_learning_rate / sqrt(wordvec_sum_gradients[word_b, i])
                 gradient = loss * wordvec[word_a, i]
                 wordvec[word_b, i] = (wordvec[word_b, i] - learning_rate
                                       * gradient)
-                wordvec_sum_gradients[word_b, i] += gradient ** 2
+                wordvec_sum_gradients[word_b, i] += (initial_learning_rate * gradient) ** 2
 
             # Update word biases.
             learning_rate = initial_learning_rate / sqrt(wordbias_sum_gradients[word_a])
             wordbias[word_a] -= learning_rate * loss
-            wordbias_sum_gradients[word_a] += loss ** 2
+            wordbias_sum_gradients[word_a] += (initial_learning_rate * loss) ** 2
 
             learning_rate = initial_learning_rate / sqrt(wordbias_sum_gradients[word_b])
             wordbias[word_b] -= learning_rate * loss
-            wordbias_sum_gradients[word_b] += loss ** 2
+            wordbias_sum_gradients[word_b] += (initial_learning_rate * loss) ** 2
 
 
 def transform_paragraph(double[:, ::1] wordvec,
