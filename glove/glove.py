@@ -22,7 +22,7 @@ class Glove(object):
     """
 
     def __init__(self, no_components=30, learning_rate=0.05,
-                 alpha=0.75, max_count=100):
+                 alpha=0.75, max_count=100, max_loss=1e12):
         """
         Parameters:
         - int no_components: number of latent dimensions
@@ -35,6 +35,7 @@ class Glove(object):
         self.learning_rate = float(learning_rate)
         self.alpha = float(alpha)
         self.max_count = float(max_count)
+        self.max_loss = max_loss
 
         self.word_vectors = None
         self.word_biases = None
@@ -99,6 +100,7 @@ class Glove(object):
                         self.learning_rate,
                         self.max_count,
                         self.alpha,
+                        self.max_loss,
                         int(no_threads))
 
             if not np.isfinite(self.word_vectors).all():
