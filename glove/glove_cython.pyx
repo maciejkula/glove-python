@@ -23,7 +23,7 @@ def fit_vectors(double[:, ::1] wordvec,
                 double[::1] wordbias_sum_gradients,
                 int[::1] row,
                 int[::1] col,
-                double[::1] counts,
+                float[::1] counts,
                 int[::1] shuffle_indices,
                 double initial_learning_rate,
                 double max_count,
@@ -46,7 +46,8 @@ def fit_vectors(double[:, ::1] wordvec,
     # Hold indices of current words and
     # the cooccurrence count.
     cdef int word_a, word_b
-    cdef double count, learning_rate, gradient
+    cdef float count
+    cdef double learning_rate, gradient
 
     # Loss and gradient variables.
     cdef double prediction, entry_weight, loss
@@ -113,7 +114,7 @@ def transform_paragraph(double[:, ::1] wordvec,
                         double[::1] paragraphvec,
                         double[::1] sum_gradients,
                         int[::1] row,
-                        double[::1] counts,
+                        float[::1] counts,
                         int[::1] shuffle_indices,
                         double initial_learning_rate,
                         double max_count,
@@ -138,7 +139,7 @@ def transform_paragraph(double[:, ::1] wordvec,
     # Hold indices of current words and
     # the cooccurrence count.
     cdef int word_b, word_a
-    cdef double count
+    cdef float count
 
     # Loss and gradient variables.
     cdef double prediction

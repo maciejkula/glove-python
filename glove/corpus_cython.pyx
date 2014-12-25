@@ -3,7 +3,6 @@
 #distutils: language = c++
 
 import numpy as np
-import scipy.sparse as sp
 
 
 from cython.operator cimport dereference as deref, preincrement as inc
@@ -26,9 +25,9 @@ cdef class COOMatrix:
     """
     """
 
-    cdef rows_arr
-    cdef cols_arr
-    cdef data_arr
+    cdef public rows_arr
+    cdef public cols_arr
+    cdef public data_arr
 
     cdef int memmap
     cdef row_fname
@@ -41,6 +40,10 @@ cdef class COOMatrix:
 
     def __cinit__(self, row_fname, col_fname, data_fname):
 
+        self.rows_arr = None
+        self.cols_arr = None
+        self.data_arr = None
+
         self.row_fname = row_fname
         self.col_fname = col_fname
         self.data_fname = data_fname
@@ -49,12 +52,7 @@ cdef class COOMatrix:
             self.memmap = 1
 
         if self.memmap == 1:
-            self.rows_arr = np.memmap(self.row_fname, dtype=np.int32,
-                                      mode='w+', offset=np.int32().itemsize, shape=0)
-            self.cols_arr = np.memmap(self.col_fname, dtype=np.int32,
-                                      mode='w+', offset=np.int32().itemsize, shape=0)
-            self.data_arr = np.memmap(self.data_fname, dtype=np.float32,
-                                      mode='w+', offset=np.float32().itemsize, shape=0)
+            self.create_memmap_arrays(0, 'w+')
         else:
             self.rows_arr = np.array([], dtype=np.int32)
             self.cols_arr = np.array([], dtype=np.int32)
@@ -64,21 +62,31 @@ cdef class COOMatrix:
         self.cols = self.cols_arr
         self.data = self.data_arr
 
+    cdef void create_memmap_arrays(self, int size, str mode):
+        """
+        """
+
+        self.rows_arr = np.memmap(self.row_fname, dtype=np.int32,
+                                  mode=mode, offset=np.int32().itemsize, shape=size)
+        self.cols_arr = np.memmap(self.col_fname, dtype=np.int32,
+                                  mode=mode, offset=np.int32().itemsize, shape=size)
+        self.data_arr = np.memmap(self.data_fname, dtype=np.float32,
+                                  mode=mode, offset=np.float32().itemsize, shape=size)
+
     cdef int size(self):
+        """
+        """
 
         return self.rows.shape[0]
 
     cdef void resize(self, int size):
+        """
+        """
 
         mode = 'r+'
 
         if self.memmap == 1:
-            self.rows_arr = np.memmap(self.row_fname, dtype=np.int32,
-                                      mode=mode, offset=np.int32().itemsize, shape=size)
-            self.cols_arr = np.memmap(self.col_fname, dtype=np.int32,
-                                      mode=mode, offset=np.int32().itemsize, shape=size)
-            self.data_arr = np.memmap(self.data_fname, dtype=np.float32,
-                                      mode=mode, offset=np.float32().itemsize, shape=size)
+            self.create_memmap_arrays(size, 'r+')
         else:
             self.rows_arr.resize(size, refcheck=False)
             self.cols_arr.resize(size, refcheck=False)
@@ -117,13 +125,13 @@ cdef class Matrix:
     cdef COOMatrix matrix
     cdef vector[unordered_map[int, float]] rows
 
-    def __cinit__(self, int max_map_size, row_fname, col_fname, data_fname):
+    def __cinit__(self, COOMatrix matrix, int max_map_size):
 
         self.max_map_size = max_map_size
         self.map_size = 0
         self.rows = vector[unordered_map[int, float]]()
 
-        self.matrix = COOMatrix(row_fname, col_fname, data_fname)
+        self.matrix = matrix
 
     cdef void compactify(self):
         """
@@ -136,7 +144,7 @@ cdef class Matrix:
         cdef unordered_map[int, float].iterator row_iterator
         cdef COOMatrix coo = self.matrix
 
-        # print 'trying to compactify'
+        # print 'trying to compactify at size %s' % self.map_size
 
         # Increment entries already in array storage.
         for i in range(coo.size()):
@@ -225,25 +233,25 @@ cdef class Matrix:
 
         return size
 
-    cpdef to_coo(self, int shape):
-        """
-        Convert to a shape by shape COO matrix.
-        """
+    ## cpdef to_coo(self, int shape):
+    ##     """
+    ##     Convert to a shape by shape COO matrix.
+    ##     """
 
-        self.compactify()
+    ##     self.compactify()
 
-        # Create and return the matrix.
-        ## mat = sp.coo_matrix((shape, shape), np.float64)
-        ## mat.data = self.matrix.data
-        ## mat.row = self.matrix.rows
-        ## mat.col = self.matrix.cols
+    ##     # Create and return the matrix.
+    ##     ## mat = sp.coo_matrix((shape, shape), np.float64)
+    ##     ## mat.data = self.matrix.data
+    ##     ## mat.row = self.matrix.rows
+    ##     ## mat.col = self.matrix.cols
 
-        ## return mat
-        return sp.coo_matrix((self.matrix.data,
-                             (self.matrix.rows, self.matrix.cols)),
-                             shape=(shape,
-                                    shape),
-                             dtype=np.float64)
+    ##     ## return mat
+    ##     return sp.coo_matrix((self.matrix.data,
+    ##                          (self.matrix.rows, self.matrix.cols)),
+    ##                          shape=(shape,
+    ##                                 shape),
+    ##                          dtype=np.float64)
 
     def __dealloc__(self):
 
@@ -291,10 +299,9 @@ cdef inline int words_to_ids(list words, vector[int]& word_ids,
     return 0
 
             
-def construct_cooccurrence_matrix(corpus, dictionary, int supplied,
-                                  int window_size, int ignore_missing,
-                                  int max_map_size, row_fname, col_fname,
-                                  data_fname):
+def construct_cooccurrence_matrix(corpus, dictionary, COOMatrix coo_matrix,
+                                  int supplied, int window_size,
+                                  int ignore_missing, int max_map_size):
     """
     Construct the word-id dictionary and cooccurrence matrix for
     a given corpus, using a given window size.
@@ -304,7 +311,7 @@ def construct_cooccurrence_matrix(corpus, dictionary, int supplied,
 
     # print 'trying to create the matrix'
     # Declare the cooccurrence map
-    cdef Matrix matrix = Matrix(max_map_size, row_fname, col_fname, data_fname)
+    cdef Matrix matrix = Matrix(coo_matrix, max_map_size)
 
     # print 'created matrix'
 
@@ -355,8 +362,5 @@ def construct_cooccurrence_matrix(corpus, dictionary, int supplied,
                     matrix.increment(outer_word,
                                      inner_word,
                                      1.0 / (j - i))
-    
-    # Create the matrix.
-    mat = matrix.to_coo(len(dictionary))
 
-    return mat
+    matrix.compactify()

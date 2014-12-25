@@ -140,7 +140,7 @@ class Glove(object):
                     raise
 
         word_ids = np.array(cooccurrence.keys(), dtype=np.int32)
-        values = np.array(cooccurrence.values(), dtype=np.float64)
+        values = np.array(cooccurrence.values(), dtype=np.float32)
         shuffle_indices = np.arange(len(word_ids), dtype=np.int32)
 
         # Initialize the vector to mean of constituent word vectors

@@ -8,6 +8,7 @@ from glove import Corpus
 
 
 MEMMAP_PREFIX = 'test_memmap'
+SAVE_FNAME = 'test_save_corpus'
 
 
 def test_corpus_construction():
@@ -15,11 +16,9 @@ def test_corpus_construction():
     corpus_words = ['a', 'naïve', 'fox']
     corpus = [corpus_words]
 
-    model = Corpus()
-
     for memmap_prefix in (None, MEMMAP_PREFIX):
-        model.fit(corpus, max_map_size=0, window=10,
-                  memmap_prefix=MEMMAP_PREFIX)
+        model = Corpus(memmap_prefix=MEMMAP_PREFIX)
+        model.fit(corpus, max_map_size=0, window=10)
 
         for word in corpus_words:
             assert word in model.dictionary
@@ -35,6 +34,26 @@ def test_corpus_construction():
                 == expected)
 
 
+def test_save_load():
+
+    corpus_words = ['a', 'naïve', 'fox']
+    corpus = [corpus_words]
+
+    expected = [[0.0, 1.0, 0.5],
+                [0.0, 0.0, 1.0],
+                [0.0, 0.0, 0.0]]
+
+    for memmap_prefix in (None, MEMMAP_PREFIX):
+        model = Corpus(memmap_prefix=MEMMAP_PREFIX)
+        model.fit(corpus, max_map_size=0, window=10)
+
+        model.save(SAVE_FNAME)
+        model = Corpus.load(SAVE_FNAME)
+
+        assert (model.matrix.todense().tolist()
+                == expected)
+
+
 def test_supplied_dictionary():
 
     dictionary = {'a': 2,
@@ -43,11 +62,10 @@ def test_supplied_dictionary():
 
     corpus = [['a', 'naïve', 'fox']]
 
-    model = Corpus(dictionary=dictionary)
-
     for memmap_prefix in (None, MEMMAP_PREFIX):
-        model.fit(corpus, max_map_size=0, window=10,
-                  memmap_prefix=MEMMAP_PREFIX)
+        model = Corpus(dictionary=dictionary,
+                       memmap_prefix=MEMMAP_PREFIX)
+        model.fit(corpus, max_map_size=0, window=10)
 
         assert model.dictionary == dictionary
 
@@ -88,11 +106,11 @@ def test_supplied_dict_missing_ignored():
 
     corpus = [['a', 'naïve', 'fox']]
 
-    model = Corpus(dictionary=dictionary)
-
     for memmap_prefix in (None, MEMMAP_PREFIX):
+        model = Corpus(dictionary=dictionary,
+                       memmap_prefix=MEMMAP_PREFIX)
         model.fit(corpus, max_map_size=0, window=10,
-                  memmap_prefix=MEMMAP_PREFIX, ignore_missing=True)
+                  ignore_missing=True)
 
         assert model.dictionary == dictionary
 
