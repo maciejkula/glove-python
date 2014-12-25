@@ -40,7 +40,7 @@ class Corpus(object):
         if np.min(list(dictionary.values())) != 0:
             raise Exception('Dictionary ids should start at zero')
 
-    def fit(self, corpus, window=10, max_map_size=1000, ignore_missing=False):
+    def fit(self, corpus, window=10, max_map_size=100000, memmap_prefix=None, ignore_missing=False):
         """
         Perform a pass through the corpus to construct
         the cooccurrence matrix. 
@@ -61,13 +61,25 @@ class Corpus(object):
                                ignored.
                                If False, a KeyError is raised.
         """
+
+        if memmap_prefix is not None:
+            row_fname = memmap_prefix + '_rows.mmap'
+            col_fname = memmap_prefix + '_cols.mmap'
+            data_fname = memmap_prefix + '_data.mmap'
+        else:
+            row_fname = None
+            col_fname = None
+            data_fname = None
         
         self.matrix = construct_cooccurrence_matrix(corpus,
                                                     self.dictionary,
                                                     int(self.dictionary_supplied),
                                                     int(window),
                                                     int(ignore_missing),
-                                                    max_map_size)
+                                                    max_map_size,
+                                                    row_fname,
+                                                    col_fname,
+                                                    data_fname)
 
     def save(self, filename):
         

@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 from nose.tools import raises
 import numpy as np
+import os
 
 
 from glove import Corpus
+
+
+MEMMAP_PREFIX = 'test_memmap'
 
 
 def test_corpus_construction():
@@ -12,20 +16,23 @@ def test_corpus_construction():
     corpus = [corpus_words]
 
     model = Corpus()
-    model.fit(corpus, max_map_size=0, window=10)
 
-    for word in corpus_words:
-        assert word in model.dictionary
+    for memmap_prefix in (None, MEMMAP_PREFIX):
+        model.fit(corpus, max_map_size=0, window=10,
+                  memmap_prefix=MEMMAP_PREFIX)
 
-    assert model.matrix.shape == (len(corpus_words),
-                                  len(corpus_words))
+        for word in corpus_words:
+            assert word in model.dictionary
 
-    expected = [[0.0, 1.0, 0.5],
-                [0.0, 0.0, 1.0],
-                [0.0, 0.0, 0.0]]
+        assert model.matrix.shape == (len(corpus_words),
+                                      len(corpus_words))
 
-    assert (model.matrix.todense().tolist()
-            == expected)
+        expected = [[0.0, 1.0, 0.5],
+                    [0.0, 0.0, 1.0],
+                    [0.0, 0.0, 0.0]]
+
+        assert (model.matrix.todense().tolist()
+                == expected)
 
 
 def test_supplied_dictionary():
@@ -37,14 +44,17 @@ def test_supplied_dictionary():
     corpus = [['a', 'naïve', 'fox']]
 
     model = Corpus(dictionary=dictionary)
-    model.fit(corpus, max_map_size=0, window=10)
 
-    assert model.dictionary == dictionary
+    for memmap_prefix in (None, MEMMAP_PREFIX):
+        model.fit(corpus, max_map_size=0, window=10,
+                  memmap_prefix=MEMMAP_PREFIX)
 
-    assert model.matrix.shape == (len(dictionary),
-                                  len(dictionary))
+        assert model.dictionary == dictionary
 
-    assert (model.matrix.tocsr()[2]).sum() == 0
+        assert model.matrix.shape == (len(dictionary),
+                                      len(dictionary))
+
+        assert (model.matrix.tocsr()[2]).sum() == 0
 
 
 @raises(Exception)
@@ -79,18 +89,21 @@ def test_supplied_dict_missing_ignored():
     corpus = [['a', 'naïve', 'fox']]
 
     model = Corpus(dictionary=dictionary)
-    model.fit(corpus, max_map_size=0, window=10, ignore_missing=True)
 
-    assert model.dictionary == dictionary
+    for memmap_prefix in (None, MEMMAP_PREFIX):
+        model.fit(corpus, max_map_size=0, window=10,
+                  memmap_prefix=MEMMAP_PREFIX, ignore_missing=True)
 
-    assert model.matrix.shape == (len(dictionary),
-                                  len(dictionary))
+        assert model.dictionary == dictionary
 
-    # Ensure that context windows and context window
-    # weights are preserved. 
-    full_model = Corpus()
-    full_model.fit(corpus, window=10)
+        assert model.matrix.shape == (len(dictionary),
+                                      len(dictionary))
 
-    assert (full_model.matrix.todense()[0, 2]
-            == model.matrix.todense()[0, 1]
-            == 0.5)
+        # Ensure that context windows and context window
+        # weights are preserved. 
+        full_model = Corpus()
+        full_model.fit(corpus, window=10)
+
+        assert (full_model.matrix.todense()[0, 2]
+                == model.matrix.todense()[0, 1]
+                == 0.5)
