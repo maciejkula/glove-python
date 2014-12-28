@@ -15,7 +15,6 @@ cdef inline int int_max(int a, int b) nogil: return a if a > b else b
 cdef extern from "math.h" nogil:
     double sqrt(double)
     double c_log "log"(double)
-    double c_abs "fabs"(double)
 
 
 def fit_vectors(double[:, ::1] wordvec,
@@ -29,6 +28,7 @@ def fit_vectors(double[:, ::1] wordvec,
                 double initial_learning_rate,
                 double max_count,
                 double alpha,
+                double max_loss,
                 int no_threads):
     """
     Estimate GloVe word embeddings given the cooccurrence matrix.
@@ -75,6 +75,12 @@ def fit_vectors(double[:, ::1] wordvec,
             # Compute loss and the example weight.
             entry_weight = double_min(1.0, (count / max_count)) ** alpha
             loss = entry_weight * (prediction - c_log(count))
+
+            # Clip the loss for numerical stability.
+            if loss < -max_loss:
+                loss = -max_loss
+            elif loss > max_loss:
+                loss = max_loss
 
             # Update step: apply gradients and reproject
             # onto the unit sphere.
