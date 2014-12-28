@@ -22,13 +22,18 @@ class Glove(object):
     """
 
     def __init__(self, no_components=30, learning_rate=0.05,
-                 alpha=0.75, max_count=100, max_loss=1e12):
+                 alpha=0.75, max_count=100, max_loss=10.0):
         """
         Parameters:
         - int no_components: number of latent dimensions
         - float learning_rate: learning rate for SGD estimation.
         - float alpha, float max_count: parameters for the 
           weighting function (see the paper).
+        - float max_loss: the maximum absolute value of calculated
+                          gradient for any single co-occurrence pair.
+                          Only try setting to a lower value if you
+                          are experiencing problems with numerical
+                          stability.
         """
         
         self.no_components = no_components
@@ -105,7 +110,8 @@ class Glove(object):
 
             if not np.isfinite(self.word_vectors).all():
                 raise Exception('Non-finite values in word vectors. '
-                                'Try reducing the learning rate.')
+                                'Try reducing the learning rate or the '
+                                'max_loss parameter.')
 
     def transform_paragraph(self, paragraph, epochs=50, ignore_missing=False):
         """
