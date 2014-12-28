@@ -81,7 +81,8 @@ class Glove(object):
         - scipy.sparse.coo_matrix matrix: coocurrence matrix
         - int epochs: number of training epochs
         - int no_threads: number of training threads
-        - bool shuffle: whether to shuffle the co-occurrence matrix
+        - bool shuffle: whether to shuffle the co-occurrence matrix. Note that
+                        the matrix will be shuffled in-place.
         - bool verbose: print progress messages if True
         """
 
