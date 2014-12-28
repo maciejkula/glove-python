@@ -10,6 +10,16 @@ from glove import Corpus
 MEMMAP_PREFIX = 'test_memmap'
 SAVE_FNAME = 'test_save_corpus'
 
+def _check_memmap(matrix):
+
+    assert not matrix.row.flags['OWNDATA']
+    assert not matrix.col.flags['OWNDATA']
+    assert not matrix.data.flags['OWNDATA']
+    
+    assert isinstance(matrix.row.base, np.memmap)
+    assert isinstance(matrix.col.base, np.memmap)
+    assert isinstance(matrix.data.base, np.memmap)
+
 
 def test_corpus_construction():
 
@@ -33,6 +43,8 @@ def test_corpus_construction():
         assert (model.matrix.todense().tolist()
                 == expected)
 
+        if memmap_prefix:
+            _check_memmap(model.matrix)
 
 def test_save_load():
 
@@ -52,6 +64,9 @@ def test_save_load():
 
         assert (model.matrix.todense().tolist()
                 == expected)
+
+        if memmap_prefix:
+            _check_memmap(model.matrix)
 
 
 def test_supplied_dictionary():

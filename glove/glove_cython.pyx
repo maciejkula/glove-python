@@ -24,7 +24,6 @@ def fit_vectors(double[:, ::1] wordvec,
                 int[::1] row,
                 int[::1] col,
                 float[::1] counts,
-                int[::1] shuffle_indices,
                 double initial_learning_rate,
                 double max_count,
                 double alpha,
@@ -53,17 +52,17 @@ def fit_vectors(double[:, ::1] wordvec,
     cdef double prediction, entry_weight, loss
 
     # Iteration variables
-    cdef int i, j, shuffle_index
+    cdef int i, j
 
     # We iterate over random indices to simulate
     # shuffling the cooccurrence matrix.
     with nogil:
         for j in prange(no_cooccurrences, num_threads=no_threads,
                         schedule='dynamic'):
-            shuffle_index = shuffle_indices[j]
-            word_a = row[shuffle_index]
-            word_b = col[shuffle_index]
-            count = counts[shuffle_index]
+
+            word_a = row[j]
+            word_b = col[j]
+            count = counts[j]
 
             # Get prediction
             prediction = 0.0

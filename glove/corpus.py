@@ -17,9 +17,13 @@ class Corpus(object):
     Class for constructing a cooccurrence matrix
     from a corpus.
 
-    A dictionary mapping words to ids can optionally
-    be supplied. If left None, it will be constructed
-    from the corpus.
+    Arguments:
+    - dict dictionary: dictionary mapping words to ids can optionally
+                       be supplied. If left None, it will be constructed
+                       from the corpus.
+    - string memmap_prefix: if supplied, the co-occurrence matrix will
+                            be stored on disk in memmapped numpy arrays
+                            whose filenames will start with this prefix.
     """
     
     def __init__(self, dictionary=None, memmap_prefix=None):
@@ -87,11 +91,12 @@ class Corpus(object):
                                       int(ignore_missing),
                                       max_map_size)
 
+        # Don't specify the dtype, as that would cause a copy
+        # of the data array to be created.
         self.matrix = sp.coo_matrix((coo_matrix.data_arr,
                                      (coo_matrix.rows_arr, coo_matrix.cols_arr)),
                                     shape=(len(self.dictionary),
-                                           len(self.dictionary)),
-                                    dtype=np.float32)
+                                           len(self.dictionary)))
 
     def save(self, filename):
         
@@ -126,10 +131,11 @@ class Corpus(object):
             data = np.memmap(instance.data_fname, dtype=np.float32,
                                   mode=mode, offset=np.float32().itemsize)
 
+            # Don't specify the dtype, as that would cause a copy
+            # of the data array to be created.
             instance.matrix = sp.coo_matrix((data,
                                              (rows, cols)),
                                             shape=(len(instance.dictionary),
-                                                   len(instance.dictionary)),
-                                            dtype=np.float32)
+                                                   len(instance.dictionary)))
 
         return instance
