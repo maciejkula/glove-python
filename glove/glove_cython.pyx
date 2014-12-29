@@ -3,13 +3,10 @@
 
 import numpy as np
 import scipy.sparse as sp
-import collections
 from cython.parallel import parallel, prange
 
 
 cdef inline double double_min(double a, double b) nogil: return a if a <= b else b
-cdef inline int int_min(int a, int b) nogil: return a if a <= b else b
-cdef inline int int_max(int a, int b) nogil: return a if a > b else b
 
 
 cdef extern from "math.h" nogil:

@@ -40,6 +40,7 @@ def test_corpus_construction():
                     [0.0, 0.0, 1.0],
                     [0.0, 0.0, 0.0]]
 
+        assert model.matrix.data.min() > 0
         assert (model.matrix.todense().tolist()
                 == expected)
 
@@ -62,6 +63,7 @@ def test_save_load():
         model.save(SAVE_FNAME)
         model = Corpus.load(SAVE_FNAME)
 
+        assert model.matrix.data.min() > 0
         assert (model.matrix.todense().tolist()
                 == expected)
 

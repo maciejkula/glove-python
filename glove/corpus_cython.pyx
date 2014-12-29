@@ -39,10 +39,12 @@ cdef class COOMatrix:
     cdef float[::1] data
 
     def __cinit__(self, row_fname, col_fname, data_fname):
+        """
+        Initialize the matrix and allocate space for storage.
 
-        self.rows_arr = None
-        self.cols_arr = None
-        self.data_arr = None
+        If filenames are supplied, memmapped numpy arrays are
+        used.
+        """
 
         self.row_fname = row_fname
         self.col_fname = col_fname
@@ -64,8 +66,13 @@ cdef class COOMatrix:
 
     cdef void create_memmap_arrays(self, int size, str mode):
         """
+        Create the memmapped arrays that hold the entries' data.
         """
 
+        # We use a 1 * size(type) offset to allow creation of empty
+        # arrays that are nevertheless valid, positively-sized
+        # files. Note that this offset must also be used when
+        # re-mapping the resulting files.
         self.rows_arr = np.memmap(self.row_fname, dtype=np.int32,
                                   mode=mode, offset=np.int32().itemsize, shape=size)
         self.cols_arr = np.memmap(self.col_fname, dtype=np.int32,
@@ -75,17 +82,21 @@ cdef class COOMatrix:
 
     cdef int size(self):
         """
+        Return the number of nonzero elements.
         """
 
         return self.rows.shape[0]
 
     cdef void resize(self, int size):
         """
+        Resize the matrix to store size nonzero elements.
         """
 
         mode = 'r+'
 
         if self.memmap == 1:
+            # Memmapped arrays are resized by opening
+            # them for modifications with a higher size.
             self.create_memmap_arrays(size, 'r+')
         else:
             self.rows_arr.resize(size, refcheck=False)
@@ -98,6 +109,8 @@ cdef class COOMatrix:
 
     cdef void set_entry(self, int pos, int row, int col, float datum):
         """
+        Set position pos in the storage arrays to hold an
+        entry with value datum at (row, col).
         """
 
         self.rows[pos] = row
@@ -106,6 +119,7 @@ cdef class COOMatrix:
 
     cdef void flush(self):
         """
+        Write out the memmapped memory.
         """
 
         if self.memmap == 1:
@@ -114,10 +128,14 @@ cdef class COOMatrix:
             self.data_arr.flush()
 
 
-cdef class Matrix:
+cdef class CoocurrenceMatrix:
     """
     A sparse co-occurrence matrix storing
-    its data as a vector of maps.
+    its data in two structures:
+    - a vector of maps for fast addition new data, and
+    - a COO matrix.
+    Data are periodically moved from maps to the COO matrix
+    as the latter is much more memory efficient.
     """
 
     cdef int max_map_size
@@ -144,8 +162,6 @@ cdef class Matrix:
         cdef unordered_map[int, float].iterator row_iterator
         cdef COOMatrix coo = self.matrix
 
-        # print 'trying to compactify at size %s' % self.map_size
-
         # Increment entries already in array storage.
         for i in range(coo.size()):
 
@@ -162,14 +178,13 @@ cdef class Matrix:
                 self.rows[row].erase(col)
                 self.map_size -= 1
 
-        # print 'incremented existing entries'
-
         # All remaining entries in the map are not
         # already in the arrays: we need to resize
         # them to accommodate new entries.
         new_entry_offset = coo.size()
         coo.resize(new_entry_offset + self.map_size)
 
+        # Insert new entries into COO storage.
         for row in range(self.rows.size()):
             row_iterator = self.rows[row].begin()
             while row_iterator != self.rows[row].end():
@@ -195,8 +210,6 @@ cdef class Matrix:
         row_map = unordered_map[int, float]()
         self.rows.push_back(row_map)
 
-        # print 'added row'
-
     cdef void increment(self, int row, int col, float value):
         """
         Increment the value at (row, col) by value.
@@ -217,41 +230,6 @@ cdef class Matrix:
 
         if self.map_size > self.max_map_size:
             self.compactify()
-
-        # print 'Incremented'
-
-    cdef int size(self):
-        """
-        Get number of nonzero entries.
-        """
-
-        cdef int i
-        cdef int size = 0
-
-        for i in range(self.rows.size()):
-            size += self.rows[i].size()
-
-        return size
-
-    ## cpdef to_coo(self, int shape):
-    ##     """
-    ##     Convert to a shape by shape COO matrix.
-    ##     """
-
-    ##     self.compactify()
-
-    ##     # Create and return the matrix.
-    ##     ## mat = sp.coo_matrix((shape, shape), np.float64)
-    ##     ## mat.data = self.matrix.data
-    ##     ## mat.row = self.matrix.rows
-    ##     ## mat.col = self.matrix.cols
-
-    ##     ## return mat
-    ##     return sp.coo_matrix((self.matrix.data,
-    ##                          (self.matrix.rows, self.matrix.cols)),
-    ##                          shape=(shape,
-    ##                                 shape),
-    ##                          dtype=np.float64)
 
     def __dealloc__(self):
 
@@ -309,11 +287,8 @@ def construct_cooccurrence_matrix(corpus, dictionary, COOMatrix coo_matrix,
     Returns the dictionary and a scipy.sparse COO cooccurrence matrix.
     """
 
-    # print 'trying to create the matrix'
     # Declare the cooccurrence map
-    cdef Matrix matrix = Matrix(coo_matrix, max_map_size)
-
-    # print 'created matrix'
+    cdef CoocurrenceMatrix matrix = CoocurrenceMatrix(coo_matrix, max_map_size)
 
     # String processing variables.
     cdef list words
