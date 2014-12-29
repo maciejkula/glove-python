@@ -23,6 +23,7 @@ cdef extern from "math.h":
 
 cdef class COOMatrix:
     """
+    A rudimentary COO matrix.
     """
 
     cdef public rows_arr
