@@ -3,13 +3,10 @@
 
 import numpy as np
 import scipy.sparse as sp
-import collections
 from cython.parallel import parallel, prange
 
 
 cdef inline double double_min(double a, double b) nogil: return a if a <= b else b
-cdef inline int int_min(int a, int b) nogil: return a if a <= b else b
-cdef inline int int_max(int a, int b) nogil: return a if a > b else b
 
 
 cdef extern from "math.h" nogil:
@@ -23,8 +20,7 @@ def fit_vectors(double[:, ::1] wordvec,
                 double[::1] wordbias_sum_gradients,
                 int[::1] row,
                 int[::1] col,
-                double[::1] counts,
-                int[::1] shuffle_indices,
+                float[::1] counts,
                 double initial_learning_rate,
                 double max_count,
                 double alpha,
@@ -46,23 +42,24 @@ def fit_vectors(double[:, ::1] wordvec,
     # Hold indices of current words and
     # the cooccurrence count.
     cdef int word_a, word_b
-    cdef double count, learning_rate, gradient
+    cdef float count
+    cdef double learning_rate, gradient
 
     # Loss and gradient variables.
     cdef double prediction, entry_weight, loss
 
     # Iteration variables
-    cdef int i, j, shuffle_index
+    cdef int i, j
 
     # We iterate over random indices to simulate
     # shuffling the cooccurrence matrix.
     with nogil:
         for j in prange(no_cooccurrences, num_threads=no_threads,
                         schedule='dynamic'):
-            shuffle_index = shuffle_indices[j]
-            word_a = row[shuffle_index]
-            word_b = col[shuffle_index]
-            count = counts[shuffle_index]
+
+            word_a = row[j]
+            word_b = col[j]
+            count = counts[j]
 
             # Get prediction
             prediction = 0.0
@@ -113,7 +110,7 @@ def transform_paragraph(double[:, ::1] wordvec,
                         double[::1] paragraphvec,
                         double[::1] sum_gradients,
                         int[::1] row,
-                        double[::1] counts,
+                        float[::1] counts,
                         int[::1] shuffle_indices,
                         double initial_learning_rate,
                         double max_count,
@@ -138,7 +135,7 @@ def transform_paragraph(double[:, ::1] wordvec,
     # Hold indices of current words and
     # the cooccurrence count.
     cdef int word_b, word_a
-    cdef double count
+    cdef float count
 
     # Loss and gradient variables.
     cdef double prediction

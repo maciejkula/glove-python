@@ -22,7 +22,8 @@ class Glove(object):
     """
 
     def __init__(self, no_components=30, learning_rate=0.05,
-                 alpha=0.75, max_count=100, max_loss=10.0):
+                 alpha=0.75, max_count=100, max_loss=10.0,
+                 random_seed=None):
         """
         Parameters:
         - int no_components: number of latent dimensions
@@ -34,6 +35,8 @@ class Glove(object):
                           Only try setting to a lower value if you
                           are experiencing problems with numerical
                           stability.
+        - int random_seed: the seed used for shuffling the co-occurrence matrix
+                           (if used) and initializing the word vectors.
         """
         
         self.no_components = no_components
@@ -41,6 +44,8 @@ class Glove(object):
         self.alpha = float(alpha)
         self.max_count = float(max_count)
         self.max_loss = max_loss
+
+        self.random_state = np.random.RandomState(random_seed)
 
         self.word_vectors = None
         self.word_biases = None
@@ -51,7 +56,24 @@ class Glove(object):
         self.dictionary = None
         self.inverse_dictionary = None
 
-    def fit(self, matrix, epochs=5, no_threads=2, verbose=False):
+    def _shuffle_coo_matrix(self, *arrays):
+        """
+        Consistently shuffle the constituent arrays of
+        a COO matrix in-place.
+        """
+
+        rng_state = self.random_state.get_state()
+
+        for arr in arrays:
+            self.random_state.set_state(rng_state)
+            self.random_state.shuffle(arr)
+
+            # If we are shuffling a memmapped array, flush the
+            # changes to disk.
+            if arr.base is not None and hasattr(arr.base, 'flush'):
+                arr.base.flush()
+
+    def fit(self, matrix, epochs=5, no_threads=2, shuffle=True, verbose=False):
         """
         Estimate the word embeddings.
 
@@ -59,6 +81,8 @@ class Glove(object):
         - scipy.sparse.coo_matrix matrix: coocurrence matrix
         - int epochs: number of training epochs
         - int no_threads: number of training threads
+        - bool shuffle: whether to shuffle the co-occurrence matrix. Note that
+                        the matrix will be shuffled in-place.
         - bool verbose: print progress messages if True
         """
 
@@ -71,16 +95,14 @@ class Glove(object):
         if not sp.isspmatrix_coo(matrix):
             raise Exception('Coocurrence matrix must be in the COO format')
 
-        self.word_vectors = ((np.random.rand(shape[0],
-                                             self.no_components) - 0.5)
-                                             / self.no_components)
+        self.word_vectors = ((self.random_state.rand(shape[0],
+                                                     self.no_components) - 0.5)
+                             / self.no_components)
         self.word_biases = np.zeros(shape[0], 
                                     dtype=np.float64)
 
         self.vectors_sum_gradients = np.ones_like(self.word_vectors)
         self.biases_sum_gradients = np.ones_like(self.word_biases)
-
-        shuffle_indices = np.arange(matrix.nnz, dtype=np.int32)
 
         if verbose:
             print('Performing %s training epochs '
@@ -91,8 +113,10 @@ class Glove(object):
             if verbose:
                 print('Epoch %s' % epoch)
 
-            # Shuffle the coocurrence matrix
-            np.random.shuffle(shuffle_indices)
+            if shuffle:
+                self._shuffle_coo_matrix(matrix.data,
+                                         matrix.row,
+                                         matrix.col)
 
             fit_vectors(self.word_vectors,
                         self.vectors_sum_gradients,
@@ -101,7 +125,6 @@ class Glove(object):
                         matrix.row,
                         matrix.col,
                         matrix.data,
-                        shuffle_indices,
                         self.learning_rate,
                         self.max_count,
                         self.alpha,
@@ -140,7 +163,7 @@ class Glove(object):
                     raise
 
         word_ids = np.array(cooccurrence.keys(), dtype=np.int32)
-        values = np.array(cooccurrence.values(), dtype=np.float64)
+        values = np.array(cooccurrence.values(), dtype=np.float32)
         shuffle_indices = np.arange(len(word_ids), dtype=np.int32)
 
         # Initialize the vector to mean of constituent word vectors
@@ -148,7 +171,7 @@ class Glove(object):
         sum_gradients = np.ones_like(paragraph_vector)
 
         # Shuffle the coocurrence matrix
-        np.random.shuffle(shuffle_indices)
+        self.random_state.shuffle(shuffle_indices)
         transform_paragraph(self.word_vectors,
                             self.word_biases,
                             paragraph_vector,
