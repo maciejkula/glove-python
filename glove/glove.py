@@ -227,6 +227,37 @@ class Glove(object):
 
         return self._similarity_query(self.word_vectors[word_idx], number)[1:]
 
+    def _similarity(self, word1_vec, word2_vec):
+        dst = (np.dot(word1_vec, word2_vec)
+               / np.linalg.norm(word1_vec)
+               / np.linalg.norm(word2_vec))
+
+        return dst
+
+    def similarity(self, word1, word2):
+        """
+        Return the similarity measure between word1 and word2.
+        """
+
+        if self.word_vectors is None:
+            raise Exception('Model must be fit before querying')
+
+        if self.dictionary is None:
+            raise Exception('No word dictionary supplied')
+        
+        try:
+            word1_idx = self.dictionary[word1]
+        except KeyError:
+            raise Exception('Word not in dictionary')
+
+        try:
+            word2_idx = self.dictionary[word2]
+        except KeyError:
+            raise Exception('Word not in dictionary')
+
+        return self._distance(self.word_vectors[word1_idx],
+                              self.word_vectors[word2_idx])
+        
     def most_similar_paragraph(self, paragraph, number=5, **kwargs):
         """
         Return words most similar to a given paragraph (iterable of tokens).
