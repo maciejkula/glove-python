@@ -77,10 +77,12 @@ def fit_vectors(double[:, ::1] wordvec,
 
             # Compute loss and the example weight.
             entry_weight = double_min(1.0, (count / max_count)) ** alpha
-            loss = entry_weight * (prediction - c_log(count))
+            
+            loss_unweighted = prediction - c_log(count)
+            loss = entry_weight * loss_unweighted
             
             # Update the weighted global loss
-            global_loss += 0.5 * entry_weight * (prediction - c_log(count)) **2
+            global_loss += 0.5 * loss * loss_unweighted
 
             # Update step: apply gradients and reproject
             # onto the unit sphere.
