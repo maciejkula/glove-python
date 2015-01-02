@@ -90,17 +90,17 @@ class Glove(object):
             np.random.shuffle(shuffle_indices)
             
             self.global_loss = fit_vectors(self.word_vectors,
-                        self.vectors_sum_gradients,
-                        self.word_biases,
-                        self.biases_sum_gradients,
-                        matrix.row,
-                        matrix.col,
-                        matrix.data,
-                        shuffle_indices,
-                        self.learning_rate,
-                        self.max_count,
-                        self.alpha,
-                        int(no_threads))
+                                           self.vectors_sum_gradients,
+                                           self.word_biases,
+                                           self.biases_sum_gradients,
+                                           matrix.row,
+                                           matrix.col,
+                                           matrix.data,
+                                           shuffle_indices,
+                                           self.learning_rate,
+                                           self.max_count,
+                                           self.alpha,
+                                           int(no_threads))
                         
             if verbose:            
                 print('Global loss: %d' % self.global_loss)
