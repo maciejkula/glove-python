@@ -15,6 +15,22 @@ import scipy.sparse as sp
 from .glove_cython import fit_vectors, transform_paragraph
 
 
+def check_random_state(seed):
+    """ Turn seed into a np.random.RandomState instance.
+
+        This is a copy of the check_random_state function in sklearn
+        in order to avoid outside dependencies.
+    """
+    if seed is None or seed is np.random:
+        return np.random.mtrand._rand
+    if isinstance(seed, (numbers.Integral, np.integer)):
+        return np.random.RandomState(seed)
+    if isinstance(seed, np.random.RandomState):
+        return seed
+    raise ValueError('%r cannot be used to seed a numpy.random.RandomState'
+                     ' instance' % seed)
+
+
 class Glove(object):
     """
     Class for estimating GloVe word embeddings using the
@@ -22,20 +38,22 @@ class Glove(object):
     """
 
     def __init__(self, no_components=30, learning_rate=0.05,
-                 alpha=0.75, max_count=100, max_loss=10.0):
+                 alpha=0.75, max_count=100, max_loss=10.0,
+                 random_state=None):
         """
         Parameters:
         - int no_components: number of latent dimensions
         - float learning_rate: learning rate for SGD estimation.
-        - float alpha, float max_count: parameters for the 
+        - float alpha, float max_count: parameters for the
           weighting function (see the paper).
         - float max_loss: the maximum absolute value of calculated
                           gradient for any single co-occurrence pair.
                           Only try setting to a lower value if you
                           are experiencing problems with numerical
                           stability.
+        - random_state: random statue used to intialize optimization
         """
-        
+
         self.no_components = no_components
         self.learning_rate = float(learning_rate)
         self.alpha = float(alpha)
@@ -50,6 +68,8 @@ class Glove(object):
 
         self.dictionary = None
         self.inverse_dictionary = None
+
+        self.random_state = random_state
 
     def fit(self, matrix, epochs=5, no_threads=2, verbose=False):
         """
@@ -71,10 +91,11 @@ class Glove(object):
         if not sp.isspmatrix_coo(matrix):
             raise Exception('Coocurrence matrix must be in the COO format')
 
-        self.word_vectors = ((np.random.rand(shape[0],
+        random_state = check_random_state(self.random_state)
+        self.word_vectors = ((random_state.rand(shape[0],
                                              self.no_components) - 0.5)
                                              / self.no_components)
-        self.word_biases = np.zeros(shape[0], 
+        self.word_biases = np.zeros(shape[0],
                                     dtype=np.float64)
 
         self.vectors_sum_gradients = np.ones_like(self.word_vectors)
@@ -92,7 +113,7 @@ class Glove(object):
                 print('Epoch %s' % epoch)
 
             # Shuffle the coocurrence matrix
-            np.random.shuffle(shuffle_indices)
+            random_state.shuffle(shuffle_indices)
 
             fit_vectors(self.word_vectors,
                         self.vectors_sum_gradients,
@@ -119,7 +140,7 @@ class Glove(object):
         (a paragraph vector).
 
         Experimental. This will return something close to a tf-idf
-        weighted average of constituent token vectors by fitting 
+        weighted average of constituent token vectors by fitting
         rare words (with low word bias values) more closely.
         """
 
@@ -131,13 +152,15 @@ class Glove(object):
                             'transform paragraphs')
 
         cooccurrence = collections.defaultdict(lambda: 0.0)
-            
+
         for token in paragraph:
             try:
                 cooccurrence[self.dictionary[token]] += self.max_count / 10.0
             except KeyError:
                 if not ignore_missing:
                     raise
+
+        random_state = check_random_state(self.random_state)
 
         word_ids = np.array(cooccurrence.keys(), dtype=np.int32)
         values = np.array(cooccurrence.values(), dtype=np.float64)
@@ -148,7 +171,7 @@ class Glove(object):
         sum_gradients = np.ones_like(paragraph_vector)
 
         # Shuffle the coocurrence matrix
-        np.random.shuffle(shuffle_indices)
+        random_state.shuffle(shuffle_indices)
         transform_paragraph(self.word_vectors,
                             self.word_biases,
                             paragraph_vector,
@@ -199,7 +222,7 @@ class Glove(object):
         """
         Load model from filename.
         """
-        
+
         instance = Glove()
 
         with open(filename, 'rb') as savefile:
@@ -219,7 +242,7 @@ class Glove(object):
 
         dct = {}
         vectors = array.array('d')
-        
+
         # Read in the data.
         with io.open(filename, 'r', encoding='utf-8') as savefile:
             for i, line in enumerate(savefile):
@@ -267,7 +290,7 @@ class Glove(object):
 
         if self.dictionary is None:
             raise Exception('No word dictionary supplied')
-        
+
         try:
             word_idx = self.dictionary[word]
         except KeyError:
