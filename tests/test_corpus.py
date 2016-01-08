@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from nose.tools import raises
+import pytest
+
 import numpy as np
 
 
@@ -47,7 +48,6 @@ def test_supplied_dictionary():
     assert (model.matrix.tocsr()[2]).sum() == 0
 
 
-@raises(Exception)
 def test_supplied_dict_checks():
 
     dictionary = {'a': 4,
@@ -56,10 +56,10 @@ def test_supplied_dict_checks():
 
     corpus = [['a', 'naïve', 'fox']]
 
-    model = Corpus(dictionary=dictionary)
+    with pytest.raises(Exception):
+        model = Corpus(dictionary=dictionary)
 
 
-@raises(KeyError)
 def test_supplied_dict_missing():
 
     dictionary = {'a': 1,
@@ -68,7 +68,9 @@ def test_supplied_dict_missing():
     corpus = [['a', 'naïve', 'fox']]
 
     model = Corpus(dictionary=dictionary)
-    model.fit(corpus, max_map_size=0, window=10)
+
+    with pytest.raises(KeyError):
+        model.fit(corpus, max_map_size=0, window=10)
 
 
 def test_supplied_dict_missing_ignored():

@@ -94,8 +94,8 @@ class Glove(object):
 
         random_state = check_random_state(self.random_state)
         self.word_vectors = ((random_state.rand(shape[0],
-                                             self.no_components) - 0.5)
-                                             / self.no_components)
+                                                self.no_components) - 0.5)
+                             / self.no_components)
         self.word_biases = np.zeros(shape[0],
                                     dtype=np.float64)
 
