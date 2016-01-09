@@ -1,25 +1,19 @@
 #!python
-#cython: boundscheck=False, wraparound=False, nonecheck=False, cdivision=True
-#distutils: language = c++
+# distutils: language = c++
+# cython: boundscheck=False, wraparound=False, nonecheck=False, cdivision=True
 
 import numpy as np
 import scipy.sparse as sp
 
-
-from cython.operator cimport dereference as deref, preincrement as inc
-from libcpp.map cimport map
+from cython.operator cimport dereference as deref
+from cython.operator cimport preincrement as inc
 from libcpp.unordered_map cimport unordered_map
 from libcpp.pair cimport pair
-from libcpp.string cimport string
 from libcpp.vector cimport vector
 
 
 cdef inline int int_min(int a, int b): return a if a <= b else b
 cdef inline int int_max(int a, int b): return a if a > b else b
-
-
-cdef extern from "math.h":
-    double c_abs "fabs"(double)
 
 
 cdef class Matrix:

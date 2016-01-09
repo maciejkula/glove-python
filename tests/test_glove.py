@@ -4,7 +4,7 @@ from glove import Glove
 
 def test_stanford_loading():
 
-    model = Glove.load_stanford('glove/tests/stanford_test.txt')
+    model = Glove.load_stanford('tests/stanford_test.txt')
 
     assert model.word_vectors is not None
     assert model.word_vectors.shape == (100, 25)

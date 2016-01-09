@@ -19,7 +19,7 @@ class Corpus(object):
     be supplied. If left None, it will be constructed
     from the corpus.
     """
-    
+
     def __init__(self, dictionary=None):
 
         self.dictionary = {}
@@ -43,7 +43,7 @@ class Corpus(object):
     def fit(self, corpus, window=10, max_map_size=1000, ignore_missing=False):
         """
         Perform a pass through the corpus to construct
-        the cooccurrence matrix. 
+        the cooccurrence matrix.
 
         Parameters:
         - iterable of lists of strings corpus
@@ -61,7 +61,7 @@ class Corpus(object):
                                ignored.
                                If False, a KeyError is raised.
         """
-        
+
         self.matrix = construct_cooccurrence_matrix(corpus,
                                                     self.dictionary,
                                                     int(self.dictionary_supplied),
@@ -70,7 +70,7 @@ class Corpus(object):
                                                     max_map_size)
 
     def save(self, filename):
-        
+
         with open(filename, 'wb') as savefile:
             pickle.dump((self.dictionary, self.matrix),
                         savefile,
