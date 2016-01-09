@@ -80,7 +80,7 @@ class Cythonize(Command):
         import Cython
         from Cython.Build import cythonize
 
-        cythonize(define_extensions('.pyx'))
+        cythonize(define_extensions())
 
 
 class Clean(Command):
