@@ -21,14 +21,14 @@ def define_extensions():
     if 'anaconda' not in sys.version.lower():
         compile_args.append('-march=native')
 
-    return [Extension("glove.glove_cython", ["glove/glove_cython.c"],
+    return [Extension("glove.glove_cython", ["glove/glove_cython.pyx"],
                       extra_link_args=["-fopenmp"],
                       extra_compile_args=compile_args),
             Extension("glove.metrics.accuracy_cython",
-                      ["glove/metrics/accuracy_cython.c"],
+                      ["glove/metrics/accuracy_cython.pyx"],
                       extra_link_args=["-fopenmp"],
                       extra_compile_args=compile_args),
-            Extension("glove.corpus_cython", ["glove/corpus_cython.cpp"],
+            Extension("glove.corpus_cython", ["glove/corpus_cython.pyx"],
                       language='C++',
                       libraries=["stdc++"],
                       extra_link_args=['-std=c++11'] + compile_args,
