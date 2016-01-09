@@ -5,169 +5,175 @@
 import numpy as np
 import scipy.sparse as sp
 
+from libc.stdlib cimport malloc, free
+
 from cython.operator cimport dereference as deref
-from cython.operator cimport preincrement as inc
-from libcpp.unordered_map cimport unordered_map
-from libcpp.pair cimport pair
 from libcpp.vector cimport vector
 
 
-cdef inline int int_min(int a, int b): return a if a <= b else b
-cdef inline int int_max(int a, int b): return a if a > b else b
+cdef inline int int_min(int a, int b) nogil: return a if a <= b else b
 
 
-cdef class Matrix:
+cdef int binary_search(int* vec, int size, int first, int last, int x) nogil:
     """
-    A sparse co-occurrence matrix storing
-    its data as a vector of maps.
+    Binary seach in an array of ints
     """
 
-    cdef int max_map_size
-    cdef vector[unordered_map[int, float]] rows
+    cdef int mid
 
-    cdef vector[vector[int]] row_indices
-    cdef vector[vector[float]] row_data
+    while (first < last):
+        mid = (first + last) / 2
+        if (vec[mid] == x):
+            return mid
+        elif vec[mid] > x:
+            last = mid - 1
+        else:
+            first = mid + 1
 
-    def __cinit__(self, int max_map_size):
-
-        self.max_map_size = max_map_size
-        self.rows = vector[unordered_map[int, float]]()
-
-        self.row_indices = vector[vector[int]]()
-        self.row_data = vector[vector[float]]()
-
-    cdef void compactify_row(self, int row):
-        """
-        Move a row from a map to more efficient
-        vector storage.
-        """
-
-        cdef int i, col
-        cdef int row_length = self.row_indices[row].size()
-
-        cdef pair[int, float] row_entry
-        cdef unordered_map[int, float].iterator row_iterator
-
-        row_unordered_map = self.rows[row]
-
-        # Go through the elements already in vector storage
-        # and update them with the contents of a map, removing
-        # map elements as they are transferred.
-        for i in range(row_length):
-            col = self.row_indices[row][i]
-            if self.rows[row].find(col) != self.rows[row].end():
-
-                self.row_data[row][i] += self.rows[row][col]
-                self.rows[row].erase(col)
-
-        # Resize the vectors to accommodate new
-        # columns from the map.
-        row_length = self.row_indices[row].size()
-        self.row_indices[row].resize(row_length)
-        self.row_data[row].resize(row_length)
-
-        # Add any new columns to the vector.
-        row_iterator = self.rows[row].begin()
-        while row_iterator != self.rows[row].end():
-            row_entry = deref(row_iterator)
-            self.row_indices[row].push_back(row_entry.first)
-            self.row_data[row].push_back(row_entry.second)
-            inc(row_iterator)
-
-        self.rows[row].clear()
-
-    cdef void add_row(self):
-        """
-        Add a new row to the matrix.
-        """
-
-        cdef unordered_map[int, float] row_map
-
-        row_map = unordered_map[int, float]()
-
-        self.rows.push_back(row_map)
-        self.row_indices.push_back(vector[int]())
-        self.row_data.push_back(vector[float]())
-
-    cdef void increment(self, int row, int col, float value):
-        """
-        Increment the value at (row, col) by value.
-        """
-
-        cdef float current_value
-
-        while row >= self.rows.size():
-            self.add_row()        
-
-        self.rows[row][col] += value
-
-        if self.rows[row].size() > self.max_map_size:
-            self.compactify_row(row)
-
-    cdef int size(self):
-        """
-        Get number of nonzero entries.
-        """
-
-        cdef int i
-        cdef int size = 0
-
-        for i in range(self.rows.size()):
-            size += self.rows[i].size()
-            size += self.row_indices[i].size()
-
-        return size
-
-    cpdef to_coo(self, int shape):
-        """
-        Convert to a shape by shape COO matrix.
-        """
-
-        cdef int i, j
-        cdef int row
-        cdef int col
-        cdef int rows = self.rows.size()
-        cdef int no_collocations
-
-        # Transform all row maps to row arrays.
-        for i in range(rows):
-            self.compactify_row(i)
-
-        no_collocations = self.size()
-
-        # Create the constituent numpy arrays.
-        row_np = np.empty(no_collocations, dtype=np.int32)
-        col_np = np.empty(no_collocations, dtype=np.int32)
-        data_np = np.empty(no_collocations, dtype=np.float64)
-        cdef int[:,] row_view = row_np
-        cdef int[:,] col_view = col_np
-        cdef double[:,] data_view = data_np
-
-        j = 0
-
-        for row in range(rows):
-            for i in range(self.row_indices[row].size()):
-
-                row_view[j] = row
-                col_view[j] = self.row_indices[row][i]
-                data_view[j] = self.row_data[row][i]
-
-                j += 1
-
-        # Create and return the matrix.
-        return sp.coo_matrix((data_np, (row_np, col_np)),
-                             shape=(shape,
-                                    shape),
-                             dtype=np.float64)
-
-    def __dealloc__(self):
-
-        self.rows.clear()
-        self.row_indices.clear()
-        self.row_data.clear()
+    if (first == size):
+        return first
+    elif vec[first] > x:
+        return first
+    else:
+        return first + 1
 
 
-cdef inline int words_to_ids(list words, vector[int]& word_ids,
+cdef struct SparseRowMatrix:
+    vector[vector[int]] *indices
+    vector[vector[float]] *data
+
+
+cdef SparseRowMatrix* new_matrix():
+    """
+    Allocate and initialize a new matrix
+    """
+
+    cdef SparseRowMatrix* mat
+
+    mat = <SparseRowMatrix*>malloc(sizeof(SparseRowMatrix))
+
+    if mat == NULL:
+        raise MemoryError()
+
+    mat.indices = new vector[vector[int]]()
+    mat.data = new vector[vector[float]]()
+
+    return mat
+
+
+cdef void free_matrix(SparseRowMatrix* mat) nogil:
+    """
+    Deallocate the data of a matrix
+    """
+
+    cdef int i
+    cdef int rows = mat.indices.size()
+
+    for i in range(rows):
+        deref(mat.indices)[i].clear()
+        deref(mat.data)[i].clear()
+
+    del mat.indices
+    del mat.data
+
+    free(mat)
+
+
+cdef void increment_matrix(SparseRowMatrix* mat, int row, int col, float increment) nogil:
+    """
+    Increment the (row, col) entry of mat by increment.
+    """
+
+    cdef vector[int]* row_indices
+    cdef vector[float]* row_data
+    cdef int idx
+    cdef int col_at_idx
+
+    # Add new row if necessary
+    while row >= mat.indices.size():
+        mat.indices.push_back(vector[int]())
+        mat.data.push_back(vector[float]())
+
+    row_indices = &(deref(mat.indices)[row])
+    row_data = &(deref(mat.data)[row])
+
+    # Find the column element, or the position where
+    # a new element should be inserted
+    if row_indices.size() == 0:
+        idx = 0
+    else:
+        idx = binary_search(&(deref(row_indices)[0]), row_indices.size(),
+                            0, row_indices.size(), col)
+
+    # Element to be added at the end
+    if idx == row_indices.size():
+        row_indices.insert(row_indices.begin() + idx, col)
+        row_data.insert(row_data.begin() + idx, increment)
+        return
+
+    col_at_idx = deref(row_indices)[idx]
+
+    if col_at_idx == col:
+        # Element to be incremented
+        deref(row_data)[idx] = deref(row_data)[idx] + increment
+    else:
+        # Element to be inserted
+        row_indices.insert(row_indices.begin() + idx, col)
+        row_data.insert(row_data.begin() + idx, increment)
+
+
+cdef int matrix_nnz(SparseRowMatrix* mat) nogil:
+    """
+    Get the number of nonzero entries in mat
+    """
+
+    cdef int i
+    cdef int size = 0
+
+    for i in range(mat.indices.size()):
+        size += deref(mat.indices)[i].size()
+
+    return size
+
+
+cdef matrix_to_coo(SparseRowMatrix* mat, int shape):
+    """
+    Convert to a shape by shape COO matrix.
+    """
+
+    cdef int i, j
+    cdef int row
+    cdef int col
+    cdef int rows = mat.indices.size()
+    cdef int no_collocations = matrix_nnz(mat)
+
+    # Create the constituent numpy arrays.
+    row_np = np.empty(no_collocations, dtype=np.int32)
+    col_np = np.empty(no_collocations, dtype=np.int32)
+    data_np = np.empty(no_collocations, dtype=np.float64)
+    cdef int[:] row_view = row_np
+    cdef int[:] col_view = col_np
+    cdef double[:] data_view = data_np
+
+    j = 0
+
+    for row in range(rows):
+        for i in range(deref(mat.indices)[row].size()):
+
+            row_view[j] = row
+            col_view[j] = deref(mat.indices)[row][i]
+            data_view[j] = deref(mat.data)[row][i]
+
+            j += 1
+
+    # Create and return the matrix.
+    return sp.coo_matrix((data_np, (row_np, col_np)),
+                         shape=(shape,
+                                shape),
+                         dtype=np.float64)
+
+
+cdef int words_to_ids(list words, vector[int]& word_ids,
                       dictionary, int supplied, int ignore_missing):
     """
     Convert a list of words into a vector of word ids, using either
@@ -207,10 +213,9 @@ cdef inline int words_to_ids(list words, vector[int]& word_ids,
 
     return 0
 
-            
+
 def construct_cooccurrence_matrix(corpus, dictionary, int supplied,
-                                  int window_size, int ignore_missing,
-                                  int max_map_size):
+                                  int window_size, int ignore_missing):
     """
     Construct the word-id dictionary and cooccurrence matrix for
     a given corpus, using a given window size.
@@ -219,7 +224,7 @@ def construct_cooccurrence_matrix(corpus, dictionary, int supplied,
     """
 
     # Declare the cooccurrence map
-    cdef Matrix matrix = Matrix(max_map_size)
+    cdef SparseRowMatrix* matrix = new_matrix()
 
     # String processing variables.
     cdef list words
@@ -235,9 +240,11 @@ def construct_cooccurrence_matrix(corpus, dictionary, int supplied,
     for words in corpus:
 
         # Convert words to a numeric vector.
-        error = words_to_ids(words, word_ids, dictionary, supplied, ignore_missing)
+        error = words_to_ids(words, word_ids, dictionary,
+                             supplied, ignore_missing)
         if error == -1:
             raise KeyError('Word missing from dictionary')
+
         wordslen = word_ids.size()
 
         # Record co-occurrences in a moving window.
@@ -261,15 +268,18 @@ def construct_cooccurrence_matrix(corpus, dictionary, int supplied,
                     continue
 
                 if inner_word < outer_word:
-                    matrix.increment(inner_word,
+                    increment_matrix(matrix,
+                                     inner_word,
                                      outer_word,
                                      1.0 / (j - i))
                 else:
-                    matrix.increment(outer_word,
+                    increment_matrix(matrix,
+                                     outer_word,
                                      inner_word,
                                      1.0 / (j - i))
-    
+
     # Create the matrix.
-    mat = matrix.to_coo(len(dictionary))
+    mat = matrix_to_coo(matrix, len(dictionary))
+    free_matrix(matrix)
 
     return mat

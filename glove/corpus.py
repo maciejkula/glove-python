@@ -40,7 +40,7 @@ class Corpus(object):
         if np.min(list(dictionary.values())) != 0:
             raise Exception('Dictionary ids should start at zero')
 
-    def fit(self, corpus, window=10, max_map_size=1000, ignore_missing=False):
+    def fit(self, corpus, window=10, ignore_missing=False):
         """
         Perform a pass through the corpus to construct
         the cooccurrence matrix.
@@ -49,11 +49,6 @@ class Corpus(object):
         - iterable of lists of strings corpus
         - int window: the length of the (symmetric)
           context window used for cooccurrence.
-        - int max_map_size: the maximum size of map-based row storage.
-                            When exceeded a row will be converted to
-                            more efficient array storage. Setting this
-                            to a higher value will increase speed at
-                            the expense of higher memory usage.
         - bool ignore_missing: whether to ignore words missing from
                                the dictionary (if it was supplied).
                                Context window distances will be preserved
@@ -66,8 +61,7 @@ class Corpus(object):
                                                     self.dictionary,
                                                     int(self.dictionary_supplied),
                                                     int(window),
-                                                    int(ignore_missing),
-                                                    max_map_size)
+                                                    int(ignore_missing))
 
     def save(self, filename):
 

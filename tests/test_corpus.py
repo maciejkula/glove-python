@@ -19,7 +19,7 @@ def test_corpus_construction():
     corpus = [corpus_words]
 
     model = Corpus()
-    model.fit(corpus, max_map_size=0, window=10)
+    model.fit(corpus, window=10)
 
     for word in corpus_words:
         assert word in model.dictionary
@@ -44,7 +44,7 @@ def test_supplied_dictionary():
     corpus = [['a', 'naïve', 'fox']]
 
     model = Corpus(dictionary=dictionary)
-    model.fit(corpus, max_map_size=0, window=10)
+    model.fit(corpus, window=10)
 
     assert model.dictionary == dictionary
 
@@ -74,7 +74,7 @@ def test_supplied_dict_missing():
     model = Corpus(dictionary=dictionary)
 
     with pytest.raises(KeyError):
-        model.fit(corpus, max_map_size=0, window=10)
+        model.fit(corpus, window=10)
 
 
 def test_supplied_dict_missing_ignored():
@@ -85,7 +85,7 @@ def test_supplied_dict_missing_ignored():
     corpus = [['a', 'naïve', 'fox']]
 
     model = Corpus(dictionary=dictionary)
-    model.fit(corpus, max_map_size=0, window=10, ignore_missing=True)
+    model.fit(corpus, window=10, ignore_missing=True)
 
     assert model.dictionary == dictionary
 
@@ -118,3 +118,4 @@ def test_large_corpus_construction():
     assert (matrix.row == check_matrix.row).all()
     assert (matrix.col == check_matrix.col).all()
     assert np.allclose(matrix.data, check_matrix.data)
+    assert (matrix.data > 0).all()

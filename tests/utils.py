@@ -55,4 +55,5 @@ def build_coocurrence_matrix(sentences):
 
     return sp.coo_matrix((data, (rows, cols)),
                          shape=(len(dictionary),
-                                len(dictionary))).tocsr().tocoo()
+                                len(dictionary)),
+                         dtype=np.float32).tocsr().tocoo()

@@ -5,13 +5,11 @@
     "distutils": {
         "depends": [], 
         "extra_compile_args": [
-            "-std=c++11", 
             "-fopenmp", 
             "-ffast-math", 
             "-march=native"
         ], 
         "extra_link_args": [
-            "-std=c++11", 
             "-fopenmp", 
             "-ffast-math", 
             "-march=native"
@@ -269,16 +267,14 @@ static CYTHON_INLINE float __PYX_NAN() {
 
 #define __PYX_HAVE__glove__corpus_cython
 #define __PYX_HAVE_API__glove__corpus_cython
-#include <utility>
+#include "string.h"
+#include "stdlib.h"
+#include <vector>
 #include "ios"
 #include "new"
 #include "stdexcept"
 #include "typeinfo"
-#include <unordered_map>
-#include <vector>
 #include "pythread.h"
-#include "string.h"
-#include "stdlib.h"
 #include "stdio.h"
 #include "pystate.h"
 #ifdef _OPENMP
@@ -586,28 +582,23 @@ typedef volatile __pyx_atomic_int_type __pyx_atomic_int;
 
 
 /*--- Type declarations ---*/
-struct __pyx_obj_5glove_13corpus_cython_Matrix;
 struct __pyx_array_obj;
 struct __pyx_MemviewEnum_obj;
 struct __pyx_memoryview_obj;
 struct __pyx_memoryviewslice_obj;
+struct __pyx_t_5glove_13corpus_cython_SparseRowMatrix;
 
-/* "glove/corpus_cython.pyx":19
+/* "glove/corpus_cython.pyx":41
  * 
  * 
- * cdef class Matrix:             # <<<<<<<<<<<<<<
- *     """
- *     A sparse co-occurrence matrix storing
+ * cdef struct SparseRowMatrix:             # <<<<<<<<<<<<<<
+ *     vector[vector[int]] *indices
+ *     vector[vector[float]] *data
  */
-struct __pyx_obj_5glove_13corpus_cython_Matrix {
-  PyObject_HEAD
-  struct __pyx_vtabstruct_5glove_13corpus_cython_Matrix *__pyx_vtab;
-  int max_map_size;
-  std::vector<std::unordered_map<int,float> >  rows;
-  std::vector<std::vector<int> >  row_indices;
-  std::vector<std::vector<float> >  row_data;
+struct __pyx_t_5glove_13corpus_cython_SparseRowMatrix {
+  std::vector<std::vector<int> >  *indices;
+  std::vector<std::vector<float> >  *data;
 };
-
 
 /* "View.MemoryView":101
  * 
@@ -684,24 +675,6 @@ struct __pyx_memoryviewslice_obj {
   int (*to_dtype_func)(char *, PyObject *);
 };
 
-
-
-/* "glove/corpus_cython.pyx":19
- * 
- * 
- * cdef class Matrix:             # <<<<<<<<<<<<<<
- *     """
- *     A sparse co-occurrence matrix storing
- */
-
-struct __pyx_vtabstruct_5glove_13corpus_cython_Matrix {
-  void (*compactify_row)(struct __pyx_obj_5glove_13corpus_cython_Matrix *, int);
-  void (*add_row)(struct __pyx_obj_5glove_13corpus_cython_Matrix *);
-  void (*increment)(struct __pyx_obj_5glove_13corpus_cython_Matrix *, int, int, float);
-  int (*size)(struct __pyx_obj_5glove_13corpus_cython_Matrix *);
-  PyObject *(*to_coo)(struct __pyx_obj_5glove_13corpus_cython_Matrix *, int, int __pyx_skip_dispatch);
-};
-static struct __pyx_vtabstruct_5glove_13corpus_cython_Matrix *__pyx_vtabptr_5glove_13corpus_cython_Matrix;
 
 
 /* "View.MemoryView":304
@@ -817,15 +790,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_GetAttrStr(PyObject* obj, PyObject
 
 static PyObject *__Pyx_GetBuiltinName(PyObject *name);
 
-static void __Pyx_RaiseDoubleKeywordsError(const char* func_name, PyObject* kw_name);
-
-static int __Pyx_ParseOptionalKeywords(PyObject *kwds, PyObject **argnames[],\
-    PyObject *kwds2, PyObject *values[], Py_ssize_t num_pos_args,\
-    const char* function_name);
-
-static void __Pyx_RaiseArgtupleInvalid(const char* func_name, int exact,
-    Py_ssize_t num_min, Py_ssize_t num_max, Py_ssize_t num_found);
-
 static CYTHON_INLINE void __Pyx_ErrRestore(PyObject *type, PyObject *value, PyObject *tb);
 static CYTHON_INLINE void __Pyx_ErrFetch(PyObject **type, PyObject **value, PyObject **tb);
 
@@ -833,19 +797,17 @@ static void __Pyx_WriteUnraisable(const char *name, int clineno,
                                   int lineno, const char *filename,
                                   int full_traceback, int nogil);
 
+#ifndef __PYX_FORCE_INIT_THREADS
+  #define __PYX_FORCE_INIT_THREADS 0
+#endif
+
+static CYTHON_INLINE PyObject *__Pyx_GetModuleGlobalName(PyObject *name);
+
 #if CYTHON_COMPILING_IN_CPYTHON
 static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw);
 #else
 #define __Pyx_PyObject_Call(func, arg, kw) PyObject_Call(func, arg, kw)
 #endif
-
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallMethO(PyObject *func, PyObject *arg);
-#endif
-
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg);
-
-static CYTHON_INLINE PyObject *__Pyx_GetModuleGlobalName(PyObject *name);
 
 static CYTHON_INLINE int  __Pyx_GetBufferAndValidate(Py_buffer* buf, PyObject* obj,
     __Pyx_TypeInfo* dtype, int flags, int nd, int cast, __Pyx_BufFmt_StackElem* stack);
@@ -875,6 +837,15 @@ static CYTHON_INLINE int __pyx_sub_acquisition_count_locked(
 #define __PYX_XDEC_MEMVIEW(slice, have_gil) __Pyx_XDEC_MEMVIEW(slice, have_gil, __LINE__)
 static CYTHON_INLINE void __Pyx_INC_MEMVIEW(__Pyx_memviewslice *, int, int);
 static CYTHON_INLINE void __Pyx_XDEC_MEMVIEW(__Pyx_memviewslice *, int, int);
+
+static void __Pyx_RaiseArgtupleInvalid(const char* func_name, int exact,
+    Py_ssize_t num_min, Py_ssize_t num_max, Py_ssize_t num_found);
+
+static void __Pyx_RaiseDoubleKeywordsError(const char* func_name, PyObject* kw_name);
+
+static int __Pyx_ParseOptionalKeywords(PyObject *kwds, PyObject **argnames[],\
+    PyObject *kwds2, PyObject *values[], Py_ssize_t num_pos_args,\
+    const char* function_name);
 
 static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb, PyObject *cause);
 
@@ -1006,11 +977,13 @@ static CYTHON_INLINE int __Pyx_PyList_Append(PyObject* list, PyObject* x) {
 
 static CYTHON_INLINE void __Pyx_RaiseUnboundLocalError(const char *varname);
 
-#ifndef __PYX_FORCE_INIT_THREADS
-  #define __PYX_FORCE_INIT_THREADS 0
+static PyObject *__pyx_memoryviewslice__get__base(PyObject *__pyx_v_self); /*proto*/
+#if CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallMethO(PyObject *func, PyObject *arg);
 #endif
 
-static PyObject *__pyx_memoryviewslice__get__base(PyObject *__pyx_v_self); /*proto*/
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg);
+
 static int __Pyx_SetVtable(PyObject *dict, void *vtable);
 
 typedef struct {
@@ -1029,8 +1002,6 @@ static void __pyx_insert_code_object(int code_line, PyCodeObject* code_object);
 
 static void __Pyx_AddTraceback(const char *funcname, int c_line,
                                int py_line, const char *filename);
-
-#include <new>
 
 typedef struct {
   Py_ssize_t shape, strides, suboffsets;
@@ -1141,11 +1112,6 @@ static int __Pyx_check_binary_version(void);
 
 static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
-static void __pyx_f_5glove_13corpus_cython_6Matrix_compactify_row(struct __pyx_obj_5glove_13corpus_cython_Matrix *__pyx_v_self, int __pyx_v_row); /* proto*/
-static void __pyx_f_5glove_13corpus_cython_6Matrix_add_row(struct __pyx_obj_5glove_13corpus_cython_Matrix *__pyx_v_self); /* proto*/
-static void __pyx_f_5glove_13corpus_cython_6Matrix_increment(struct __pyx_obj_5glove_13corpus_cython_Matrix *__pyx_v_self, int __pyx_v_row, int __pyx_v_col, float __pyx_v_value); /* proto*/
-static int __pyx_f_5glove_13corpus_cython_6Matrix_size(struct __pyx_obj_5glove_13corpus_cython_Matrix *__pyx_v_self); /* proto*/
-static PyObject *__pyx_f_5glove_13corpus_cython_6Matrix_to_coo(struct __pyx_obj_5glove_13corpus_cython_Matrix *__pyx_v_self, int __pyx_v_shape, int __pyx_skip_dispatch); /* proto*/
 static char *__pyx_memoryview_get_item_pointer(struct __pyx_memoryview_obj *__pyx_v_self, PyObject *__pyx_v_index); /* proto*/
 static PyObject *__pyx_memoryview_is_slice(struct __pyx_memoryview_obj *__pyx_v_self, PyObject *__pyx_v_obj); /* proto*/
 static PyObject *__pyx_memoryview_setitem_slice_assignment(struct __pyx_memoryview_obj *__pyx_v_self, PyObject *__pyx_v_dst, PyObject *__pyx_v_src); /* proto*/
@@ -1156,16 +1122,13 @@ static PyObject *__pyx_memoryview_assign_item_from_object(struct __pyx_memoryvie
 static PyObject *__pyx_memoryviewslice_convert_item_to_object(struct __pyx_memoryviewslice_obj *__pyx_v_self, char *__pyx_v_itemp); /* proto*/
 static PyObject *__pyx_memoryviewslice_assign_item_from_object(struct __pyx_memoryviewslice_obj *__pyx_v_self, char *__pyx_v_itemp, PyObject *__pyx_v_value); /* proto*/
 
-/* Module declarations from 'libcpp.utility' */
+/* Module declarations from 'libc.string' */
 
-/* Module declarations from 'libcpp.unordered_map' */
-
-/* Module declarations from 'libcpp.pair' */
+/* Module declarations from 'libc.stdlib' */
 
 /* Module declarations from 'libcpp.vector' */
 
 /* Module declarations from 'glove.corpus_cython' */
-static PyTypeObject *__pyx_ptype_5glove_13corpus_cython_Matrix = 0;
 static PyTypeObject *__pyx_array_type = 0;
 static PyTypeObject *__pyx_MemviewEnum_type = 0;
 static PyTypeObject *__pyx_memoryview_type = 0;
@@ -1176,7 +1139,13 @@ static PyObject *indirect = 0;
 static PyObject *contiguous = 0;
 static PyObject *indirect_contiguous = 0;
 static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_int_min(int, int); /*proto*/
-static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *, std::vector<int>  &, PyObject *, int, int); /*proto*/
+static int __pyx_f_5glove_13corpus_cython_binary_search(int *, int, int, int, int); /*proto*/
+static struct __pyx_t_5glove_13corpus_cython_SparseRowMatrix *__pyx_f_5glove_13corpus_cython_new_matrix(void); /*proto*/
+static void __pyx_f_5glove_13corpus_cython_free_matrix(struct __pyx_t_5glove_13corpus_cython_SparseRowMatrix *); /*proto*/
+static void __pyx_f_5glove_13corpus_cython_increment_matrix(struct __pyx_t_5glove_13corpus_cython_SparseRowMatrix *, int, int, float); /*proto*/
+static int __pyx_f_5glove_13corpus_cython_matrix_nnz(struct __pyx_t_5glove_13corpus_cython_SparseRowMatrix *); /*proto*/
+static PyObject *__pyx_f_5glove_13corpus_cython_matrix_to_coo(struct __pyx_t_5glove_13corpus_cython_SparseRowMatrix *, int); /*proto*/
+static int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *, std::vector<int>  &, PyObject *, int, int); /*proto*/
 static struct __pyx_array_obj *__pyx_array_new(PyObject *, Py_ssize_t, char *, char *, char *); /*proto*/
 static void *__pyx_align_pointer(void *, size_t); /*proto*/
 static PyObject *__pyx_memoryview_new(PyObject *, int, int, __Pyx_TypeInfo *); /*proto*/
@@ -1215,10 +1184,10 @@ static __Pyx_TypeInfo __Pyx_TypeInfo_double = { "double", NULL, sizeof(double), 
 int __pyx_module_is_main_glove__corpus_cython = 0;
 
 /* Implementation of 'glove.corpus_cython' */
+static PyObject *__pyx_builtin_MemoryError;
 static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_KeyError;
 static PyObject *__pyx_builtin_ValueError;
-static PyObject *__pyx_builtin_MemoryError;
 static PyObject *__pyx_builtin_enumerate;
 static PyObject *__pyx_builtin_Ellipsis;
 static PyObject *__pyx_builtin_TypeError;
@@ -1264,7 +1233,6 @@ static char __pyx_k_import[] = "__import__";
 static char __pyx_k_matrix[] = "matrix";
 static char __pyx_k_name_2[] = "__name__";
 static char __pyx_k_struct[] = "struct";
-static char __pyx_k_to_coo[] = "to_coo";
 static char __pyx_k_unpack[] = "unpack";
 static char __pyx_k_float64[] = "float64";
 static char __pyx_k_fortran[] = "fortran";
@@ -1288,7 +1256,6 @@ static char __pyx_k_setdefault[] = "setdefault";
 static char __pyx_k_MemoryError[] = "MemoryError";
 static char __pyx_k_window_size[] = "window_size";
 static char __pyx_k_window_stop[] = "window_stop";
-static char __pyx_k_max_map_size[] = "max_map_size";
 static char __pyx_k_scipy_sparse[] = "scipy.sparse";
 static char __pyx_k_pyx_getbuffer[] = "__pyx_getbuffer";
 static char __pyx_k_ignore_missing[] = "ignore_missing";
@@ -1383,7 +1350,6 @@ static PyObject *__pyx_n_s_j;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_mat;
 static PyObject *__pyx_n_s_matrix;
-static PyObject *__pyx_n_s_max_map_size;
 static PyObject *__pyx_n_s_memview;
 static PyObject *__pyx_n_s_mode;
 static PyObject *__pyx_n_s_name;
@@ -1411,7 +1377,6 @@ static PyObject *__pyx_kp_s_strided_and_indirect;
 static PyObject *__pyx_n_s_struct;
 static PyObject *__pyx_n_s_supplied;
 static PyObject *__pyx_n_s_test;
-static PyObject *__pyx_n_s_to_coo;
 static PyObject *__pyx_kp_s_unable_to_allocate_array_data;
 static PyObject *__pyx_kp_s_unable_to_allocate_shape_and_str;
 static PyObject *__pyx_n_s_unpack;
@@ -1420,10 +1385,7 @@ static PyObject *__pyx_n_s_window_stop;
 static PyObject *__pyx_n_s_word_ids;
 static PyObject *__pyx_n_s_words;
 static PyObject *__pyx_n_s_wordslen;
-static int __pyx_pf_5glove_13corpus_cython_6Matrix___cinit__(struct __pyx_obj_5glove_13corpus_cython_Matrix *__pyx_v_self, int __pyx_v_max_map_size); /* proto */
-static PyObject *__pyx_pf_5glove_13corpus_cython_6Matrix_2to_coo(struct __pyx_obj_5glove_13corpus_cython_Matrix *__pyx_v_self, int __pyx_v_shape); /* proto */
-static void __pyx_pf_5glove_13corpus_cython_6Matrix_4__dealloc__(struct __pyx_obj_5glove_13corpus_cython_Matrix *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_corpus, PyObject *__pyx_v_dictionary, int __pyx_v_supplied, int __pyx_v_window_size, int __pyx_v_ignore_missing, int __pyx_v_max_map_size); /* proto */
+static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_corpus, PyObject *__pyx_v_dictionary, int __pyx_v_supplied, int __pyx_v_window_size, int __pyx_v_ignore_missing); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __pyx_array_obj *__pyx_v_self, PyObject *__pyx_v_shape, Py_ssize_t __pyx_v_itemsize, PyObject *__pyx_v_format, PyObject *__pyx_v_mode, int __pyx_v_allocate_buffer); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array_2__getbuffer__(struct __pyx_array_obj *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_array___pyx_pf_15View_dot_MemoryView_5array_4__dealloc__(struct __pyx_array_obj *__pyx_v_self); /* proto */
@@ -1456,7 +1418,6 @@ static PyObject *__pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview_20
 static PyObject *__pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview_22copy_fortran(struct __pyx_memoryview_obj *__pyx_v_self); /* proto */
 static void __pyx_memoryviewslice___pyx_pf_15View_dot_MemoryView_16_memoryviewslice___dealloc__(struct __pyx_memoryviewslice_obj *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_15View_dot_MemoryView_16_memoryviewslice_4base___get__(struct __pyx_memoryviewslice_obj *__pyx_v_self); /* proto */
-static PyObject *__pyx_tp_new_5glove_13corpus_cython_Matrix(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_array(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_Enum(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_memoryview(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
@@ -1486,19 +1447,17 @@ static PyObject *__pyx_tuple__21;
 static PyObject *__pyx_tuple__22;
 static PyObject *__pyx_codeobj__17;
 
-/* "glove/corpus_cython.pyx":15
+/* "glove/corpus_cython.pyx":14
  * 
  * 
- * cdef inline int int_min(int a, int b): return a if a <= b else b             # <<<<<<<<<<<<<<
- * cdef inline int int_max(int a, int b): return a if a > b else b
+ * cdef inline int int_min(int a, int b) nogil: return a if a <= b else b             # <<<<<<<<<<<<<<
+ * 
  * 
  */
 
 static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_int_min(int __pyx_v_a, int __pyx_v_b) {
   int __pyx_r;
-  __Pyx_RefNannyDeclarations
   int __pyx_t_1;
-  __Pyx_RefNannySetupContext("int_min", 0);
   if (((__pyx_v_a <= __pyx_v_b) != 0)) {
     __pyx_t_1 = __pyx_v_a;
   } else {
@@ -1509,695 +1468,805 @@ static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_int_min(int __pyx_v_a, i
 
   /* function exit code */
   __pyx_L0:;
-  __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glove/corpus_cython.pyx":16
- * 
- * cdef inline int int_min(int a, int b): return a if a <= b else b
- * cdef inline int int_max(int a, int b): return a if a > b else b             # <<<<<<<<<<<<<<
+/* "glove/corpus_cython.pyx":17
  * 
  * 
+ * cdef int binary_search(int* vec, int size, int first, int last, int x) nogil:             # <<<<<<<<<<<<<<
+ *     """
+ *     Binary seach in an array of ints
  */
 
-static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_int_max(int __pyx_v_a, int __pyx_v_b) {
+static int __pyx_f_5glove_13corpus_cython_binary_search(int *__pyx_v_vec, int __pyx_v_size, int __pyx_v_first, int __pyx_v_last, int __pyx_v_x) {
+  int __pyx_v_mid;
   int __pyx_r;
-  __Pyx_RefNannyDeclarations
   int __pyx_t_1;
-  __Pyx_RefNannySetupContext("int_max", 0);
-  if (((__pyx_v_a > __pyx_v_b) != 0)) {
-    __pyx_t_1 = __pyx_v_a;
-  } else {
-    __pyx_t_1 = __pyx_v_b;
-  }
-  __pyx_r = __pyx_t_1;
-  goto __pyx_L0;
 
-  /* function exit code */
-  __pyx_L0:;
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "glove/corpus_cython.pyx":31
- *     cdef vector[vector[float]] row_data
+  /* "glove/corpus_cython.pyx":24
+ *     cdef int mid
  * 
- *     def __cinit__(self, int max_map_size):             # <<<<<<<<<<<<<<
- * 
- *         self.max_map_size = max_map_size
+ *     while (first < last):             # <<<<<<<<<<<<<<
+ *         mid = (first + last) / 2
+ *         if (vec[mid] == x):
  */
+  while (1) {
+    __pyx_t_1 = ((__pyx_v_first < __pyx_v_last) != 0);
+    if (!__pyx_t_1) break;
 
-/* Python wrapper */
-static int __pyx_pw_5glove_13corpus_cython_6Matrix_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_5glove_13corpus_cython_6Matrix_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  int __pyx_v_max_map_size;
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  int __pyx_r;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("__cinit__ (wrapper)", 0);
-  {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_max_map_size,0};
-    PyObject* values[1] = {0};
-    if (unlikely(__pyx_kwds)) {
-      Py_ssize_t kw_args;
-      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
-      switch (pos_args) {
-        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-        case  0: break;
-        default: goto __pyx_L5_argtuple_error;
-      }
-      kw_args = PyDict_Size(__pyx_kwds);
-      switch (pos_args) {
-        case  0:
-        if (likely((values[0] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_max_map_size)) != 0)) kw_args--;
-        else goto __pyx_L5_argtuple_error;
-      }
-      if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-      }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
-      goto __pyx_L5_argtuple_error;
-    } else {
-      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+    /* "glove/corpus_cython.pyx":25
+ * 
+ *     while (first < last):
+ *         mid = (first + last) / 2             # <<<<<<<<<<<<<<
+ *         if (vec[mid] == x):
+ *             return mid
+ */
+    __pyx_v_mid = ((__pyx_v_first + __pyx_v_last) / 2);
+
+    /* "glove/corpus_cython.pyx":26
+ *     while (first < last):
+ *         mid = (first + last) / 2
+ *         if (vec[mid] == x):             # <<<<<<<<<<<<<<
+ *             return mid
+ *         elif vec[mid] > x:
+ */
+    __pyx_t_1 = (((__pyx_v_vec[__pyx_v_mid]) == __pyx_v_x) != 0);
+    if (__pyx_t_1) {
+
+      /* "glove/corpus_cython.pyx":27
+ *         mid = (first + last) / 2
+ *         if (vec[mid] == x):
+ *             return mid             # <<<<<<<<<<<<<<
+ *         elif vec[mid] > x:
+ *             last = mid - 1
+ */
+      __pyx_r = __pyx_v_mid;
+      goto __pyx_L0;
+
+      /* "glove/corpus_cython.pyx":26
+ *     while (first < last):
+ *         mid = (first + last) / 2
+ *         if (vec[mid] == x):             # <<<<<<<<<<<<<<
+ *             return mid
+ *         elif vec[mid] > x:
+ */
     }
-    __pyx_v_max_map_size = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_max_map_size == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+
+    /* "glove/corpus_cython.pyx":28
+ *         if (vec[mid] == x):
+ *             return mid
+ *         elif vec[mid] > x:             # <<<<<<<<<<<<<<
+ *             last = mid - 1
+ *         else:
+ */
+    __pyx_t_1 = (((__pyx_v_vec[__pyx_v_mid]) > __pyx_v_x) != 0);
+    if (__pyx_t_1) {
+
+      /* "glove/corpus_cython.pyx":29
+ *             return mid
+ *         elif vec[mid] > x:
+ *             last = mid - 1             # <<<<<<<<<<<<<<
+ *         else:
+ *             first = mid + 1
+ */
+      __pyx_v_last = (__pyx_v_mid - 1);
+
+      /* "glove/corpus_cython.pyx":28
+ *         if (vec[mid] == x):
+ *             return mid
+ *         elif vec[mid] > x:             # <<<<<<<<<<<<<<
+ *             last = mid - 1
+ *         else:
+ */
+      goto __pyx_L5;
+    }
+
+    /* "glove/corpus_cython.pyx":31
+ *             last = mid - 1
+ *         else:
+ *             first = mid + 1             # <<<<<<<<<<<<<<
+ * 
+ *     if (first == size):
+ */
+    /*else*/ {
+      __pyx_v_first = (__pyx_v_mid + 1);
+    }
+    __pyx_L5:;
   }
-  goto __pyx_L4_argument_unpacking_done;
-  __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-  __pyx_L3_error:;
-  __Pyx_AddTraceback("glove.corpus_cython.Matrix.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __Pyx_RefNannyFinishContext();
-  return -1;
-  __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_5glove_13corpus_cython_6Matrix___cinit__(((struct __pyx_obj_5glove_13corpus_cython_Matrix *)__pyx_v_self), __pyx_v_max_map_size);
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static int __pyx_pf_5glove_13corpus_cython_6Matrix___cinit__(struct __pyx_obj_5glove_13corpus_cython_Matrix *__pyx_v_self, int __pyx_v_max_map_size) {
-  int __pyx_r;
-  __Pyx_RefNannyDeclarations
-  std::vector<std::unordered_map<int,float> >  __pyx_t_1;
-  std::vector<std::vector<int> >  __pyx_t_2;
-  std::vector<std::vector<float> >  __pyx_t_3;
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("__cinit__", 0);
 
   /* "glove/corpus_cython.pyx":33
- *     def __cinit__(self, int max_map_size):
+ *             first = mid + 1
  * 
- *         self.max_map_size = max_map_size             # <<<<<<<<<<<<<<
- *         self.rows = vector[unordered_map[int, float]]()
- * 
+ *     if (first == size):             # <<<<<<<<<<<<<<
+ *         return first
+ *     elif vec[first] > x:
  */
-  __pyx_v_self->max_map_size = __pyx_v_max_map_size;
+  __pyx_t_1 = ((__pyx_v_first == __pyx_v_size) != 0);
+  if (__pyx_t_1) {
 
-  /* "glove/corpus_cython.pyx":34
+    /* "glove/corpus_cython.pyx":34
  * 
- *         self.max_map_size = max_map_size
- *         self.rows = vector[unordered_map[int, float]]()             # <<<<<<<<<<<<<<
- * 
- *         self.row_indices = vector[vector[int]]()
+ *     if (first == size):
+ *         return first             # <<<<<<<<<<<<<<
+ *     elif vec[first] > x:
+ *         return first
  */
-  try {
-    __pyx_t_1 = std::vector<std::unordered_map<int,float> > ();
-  } catch(...) {
-    __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 34; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_r = __pyx_v_first;
+    goto __pyx_L0;
+
+    /* "glove/corpus_cython.pyx":33
+ *             first = mid + 1
+ * 
+ *     if (first == size):             # <<<<<<<<<<<<<<
+ *         return first
+ *     elif vec[first] > x:
+ */
   }
-  __pyx_v_self->rows = __pyx_t_1;
 
-  /* "glove/corpus_cython.pyx":36
- *         self.rows = vector[unordered_map[int, float]]()
+  /* "glove/corpus_cython.pyx":35
+ *     if (first == size):
+ *         return first
+ *     elif vec[first] > x:             # <<<<<<<<<<<<<<
+ *         return first
+ *     else:
+ */
+  __pyx_t_1 = (((__pyx_v_vec[__pyx_v_first]) > __pyx_v_x) != 0);
+  if (__pyx_t_1) {
+
+    /* "glove/corpus_cython.pyx":36
+ *         return first
+ *     elif vec[first] > x:
+ *         return first             # <<<<<<<<<<<<<<
+ *     else:
+ *         return first + 1
+ */
+    __pyx_r = __pyx_v_first;
+    goto __pyx_L0;
+
+    /* "glove/corpus_cython.pyx":35
+ *     if (first == size):
+ *         return first
+ *     elif vec[first] > x:             # <<<<<<<<<<<<<<
+ *         return first
+ *     else:
+ */
+  }
+
+  /* "glove/corpus_cython.pyx":38
+ *         return first
+ *     else:
+ *         return first + 1             # <<<<<<<<<<<<<<
  * 
- *         self.row_indices = vector[vector[int]]()             # <<<<<<<<<<<<<<
- *         self.row_data = vector[vector[float]]()
  * 
  */
-  try {
-    __pyx_t_2 = std::vector<std::vector<int> > ();
-  } catch(...) {
-    __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 36; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  /*else*/ {
+    __pyx_r = (__pyx_v_first + 1);
+    goto __pyx_L0;
   }
-  __pyx_v_self->row_indices = __pyx_t_2;
 
-  /* "glove/corpus_cython.pyx":37
+  /* "glove/corpus_cython.pyx":17
  * 
- *         self.row_indices = vector[vector[int]]()
- *         self.row_data = vector[vector[float]]()             # <<<<<<<<<<<<<<
  * 
- *     cdef void compactify_row(self, int row):
- */
-  try {
-    __pyx_t_3 = std::vector<std::vector<float> > ();
-  } catch(...) {
-    __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 37; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  }
-  __pyx_v_self->row_data = __pyx_t_3;
-
-  /* "glove/corpus_cython.pyx":31
- *     cdef vector[vector[float]] row_data
- * 
- *     def __cinit__(self, int max_map_size):             # <<<<<<<<<<<<<<
- * 
- *         self.max_map_size = max_map_size
+ * cdef int binary_search(int* vec, int size, int first, int last, int x) nogil:             # <<<<<<<<<<<<<<
+ *     """
+ *     Binary seach in an array of ints
  */
 
   /* function exit code */
-  __pyx_r = 0;
-  goto __pyx_L0;
-  __pyx_L1_error:;
-  __Pyx_AddTraceback("glove.corpus_cython.Matrix.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = -1;
   __pyx_L0:;
-  __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glove/corpus_cython.pyx":39
- *         self.row_data = vector[vector[float]]()
+/* "glove/corpus_cython.pyx":46
  * 
- *     cdef void compactify_row(self, int row):             # <<<<<<<<<<<<<<
- *         """
- *         Move a row from a map to more efficient
+ * 
+ * cdef SparseRowMatrix* new_matrix():             # <<<<<<<<<<<<<<
+ *     """
+ *     Allocate and initialize a new matrix
  */
 
-static void __pyx_f_5glove_13corpus_cython_6Matrix_compactify_row(struct __pyx_obj_5glove_13corpus_cython_Matrix *__pyx_v_self, int __pyx_v_row) {
-  int __pyx_v_i;
-  int __pyx_v_col;
-  int __pyx_v_row_length;
-  std::pair<int,float>  __pyx_v_row_entry;
-  std::unordered_map<int,float> ::iterator __pyx_v_row_iterator;
-  CYTHON_UNUSED std::unordered_map<int,float>  __pyx_v_row_unordered_map;
+static struct __pyx_t_5glove_13corpus_cython_SparseRowMatrix *__pyx_f_5glove_13corpus_cython_new_matrix(void) {
+  struct __pyx_t_5glove_13corpus_cython_SparseRowMatrix *__pyx_v_mat;
+  struct __pyx_t_5glove_13corpus_cython_SparseRowMatrix *__pyx_r;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
-  int __pyx_t_2;
-  int __pyx_t_3;
-  int __pyx_t_4;
-  int __pyx_t_5;
+  std::vector<std::vector<int> >  *__pyx_t_2;
+  std::vector<std::vector<float> >  *__pyx_t_3;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("compactify_row", 0);
+  __Pyx_RefNannySetupContext("new_matrix", 0);
+
+  /* "glove/corpus_cython.pyx":53
+ *     cdef SparseRowMatrix* mat
+ * 
+ *     mat = <SparseRowMatrix*>malloc(sizeof(SparseRowMatrix))             # <<<<<<<<<<<<<<
+ * 
+ *     if mat == NULL:
+ */
+  __pyx_v_mat = ((struct __pyx_t_5glove_13corpus_cython_SparseRowMatrix *)malloc((sizeof(struct __pyx_t_5glove_13corpus_cython_SparseRowMatrix))));
+
+  /* "glove/corpus_cython.pyx":55
+ *     mat = <SparseRowMatrix*>malloc(sizeof(SparseRowMatrix))
+ * 
+ *     if mat == NULL:             # <<<<<<<<<<<<<<
+ *         raise MemoryError()
+ * 
+ */
+  __pyx_t_1 = ((__pyx_v_mat == NULL) != 0);
+  if (__pyx_t_1) {
+
+    /* "glove/corpus_cython.pyx":56
+ * 
+ *     if mat == NULL:
+ *         raise MemoryError()             # <<<<<<<<<<<<<<
+ * 
+ *     mat.indices = new vector[vector[int]]()
+ */
+    PyErr_NoMemory(); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 56; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+
+    /* "glove/corpus_cython.pyx":55
+ *     mat = <SparseRowMatrix*>malloc(sizeof(SparseRowMatrix))
+ * 
+ *     if mat == NULL:             # <<<<<<<<<<<<<<
+ *         raise MemoryError()
+ * 
+ */
+  }
+
+  /* "glove/corpus_cython.pyx":58
+ *         raise MemoryError()
+ * 
+ *     mat.indices = new vector[vector[int]]()             # <<<<<<<<<<<<<<
+ *     mat.data = new vector[vector[float]]()
+ * 
+ */
+  try {
+    __pyx_t_2 = new std::vector<std::vector<int> > ();
+  } catch(...) {
+    __Pyx_CppExn2PyErr();
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 58; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  }
+  __pyx_v_mat->indices = __pyx_t_2;
+
+  /* "glove/corpus_cython.pyx":59
+ * 
+ *     mat.indices = new vector[vector[int]]()
+ *     mat.data = new vector[vector[float]]()             # <<<<<<<<<<<<<<
+ * 
+ *     return mat
+ */
+  try {
+    __pyx_t_3 = new std::vector<std::vector<float> > ();
+  } catch(...) {
+    __Pyx_CppExn2PyErr();
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 59; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  }
+  __pyx_v_mat->data = __pyx_t_3;
+
+  /* "glove/corpus_cython.pyx":61
+ *     mat.data = new vector[vector[float]]()
+ * 
+ *     return mat             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = __pyx_v_mat;
+  goto __pyx_L0;
 
   /* "glove/corpus_cython.pyx":46
  * 
- *         cdef int i, col
- *         cdef int row_length = self.row_indices[row].size()             # <<<<<<<<<<<<<<
  * 
- *         cdef pair[int, float] row_entry
- */
-  __pyx_v_row_length = (__pyx_v_self->row_indices[__pyx_v_row]).size();
-
-  /* "glove/corpus_cython.pyx":51
- *         cdef unordered_map[int, float].iterator row_iterator
- * 
- *         row_unordered_map = self.rows[row]             # <<<<<<<<<<<<<<
- * 
- *         # Go through the elements already in vector storage
- */
-  __pyx_v_row_unordered_map = (__pyx_v_self->rows[__pyx_v_row]);
-
-  /* "glove/corpus_cython.pyx":56
- *         # and update them with the contents of a map, removing
- *         # map elements as they are transferred.
- *         for i in range(row_length):             # <<<<<<<<<<<<<<
- *             col = self.row_indices[row][i]
- *             if self.rows[row].find(col) != self.rows[row].end():
- */
-  __pyx_t_1 = __pyx_v_row_length;
-  for (__pyx_t_2 = 0; __pyx_t_2 < __pyx_t_1; __pyx_t_2+=1) {
-    __pyx_v_i = __pyx_t_2;
-
-    /* "glove/corpus_cython.pyx":57
- *         # map elements as they are transferred.
- *         for i in range(row_length):
- *             col = self.row_indices[row][i]             # <<<<<<<<<<<<<<
- *             if self.rows[row].find(col) != self.rows[row].end():
- * 
- */
-    __pyx_v_col = ((__pyx_v_self->row_indices[__pyx_v_row])[__pyx_v_i]);
-
-    /* "glove/corpus_cython.pyx":58
- *         for i in range(row_length):
- *             col = self.row_indices[row][i]
- *             if self.rows[row].find(col) != self.rows[row].end():             # <<<<<<<<<<<<<<
- * 
- *                 self.row_data[row][i] += self.rows[row][col]
- */
-    __pyx_t_3 = (((__pyx_v_self->rows[__pyx_v_row]).find(__pyx_v_col) != (__pyx_v_self->rows[__pyx_v_row]).end()) != 0);
-    if (__pyx_t_3) {
-
-      /* "glove/corpus_cython.pyx":60
- *             if self.rows[row].find(col) != self.rows[row].end():
- * 
- *                 self.row_data[row][i] += self.rows[row][col]             # <<<<<<<<<<<<<<
- *                 self.rows[row].erase(col)
- * 
- */
-      __pyx_t_4 = __pyx_v_row;
-      __pyx_t_5 = __pyx_v_i;
-      ((__pyx_v_self->row_data[__pyx_t_4])[__pyx_t_5]) = (((__pyx_v_self->row_data[__pyx_t_4])[__pyx_t_5]) + ((__pyx_v_self->rows[__pyx_v_row])[__pyx_v_col]));
-
-      /* "glove/corpus_cython.pyx":61
- * 
- *                 self.row_data[row][i] += self.rows[row][col]
- *                 self.rows[row].erase(col)             # <<<<<<<<<<<<<<
- * 
- *         # Resize the vectors to accommodate new
- */
-      (__pyx_v_self->rows[__pyx_v_row]).erase(__pyx_v_col);
-
-      /* "glove/corpus_cython.pyx":58
- *         for i in range(row_length):
- *             col = self.row_indices[row][i]
- *             if self.rows[row].find(col) != self.rows[row].end():             # <<<<<<<<<<<<<<
- * 
- *                 self.row_data[row][i] += self.rows[row][col]
- */
-    }
-  }
-
-  /* "glove/corpus_cython.pyx":65
- *         # Resize the vectors to accommodate new
- *         # columns from the map.
- *         row_length = self.row_indices[row].size()             # <<<<<<<<<<<<<<
- *         self.row_indices[row].resize(row_length)
- *         self.row_data[row].resize(row_length)
- */
-  __pyx_v_row_length = (__pyx_v_self->row_indices[__pyx_v_row]).size();
-
-  /* "glove/corpus_cython.pyx":66
- *         # columns from the map.
- *         row_length = self.row_indices[row].size()
- *         self.row_indices[row].resize(row_length)             # <<<<<<<<<<<<<<
- *         self.row_data[row].resize(row_length)
- * 
- */
-  try {
-    (__pyx_v_self->row_indices[__pyx_v_row]).resize(__pyx_v_row_length);
-  } catch(...) {
-    __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 66; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  }
-
-  /* "glove/corpus_cython.pyx":67
- *         row_length = self.row_indices[row].size()
- *         self.row_indices[row].resize(row_length)
- *         self.row_data[row].resize(row_length)             # <<<<<<<<<<<<<<
- * 
- *         # Add any new columns to the vector.
- */
-  try {
-    (__pyx_v_self->row_data[__pyx_v_row]).resize(__pyx_v_row_length);
-  } catch(...) {
-    __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 67; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  }
-
-  /* "glove/corpus_cython.pyx":70
- * 
- *         # Add any new columns to the vector.
- *         row_iterator = self.rows[row].begin()             # <<<<<<<<<<<<<<
- *         while row_iterator != self.rows[row].end():
- *             row_entry = deref(row_iterator)
- */
-  __pyx_v_row_iterator = (__pyx_v_self->rows[__pyx_v_row]).begin();
-
-  /* "glove/corpus_cython.pyx":71
- *         # Add any new columns to the vector.
- *         row_iterator = self.rows[row].begin()
- *         while row_iterator != self.rows[row].end():             # <<<<<<<<<<<<<<
- *             row_entry = deref(row_iterator)
- *             self.row_indices[row].push_back(row_entry.first)
- */
-  while (1) {
-    __pyx_t_3 = ((__pyx_v_row_iterator != (__pyx_v_self->rows[__pyx_v_row]).end()) != 0);
-    if (!__pyx_t_3) break;
-
-    /* "glove/corpus_cython.pyx":72
- *         row_iterator = self.rows[row].begin()
- *         while row_iterator != self.rows[row].end():
- *             row_entry = deref(row_iterator)             # <<<<<<<<<<<<<<
- *             self.row_indices[row].push_back(row_entry.first)
- *             self.row_data[row].push_back(row_entry.second)
- */
-    __pyx_v_row_entry = (*__pyx_v_row_iterator);
-
-    /* "glove/corpus_cython.pyx":73
- *         while row_iterator != self.rows[row].end():
- *             row_entry = deref(row_iterator)
- *             self.row_indices[row].push_back(row_entry.first)             # <<<<<<<<<<<<<<
- *             self.row_data[row].push_back(row_entry.second)
- *             inc(row_iterator)
- */
-    try {
-      (__pyx_v_self->row_indices[__pyx_v_row]).push_back(__pyx_v_row_entry.first);
-    } catch(...) {
-      __Pyx_CppExn2PyErr();
-      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 73; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    }
-
-    /* "glove/corpus_cython.pyx":74
- *             row_entry = deref(row_iterator)
- *             self.row_indices[row].push_back(row_entry.first)
- *             self.row_data[row].push_back(row_entry.second)             # <<<<<<<<<<<<<<
- *             inc(row_iterator)
- * 
- */
-    try {
-      (__pyx_v_self->row_data[__pyx_v_row]).push_back(__pyx_v_row_entry.second);
-    } catch(...) {
-      __Pyx_CppExn2PyErr();
-      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 74; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    }
-
-    /* "glove/corpus_cython.pyx":75
- *             self.row_indices[row].push_back(row_entry.first)
- *             self.row_data[row].push_back(row_entry.second)
- *             inc(row_iterator)             # <<<<<<<<<<<<<<
- * 
- *         self.rows[row].clear()
- */
-    (++__pyx_v_row_iterator);
-  }
-
-  /* "glove/corpus_cython.pyx":77
- *             inc(row_iterator)
- * 
- *         self.rows[row].clear()             # <<<<<<<<<<<<<<
- * 
- *     cdef void add_row(self):
- */
-  (__pyx_v_self->rows[__pyx_v_row]).clear();
-
-  /* "glove/corpus_cython.pyx":39
- *         self.row_data = vector[vector[float]]()
- * 
- *     cdef void compactify_row(self, int row):             # <<<<<<<<<<<<<<
- *         """
- *         Move a row from a map to more efficient
+ * cdef SparseRowMatrix* new_matrix():             # <<<<<<<<<<<<<<
+ *     """
+ *     Allocate and initialize a new matrix
  */
 
   /* function exit code */
-  goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_WriteUnraisable("glove.corpus_cython.Matrix.compactify_row", __pyx_clineno, __pyx_lineno, __pyx_filename, 0, 0);
+  __Pyx_WriteUnraisable("glove.corpus_cython.new_matrix", __pyx_clineno, __pyx_lineno, __pyx_filename, 0, 0);
+  __pyx_r = 0;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
+  return __pyx_r;
 }
 
-/* "glove/corpus_cython.pyx":79
- *         self.rows[row].clear()
+/* "glove/corpus_cython.pyx":64
  * 
- *     cdef void add_row(self):             # <<<<<<<<<<<<<<
- *         """
- *         Add a new row to the matrix.
+ * 
+ * cdef void free_matrix(SparseRowMatrix* mat) nogil:             # <<<<<<<<<<<<<<
+ *     """
+ *     Deallocate the data of a matrix
  */
 
-static void __pyx_f_5glove_13corpus_cython_6Matrix_add_row(struct __pyx_obj_5glove_13corpus_cython_Matrix *__pyx_v_self) {
-  std::unordered_map<int,float>  __pyx_v_row_map;
-  __Pyx_RefNannyDeclarations
-  std::unordered_map<int,float>  __pyx_t_1;
+static void __pyx_f_5glove_13corpus_cython_free_matrix(struct __pyx_t_5glove_13corpus_cython_SparseRowMatrix *__pyx_v_mat) {
+  int __pyx_v_i;
+  int __pyx_v_rows;
+  int __pyx_t_1;
+  int __pyx_t_2;
+
+  /* "glove/corpus_cython.pyx":70
+ * 
+ *     cdef int i
+ *     cdef int rows = mat.indices.size()             # <<<<<<<<<<<<<<
+ * 
+ *     for i in range(rows):
+ */
+  __pyx_v_rows = __pyx_v_mat->indices->size();
+
+  /* "glove/corpus_cython.pyx":72
+ *     cdef int rows = mat.indices.size()
+ * 
+ *     for i in range(rows):             # <<<<<<<<<<<<<<
+ *         deref(mat.indices)[i].clear()
+ *         deref(mat.data)[i].clear()
+ */
+  __pyx_t_1 = __pyx_v_rows;
+  for (__pyx_t_2 = 0; __pyx_t_2 < __pyx_t_1; __pyx_t_2+=1) {
+    __pyx_v_i = __pyx_t_2;
+
+    /* "glove/corpus_cython.pyx":73
+ * 
+ *     for i in range(rows):
+ *         deref(mat.indices)[i].clear()             # <<<<<<<<<<<<<<
+ *         deref(mat.data)[i].clear()
+ * 
+ */
+    ((*__pyx_v_mat->indices)[__pyx_v_i]).clear();
+
+    /* "glove/corpus_cython.pyx":74
+ *     for i in range(rows):
+ *         deref(mat.indices)[i].clear()
+ *         deref(mat.data)[i].clear()             # <<<<<<<<<<<<<<
+ * 
+ *     del mat.indices
+ */
+    ((*__pyx_v_mat->data)[__pyx_v_i]).clear();
+  }
+
+  /* "glove/corpus_cython.pyx":76
+ *         deref(mat.data)[i].clear()
+ * 
+ *     del mat.indices             # <<<<<<<<<<<<<<
+ *     del mat.data
+ * 
+ */
+  delete __pyx_v_mat->indices;
+
+  /* "glove/corpus_cython.pyx":77
+ * 
+ *     del mat.indices
+ *     del mat.data             # <<<<<<<<<<<<<<
+ * 
+ *     free(mat)
+ */
+  delete __pyx_v_mat->data;
+
+  /* "glove/corpus_cython.pyx":79
+ *     del mat.data
+ * 
+ *     free(mat)             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  free(__pyx_v_mat);
+
+  /* "glove/corpus_cython.pyx":64
+ * 
+ * 
+ * cdef void free_matrix(SparseRowMatrix* mat) nogil:             # <<<<<<<<<<<<<<
+ *     """
+ *     Deallocate the data of a matrix
+ */
+
+  /* function exit code */
+}
+
+/* "glove/corpus_cython.pyx":82
+ * 
+ * 
+ * cdef void increment_matrix(SparseRowMatrix* mat, int row, int col, float increment) nogil:             # <<<<<<<<<<<<<<
+ *     """
+ *     Increment the (row, col) entry of mat by increment.
+ */
+
+static void __pyx_f_5glove_13corpus_cython_increment_matrix(struct __pyx_t_5glove_13corpus_cython_SparseRowMatrix *__pyx_v_mat, int __pyx_v_row, int __pyx_v_col, float __pyx_v_increment) {
+  std::vector<int>  *__pyx_v_row_indices;
+  std::vector<float>  *__pyx_v_row_data;
+  int __pyx_v_idx;
+  int __pyx_v_col_at_idx;
+  int __pyx_t_1;
   std::vector<int>  __pyx_t_2;
   std::vector<float>  __pyx_t_3;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("add_row", 0);
 
-  /* "glove/corpus_cython.pyx":86
- *         cdef unordered_map[int, float] row_map
+  /* "glove/corpus_cython.pyx":93
  * 
- *         row_map = unordered_map[int, float]()             # <<<<<<<<<<<<<<
- * 
- *         self.rows.push_back(row_map)
+ *     # Add new row if necessary
+ *     while row >= mat.indices.size():             # <<<<<<<<<<<<<<
+ *         mat.indices.push_back(vector[int]())
+ *         mat.data.push_back(vector[float]())
  */
-  try {
-    __pyx_t_1 = std::unordered_map<int,float> ();
-  } catch(...) {
-    __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 86; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  }
-  __pyx_v_row_map = __pyx_t_1;
+  while (1) {
+    __pyx_t_1 = ((__pyx_v_row >= __pyx_v_mat->indices->size()) != 0);
+    if (!__pyx_t_1) break;
 
-  /* "glove/corpus_cython.pyx":88
- *         row_map = unordered_map[int, float]()
- * 
- *         self.rows.push_back(row_map)             # <<<<<<<<<<<<<<
- *         self.row_indices.push_back(vector[int]())
- *         self.row_data.push_back(vector[float]())
- */
-  try {
-    __pyx_v_self->rows.push_back(__pyx_v_row_map);
-  } catch(...) {
-    __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 88; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  }
-
-  /* "glove/corpus_cython.pyx":89
- * 
- *         self.rows.push_back(row_map)
- *         self.row_indices.push_back(vector[int]())             # <<<<<<<<<<<<<<
- *         self.row_data.push_back(vector[float]())
+    /* "glove/corpus_cython.pyx":94
+ *     # Add new row if necessary
+ *     while row >= mat.indices.size():
+ *         mat.indices.push_back(vector[int]())             # <<<<<<<<<<<<<<
+ *         mat.data.push_back(vector[float]())
  * 
  */
-  try {
-    __pyx_t_2 = std::vector<int> ();
-  } catch(...) {
-    __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 89; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  }
-  try {
-    __pyx_v_self->row_indices.push_back(__pyx_t_2);
-  } catch(...) {
-    __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 89; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  }
+    try {
+      __pyx_t_2 = std::vector<int> ();
+    } catch(...) {
+      #ifdef WITH_THREAD
+      PyGILState_STATE __pyx_gilstate_save = PyGILState_Ensure();
+      #endif
+      __Pyx_CppExn2PyErr();
+      #ifdef WITH_THREAD
+      PyGILState_Release(__pyx_gilstate_save);
+      #endif
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 94; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    }
+    try {
+      __pyx_v_mat->indices->push_back(__pyx_t_2);
+    } catch(...) {
+      #ifdef WITH_THREAD
+      PyGILState_STATE __pyx_gilstate_save = PyGILState_Ensure();
+      #endif
+      __Pyx_CppExn2PyErr();
+      #ifdef WITH_THREAD
+      PyGILState_Release(__pyx_gilstate_save);
+      #endif
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 94; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    }
 
-  /* "glove/corpus_cython.pyx":90
- *         self.rows.push_back(row_map)
- *         self.row_indices.push_back(vector[int]())
- *         self.row_data.push_back(vector[float]())             # <<<<<<<<<<<<<<
+    /* "glove/corpus_cython.pyx":95
+ *     while row >= mat.indices.size():
+ *         mat.indices.push_back(vector[int]())
+ *         mat.data.push_back(vector[float]())             # <<<<<<<<<<<<<<
  * 
- *     cdef void increment(self, int row, int col, float value):
+ *     row_indices = &(deref(mat.indices)[row])
  */
-  try {
-    __pyx_t_3 = std::vector<float> ();
-  } catch(...) {
-    __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 90; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  }
-  try {
-    __pyx_v_self->row_data.push_back(__pyx_t_3);
-  } catch(...) {
-    __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 90; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    try {
+      __pyx_t_3 = std::vector<float> ();
+    } catch(...) {
+      #ifdef WITH_THREAD
+      PyGILState_STATE __pyx_gilstate_save = PyGILState_Ensure();
+      #endif
+      __Pyx_CppExn2PyErr();
+      #ifdef WITH_THREAD
+      PyGILState_Release(__pyx_gilstate_save);
+      #endif
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 95; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    }
+    try {
+      __pyx_v_mat->data->push_back(__pyx_t_3);
+    } catch(...) {
+      #ifdef WITH_THREAD
+      PyGILState_STATE __pyx_gilstate_save = PyGILState_Ensure();
+      #endif
+      __Pyx_CppExn2PyErr();
+      #ifdef WITH_THREAD
+      PyGILState_Release(__pyx_gilstate_save);
+      #endif
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 95; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    }
   }
 
-  /* "glove/corpus_cython.pyx":79
- *         self.rows[row].clear()
+  /* "glove/corpus_cython.pyx":97
+ *         mat.data.push_back(vector[float]())
  * 
- *     cdef void add_row(self):             # <<<<<<<<<<<<<<
- *         """
- *         Add a new row to the matrix.
+ *     row_indices = &(deref(mat.indices)[row])             # <<<<<<<<<<<<<<
+ *     row_data = &(deref(mat.data)[row])
+ * 
+ */
+  __pyx_v_row_indices = (&((*__pyx_v_mat->indices)[__pyx_v_row]));
+
+  /* "glove/corpus_cython.pyx":98
+ * 
+ *     row_indices = &(deref(mat.indices)[row])
+ *     row_data = &(deref(mat.data)[row])             # <<<<<<<<<<<<<<
+ * 
+ *     # Find the column element, or the position where
+ */
+  __pyx_v_row_data = (&((*__pyx_v_mat->data)[__pyx_v_row]));
+
+  /* "glove/corpus_cython.pyx":102
+ *     # Find the column element, or the position where
+ *     # a new element should be inserted
+ *     if row_indices.size() == 0:             # <<<<<<<<<<<<<<
+ *         idx = 0
+ *     else:
+ */
+  __pyx_t_1 = ((__pyx_v_row_indices->size() == 0) != 0);
+  if (__pyx_t_1) {
+
+    /* "glove/corpus_cython.pyx":103
+ *     # a new element should be inserted
+ *     if row_indices.size() == 0:
+ *         idx = 0             # <<<<<<<<<<<<<<
+ *     else:
+ *         idx = binary_search(&(deref(row_indices)[0]), row_indices.size(),
+ */
+    __pyx_v_idx = 0;
+
+    /* "glove/corpus_cython.pyx":102
+ *     # Find the column element, or the position where
+ *     # a new element should be inserted
+ *     if row_indices.size() == 0:             # <<<<<<<<<<<<<<
+ *         idx = 0
+ *     else:
+ */
+    goto __pyx_L5;
+  }
+
+  /* "glove/corpus_cython.pyx":105
+ *         idx = 0
+ *     else:
+ *         idx = binary_search(&(deref(row_indices)[0]), row_indices.size(),             # <<<<<<<<<<<<<<
+ *                             0, row_indices.size(), col)
+ * 
+ */
+  /*else*/ {
+
+    /* "glove/corpus_cython.pyx":106
+ *     else:
+ *         idx = binary_search(&(deref(row_indices)[0]), row_indices.size(),
+ *                             0, row_indices.size(), col)             # <<<<<<<<<<<<<<
+ * 
+ *     # Element to be added at the end
+ */
+    __pyx_v_idx = __pyx_f_5glove_13corpus_cython_binary_search((&((*__pyx_v_row_indices)[0])), __pyx_v_row_indices->size(), 0, __pyx_v_row_indices->size(), __pyx_v_col);
+  }
+  __pyx_L5:;
+
+  /* "glove/corpus_cython.pyx":109
+ * 
+ *     # Element to be added at the end
+ *     if idx == row_indices.size():             # <<<<<<<<<<<<<<
+ *         row_indices.insert(row_indices.begin() + idx, col)
+ *         row_data.insert(row_data.begin() + idx, increment)
+ */
+  __pyx_t_1 = ((__pyx_v_idx == __pyx_v_row_indices->size()) != 0);
+  if (__pyx_t_1) {
+
+    /* "glove/corpus_cython.pyx":110
+ *     # Element to be added at the end
+ *     if idx == row_indices.size():
+ *         row_indices.insert(row_indices.begin() + idx, col)             # <<<<<<<<<<<<<<
+ *         row_data.insert(row_data.begin() + idx, increment)
+ *         return
+ */
+    try {
+      __pyx_v_row_indices->insert((__pyx_v_row_indices->begin() + __pyx_v_idx), __pyx_v_col);
+    } catch(...) {
+      #ifdef WITH_THREAD
+      PyGILState_STATE __pyx_gilstate_save = PyGILState_Ensure();
+      #endif
+      __Pyx_CppExn2PyErr();
+      #ifdef WITH_THREAD
+      PyGILState_Release(__pyx_gilstate_save);
+      #endif
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 110; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    }
+
+    /* "glove/corpus_cython.pyx":111
+ *     if idx == row_indices.size():
+ *         row_indices.insert(row_indices.begin() + idx, col)
+ *         row_data.insert(row_data.begin() + idx, increment)             # <<<<<<<<<<<<<<
+ *         return
+ * 
+ */
+    try {
+      __pyx_v_row_data->insert((__pyx_v_row_data->begin() + __pyx_v_idx), __pyx_v_increment);
+    } catch(...) {
+      #ifdef WITH_THREAD
+      PyGILState_STATE __pyx_gilstate_save = PyGILState_Ensure();
+      #endif
+      __Pyx_CppExn2PyErr();
+      #ifdef WITH_THREAD
+      PyGILState_Release(__pyx_gilstate_save);
+      #endif
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 111; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    }
+
+    /* "glove/corpus_cython.pyx":112
+ *         row_indices.insert(row_indices.begin() + idx, col)
+ *         row_data.insert(row_data.begin() + idx, increment)
+ *         return             # <<<<<<<<<<<<<<
+ * 
+ *     col_at_idx = deref(row_indices)[idx]
+ */
+    goto __pyx_L0;
+
+    /* "glove/corpus_cython.pyx":109
+ * 
+ *     # Element to be added at the end
+ *     if idx == row_indices.size():             # <<<<<<<<<<<<<<
+ *         row_indices.insert(row_indices.begin() + idx, col)
+ *         row_data.insert(row_data.begin() + idx, increment)
+ */
+  }
+
+  /* "glove/corpus_cython.pyx":114
+ *         return
+ * 
+ *     col_at_idx = deref(row_indices)[idx]             # <<<<<<<<<<<<<<
+ * 
+ *     if col_at_idx == col:
+ */
+  __pyx_v_col_at_idx = ((*__pyx_v_row_indices)[__pyx_v_idx]);
+
+  /* "glove/corpus_cython.pyx":116
+ *     col_at_idx = deref(row_indices)[idx]
+ * 
+ *     if col_at_idx == col:             # <<<<<<<<<<<<<<
+ *         # Element to be incremented
+ *         deref(row_data)[idx] = deref(row_data)[idx] + increment
+ */
+  __pyx_t_1 = ((__pyx_v_col_at_idx == __pyx_v_col) != 0);
+  if (__pyx_t_1) {
+
+    /* "glove/corpus_cython.pyx":118
+ *     if col_at_idx == col:
+ *         # Element to be incremented
+ *         deref(row_data)[idx] = deref(row_data)[idx] + increment             # <<<<<<<<<<<<<<
+ *     else:
+ *         # Element to be inserted
+ */
+    ((*__pyx_v_row_data)[__pyx_v_idx]) = (((*__pyx_v_row_data)[__pyx_v_idx]) + __pyx_v_increment);
+
+    /* "glove/corpus_cython.pyx":116
+ *     col_at_idx = deref(row_indices)[idx]
+ * 
+ *     if col_at_idx == col:             # <<<<<<<<<<<<<<
+ *         # Element to be incremented
+ *         deref(row_data)[idx] = deref(row_data)[idx] + increment
+ */
+    goto __pyx_L7;
+  }
+
+  /* "glove/corpus_cython.pyx":121
+ *     else:
+ *         # Element to be inserted
+ *         row_indices.insert(row_indices.begin() + idx, col)             # <<<<<<<<<<<<<<
+ *         row_data.insert(row_data.begin() + idx, increment)
+ * 
+ */
+  /*else*/ {
+    try {
+      __pyx_v_row_indices->insert((__pyx_v_row_indices->begin() + __pyx_v_idx), __pyx_v_col);
+    } catch(...) {
+      #ifdef WITH_THREAD
+      PyGILState_STATE __pyx_gilstate_save = PyGILState_Ensure();
+      #endif
+      __Pyx_CppExn2PyErr();
+      #ifdef WITH_THREAD
+      PyGILState_Release(__pyx_gilstate_save);
+      #endif
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 121; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    }
+
+    /* "glove/corpus_cython.pyx":122
+ *         # Element to be inserted
+ *         row_indices.insert(row_indices.begin() + idx, col)
+ *         row_data.insert(row_data.begin() + idx, increment)             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+    try {
+      __pyx_v_row_data->insert((__pyx_v_row_data->begin() + __pyx_v_idx), __pyx_v_increment);
+    } catch(...) {
+      #ifdef WITH_THREAD
+      PyGILState_STATE __pyx_gilstate_save = PyGILState_Ensure();
+      #endif
+      __Pyx_CppExn2PyErr();
+      #ifdef WITH_THREAD
+      PyGILState_Release(__pyx_gilstate_save);
+      #endif
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 122; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    }
+  }
+  __pyx_L7:;
+
+  /* "glove/corpus_cython.pyx":82
+ * 
+ * 
+ * cdef void increment_matrix(SparseRowMatrix* mat, int row, int col, float increment) nogil:             # <<<<<<<<<<<<<<
+ *     """
+ *     Increment the (row, col) entry of mat by increment.
  */
 
   /* function exit code */
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_WriteUnraisable("glove.corpus_cython.Matrix.add_row", __pyx_clineno, __pyx_lineno, __pyx_filename, 0, 0);
+  __Pyx_WriteUnraisable("glove.corpus_cython.increment_matrix", __pyx_clineno, __pyx_lineno, __pyx_filename, 0, 1);
   __pyx_L0:;
-  __Pyx_RefNannyFinishContext();
 }
 
-/* "glove/corpus_cython.pyx":92
- *         self.row_data.push_back(vector[float]())
+/* "glove/corpus_cython.pyx":125
  * 
- *     cdef void increment(self, int row, int col, float value):             # <<<<<<<<<<<<<<
- *         """
- *         Increment the value at (row, col) by value.
+ * 
+ * cdef int matrix_nnz(SparseRowMatrix* mat) nogil:             # <<<<<<<<<<<<<<
+ *     """
+ *     Get the number of nonzero entries in mat
  */
 
-static void __pyx_f_5glove_13corpus_cython_6Matrix_increment(struct __pyx_obj_5glove_13corpus_cython_Matrix *__pyx_v_self, int __pyx_v_row, int __pyx_v_col, float __pyx_v_value) {
-  __Pyx_RefNannyDeclarations
-  int __pyx_t_1;
-  int __pyx_t_2;
-  int __pyx_t_3;
-  __Pyx_RefNannySetupContext("increment", 0);
-
-  /* "glove/corpus_cython.pyx":99
- *         cdef float current_value
- * 
- *         while row >= self.rows.size():             # <<<<<<<<<<<<<<
- *             self.add_row()
- * 
- */
-  while (1) {
-    __pyx_t_1 = ((__pyx_v_row >= __pyx_v_self->rows.size()) != 0);
-    if (!__pyx_t_1) break;
-
-    /* "glove/corpus_cython.pyx":100
- * 
- *         while row >= self.rows.size():
- *             self.add_row()             # <<<<<<<<<<<<<<
- * 
- *         self.rows[row][col] += value
- */
-    ((struct __pyx_vtabstruct_5glove_13corpus_cython_Matrix *)__pyx_v_self->__pyx_vtab)->add_row(__pyx_v_self);
-  }
-
-  /* "glove/corpus_cython.pyx":102
- *             self.add_row()
- * 
- *         self.rows[row][col] += value             # <<<<<<<<<<<<<<
- * 
- *         if self.rows[row].size() > self.max_map_size:
- */
-  __pyx_t_2 = __pyx_v_row;
-  __pyx_t_3 = __pyx_v_col;
-  ((__pyx_v_self->rows[__pyx_t_2])[__pyx_t_3]) = (((__pyx_v_self->rows[__pyx_t_2])[__pyx_t_3]) + __pyx_v_value);
-
-  /* "glove/corpus_cython.pyx":104
- *         self.rows[row][col] += value
- * 
- *         if self.rows[row].size() > self.max_map_size:             # <<<<<<<<<<<<<<
- *             self.compactify_row(row)
- * 
- */
-  __pyx_t_1 = (((__pyx_v_self->rows[__pyx_v_row]).size() > __pyx_v_self->max_map_size) != 0);
-  if (__pyx_t_1) {
-
-    /* "glove/corpus_cython.pyx":105
- * 
- *         if self.rows[row].size() > self.max_map_size:
- *             self.compactify_row(row)             # <<<<<<<<<<<<<<
- * 
- *     cdef int size(self):
- */
-    ((struct __pyx_vtabstruct_5glove_13corpus_cython_Matrix *)__pyx_v_self->__pyx_vtab)->compactify_row(__pyx_v_self, __pyx_v_row);
-
-    /* "glove/corpus_cython.pyx":104
- *         self.rows[row][col] += value
- * 
- *         if self.rows[row].size() > self.max_map_size:             # <<<<<<<<<<<<<<
- *             self.compactify_row(row)
- * 
- */
-  }
-
-  /* "glove/corpus_cython.pyx":92
- *         self.row_data.push_back(vector[float]())
- * 
- *     cdef void increment(self, int row, int col, float value):             # <<<<<<<<<<<<<<
- *         """
- *         Increment the value at (row, col) by value.
- */
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-}
-
-/* "glove/corpus_cython.pyx":107
- *             self.compactify_row(row)
- * 
- *     cdef int size(self):             # <<<<<<<<<<<<<<
- *         """
- *         Get number of nonzero entries.
- */
-
-static int __pyx_f_5glove_13corpus_cython_6Matrix_size(struct __pyx_obj_5glove_13corpus_cython_Matrix *__pyx_v_self) {
+static int __pyx_f_5glove_13corpus_cython_matrix_nnz(struct __pyx_t_5glove_13corpus_cython_SparseRowMatrix *__pyx_v_mat) {
   int __pyx_v_i;
   int __pyx_v_size;
   int __pyx_r;
-  __Pyx_RefNannyDeclarations
   size_t __pyx_t_1;
   int __pyx_t_2;
-  __Pyx_RefNannySetupContext("size", 0);
 
-  /* "glove/corpus_cython.pyx":113
+  /* "glove/corpus_cython.pyx":131
  * 
- *         cdef int i
- *         cdef int size = 0             # <<<<<<<<<<<<<<
+ *     cdef int i
+ *     cdef int size = 0             # <<<<<<<<<<<<<<
  * 
- *         for i in range(self.rows.size()):
+ *     for i in range(mat.indices.size()):
  */
   __pyx_v_size = 0;
 
-  /* "glove/corpus_cython.pyx":115
- *         cdef int size = 0
+  /* "glove/corpus_cython.pyx":133
+ *     cdef int size = 0
  * 
- *         for i in range(self.rows.size()):             # <<<<<<<<<<<<<<
- *             size += self.rows[i].size()
- *             size += self.row_indices[i].size()
+ *     for i in range(mat.indices.size()):             # <<<<<<<<<<<<<<
+ *         size += deref(mat.indices)[i].size()
+ * 
  */
-  __pyx_t_1 = __pyx_v_self->rows.size();
+  __pyx_t_1 = __pyx_v_mat->indices->size();
   for (__pyx_t_2 = 0; __pyx_t_2 < __pyx_t_1; __pyx_t_2+=1) {
     __pyx_v_i = __pyx_t_2;
 
-    /* "glove/corpus_cython.pyx":116
+    /* "glove/corpus_cython.pyx":134
  * 
- *         for i in range(self.rows.size()):
- *             size += self.rows[i].size()             # <<<<<<<<<<<<<<
- *             size += self.row_indices[i].size()
+ *     for i in range(mat.indices.size()):
+ *         size += deref(mat.indices)[i].size()             # <<<<<<<<<<<<<<
  * 
+ *     return size
  */
-    __pyx_v_size = (__pyx_v_size + (__pyx_v_self->rows[__pyx_v_i]).size());
-
-    /* "glove/corpus_cython.pyx":117
- *         for i in range(self.rows.size()):
- *             size += self.rows[i].size()
- *             size += self.row_indices[i].size()             # <<<<<<<<<<<<<<
- * 
- *         return size
- */
-    __pyx_v_size = (__pyx_v_size + (__pyx_v_self->row_indices[__pyx_v_i]).size());
+    __pyx_v_size = (__pyx_v_size + ((*__pyx_v_mat->indices)[__pyx_v_i]).size());
   }
 
-  /* "glove/corpus_cython.pyx":119
- *             size += self.row_indices[i].size()
+  /* "glove/corpus_cython.pyx":136
+ *         size += deref(mat.indices)[i].size()
  * 
- *         return size             # <<<<<<<<<<<<<<
+ *     return size             # <<<<<<<<<<<<<<
  * 
- *     cpdef to_coo(self, int shape):
+ * 
  */
   __pyx_r = __pyx_v_size;
   goto __pyx_L0;
 
-  /* "glove/corpus_cython.pyx":107
- *             self.compactify_row(row)
+  /* "glove/corpus_cython.pyx":125
  * 
- *     cdef int size(self):             # <<<<<<<<<<<<<<
- *         """
- *         Get number of nonzero entries.
+ * 
+ * cdef int matrix_nnz(SparseRowMatrix* mat) nogil:             # <<<<<<<<<<<<<<
+ *     """
+ *     Get the number of nonzero entries in mat
  */
 
   /* function exit code */
   __pyx_L0:;
-  __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glove/corpus_cython.pyx":121
- *         return size
+/* "glove/corpus_cython.pyx":139
  * 
- *     cpdef to_coo(self, int shape):             # <<<<<<<<<<<<<<
- *         """
- *         Convert to a shape by shape COO matrix.
+ * 
+ * cdef matrix_to_coo(SparseRowMatrix* mat, int shape):             # <<<<<<<<<<<<<<
+ *     """
+ *     Convert to a shape by shape COO matrix.
  */
 
-static PyObject *__pyx_pw_5glove_13corpus_cython_6Matrix_3to_coo(PyObject *__pyx_v_self, PyObject *__pyx_arg_shape); /*proto*/
-static PyObject *__pyx_f_5glove_13corpus_cython_6Matrix_to_coo(struct __pyx_obj_5glove_13corpus_cython_Matrix *__pyx_v_self, int __pyx_v_shape, int __pyx_skip_dispatch) {
+static PyObject *__pyx_f_5glove_13corpus_cython_matrix_to_coo(struct __pyx_t_5glove_13corpus_cython_SparseRowMatrix *__pyx_v_mat, int __pyx_v_shape) {
   int __pyx_v_i;
   int __pyx_v_j;
   int __pyx_v_row;
@@ -2216,337 +2285,272 @@ static PyObject *__pyx_f_5glove_13corpus_cython_6Matrix_to_coo(struct __pyx_obj_
   PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
   PyObject *__pyx_t_5 = NULL;
-  PyObject *__pyx_t_6 = NULL;
-  int __pyx_t_7;
+  __Pyx_memviewslice __pyx_t_6 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_t_7 = { 0, 0, { 0 }, { 0 }, { 0 } };
   int __pyx_t_8;
-  __Pyx_memviewslice __pyx_t_9 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_t_10 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  size_t __pyx_t_11;
-  int __pyx_t_12;
+  int __pyx_t_9;
+  size_t __pyx_t_10;
+  int __pyx_t_11;
+  Py_ssize_t __pyx_t_12;
   Py_ssize_t __pyx_t_13;
   Py_ssize_t __pyx_t_14;
-  Py_ssize_t __pyx_t_15;
+  PyObject *__pyx_t_15 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("to_coo", 0);
-  /* Check if called by wrapper */
-  if (unlikely(__pyx_skip_dispatch)) ;
-  /* Check if overridden in Python */
-  else if (unlikely(Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0)) {
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_to_coo); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 121; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_1);
-    if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)__pyx_pw_5glove_13corpus_cython_6Matrix_3to_coo)) {
-      __Pyx_XDECREF(__pyx_r);
-      __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_shape); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 121; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_GOTREF(__pyx_t_3);
-      __Pyx_INCREF(__pyx_t_1);
-      __pyx_t_4 = __pyx_t_1; __pyx_t_5 = NULL;
-      if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_4))) {
-        __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_4);
-        if (likely(__pyx_t_5)) {
-          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
-          __Pyx_INCREF(__pyx_t_5);
-          __Pyx_INCREF(function);
-          __Pyx_DECREF_SET(__pyx_t_4, function);
-        }
-      }
-      if (!__pyx_t_5) {
-        __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 121; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        __Pyx_GOTREF(__pyx_t_2);
-      } else {
-        __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 121; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-        __Pyx_GOTREF(__pyx_t_6);
-        __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_5); __pyx_t_5 = NULL;
-        __Pyx_GIVEREF(__pyx_t_3);
-        PyTuple_SET_ITEM(__pyx_t_6, 0+1, __pyx_t_3);
-        __pyx_t_3 = 0;
-        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 121; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-        __Pyx_GOTREF(__pyx_t_2);
-        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      }
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_r = __pyx_t_2;
-      __pyx_t_2 = 0;
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      goto __pyx_L0;
-    }
-    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  }
+  __Pyx_RefNannySetupContext("matrix_to_coo", 0);
 
-  /* "glove/corpus_cython.pyx":129
- *         cdef int row
- *         cdef int col
- *         cdef int rows = self.rows.size()             # <<<<<<<<<<<<<<
- *         cdef int no_collocations
+  /* "glove/corpus_cython.pyx":147
+ *     cdef int row
+ *     cdef int col
+ *     cdef int rows = mat.indices.size()             # <<<<<<<<<<<<<<
+ *     cdef int no_collocations = matrix_nnz(mat)
  * 
  */
-  __pyx_v_rows = __pyx_v_self->rows.size();
+  __pyx_v_rows = __pyx_v_mat->indices->size();
 
-  /* "glove/corpus_cython.pyx":133
+  /* "glove/corpus_cython.pyx":148
+ *     cdef int col
+ *     cdef int rows = mat.indices.size()
+ *     cdef int no_collocations = matrix_nnz(mat)             # <<<<<<<<<<<<<<
  * 
- *         # Transform all row maps to row arrays.
- *         for i in range(rows):             # <<<<<<<<<<<<<<
- *             self.compactify_row(i)
- * 
+ *     # Create the constituent numpy arrays.
  */
-  __pyx_t_7 = __pyx_v_rows;
-  for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
-    __pyx_v_i = __pyx_t_8;
+  __pyx_v_no_collocations = __pyx_f_5glove_13corpus_cython_matrix_nnz(__pyx_v_mat);
 
-    /* "glove/corpus_cython.pyx":134
- *         # Transform all row maps to row arrays.
- *         for i in range(rows):
- *             self.compactify_row(i)             # <<<<<<<<<<<<<<
+  /* "glove/corpus_cython.pyx":151
  * 
- *         no_collocations = self.size()
+ *     # Create the constituent numpy arrays.
+ *     row_np = np.empty(no_collocations, dtype=np.int32)             # <<<<<<<<<<<<<<
+ *     col_np = np.empty(no_collocations, dtype=np.int32)
+ *     data_np = np.empty(no_collocations, dtype=np.float64)
  */
-    ((struct __pyx_vtabstruct_5glove_13corpus_cython_Matrix *)__pyx_v_self->__pyx_vtab)->compactify_row(__pyx_v_self, __pyx_v_i);
-  }
-
-  /* "glove/corpus_cython.pyx":136
- *             self.compactify_row(i)
- * 
- *         no_collocations = self.size()             # <<<<<<<<<<<<<<
- * 
- *         # Create the constituent numpy arrays.
- */
-  __pyx_v_no_collocations = ((struct __pyx_vtabstruct_5glove_13corpus_cython_Matrix *)__pyx_v_self->__pyx_vtab)->size(__pyx_v_self);
-
-  /* "glove/corpus_cython.pyx":139
- * 
- *         # Create the constituent numpy arrays.
- *         row_np = np.empty(no_collocations, dtype=np.int32)             # <<<<<<<<<<<<<<
- *         col_np = np.empty(no_collocations, dtype=np.int32)
- *         data_np = np.empty(no_collocations, dtype=np.float64)
- */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 139; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_empty); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 139; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_empty); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_no_collocations); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 139; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_no_collocations); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 139; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
-  PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_1);
+  PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
   __pyx_t_1 = 0;
-  __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 139; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 139; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_int32); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 139; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_3) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 139; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, __pyx_t_1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 139; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_v_row_np = __pyx_t_3;
-  __pyx_t_3 = 0;
-
-  /* "glove/corpus_cython.pyx":140
- *         # Create the constituent numpy arrays.
- *         row_np = np.empty(no_collocations, dtype=np.int32)
- *         col_np = np.empty(no_collocations, dtype=np.int32)             # <<<<<<<<<<<<<<
- *         data_np = np.empty(no_collocations, dtype=np.float64)
- *         cdef int[:,] row_view = row_np
- */
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 140; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_empty); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 140; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_no_collocations); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 140; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 140; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_GIVEREF(__pyx_t_3);
-  PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3);
-  __pyx_t_3 = 0;
-  __pyx_t_3 = PyDict_New(); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 140; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 140; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_int32); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 140; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_6);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_6) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 140; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 140; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_6);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_int32); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_5) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_v_col_np = __pyx_t_6;
-  __pyx_t_6 = 0;
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_v_row_np = __pyx_t_5;
+  __pyx_t_5 = 0;
 
-  /* "glove/corpus_cython.pyx":141
- *         row_np = np.empty(no_collocations, dtype=np.int32)
- *         col_np = np.empty(no_collocations, dtype=np.int32)
- *         data_np = np.empty(no_collocations, dtype=np.float64)             # <<<<<<<<<<<<<<
- *         cdef int[:,] row_view = row_np
- *         cdef int[:,] col_view = col_np
+  /* "glove/corpus_cython.pyx":152
+ *     # Create the constituent numpy arrays.
+ *     row_np = np.empty(no_collocations, dtype=np.int32)
+ *     col_np = np.empty(no_collocations, dtype=np.int32)             # <<<<<<<<<<<<<<
+ *     data_np = np.empty(no_collocations, dtype=np.float64)
+ *     cdef int[:] row_view = row_np
  */
-  __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 141; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_empty); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 141; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = __Pyx_PyInt_From_int(__pyx_v_no_collocations); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 141; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 141; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_GIVEREF(__pyx_t_6);
-  PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_6);
-  __pyx_t_6 = 0;
-  __pyx_t_6 = PyDict_New(); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 141; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 141; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 152; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_empty); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 152; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_float64); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 141; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_no_collocations); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 152; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 152; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_GIVEREF(__pyx_t_5);
+  PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_5);
+  __pyx_t_5 = 0;
+  __pyx_t_5 = PyDict_New(); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 152; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 152; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_int32); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 152; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 152; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_3, __pyx_t_5); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 152; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __pyx_v_col_np = __pyx_t_4;
+  __pyx_t_4 = 0;
+
+  /* "glove/corpus_cython.pyx":153
+ *     row_np = np.empty(no_collocations, dtype=np.int32)
+ *     col_np = np.empty(no_collocations, dtype=np.int32)
+ *     data_np = np.empty(no_collocations, dtype=np.float64)             # <<<<<<<<<<<<<<
+ *     cdef int[:] row_view = row_np
+ *     cdef int[:] col_view = col_np
+ */
+  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_empty); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_no_collocations); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_GIVEREF(__pyx_t_4);
+  PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_4);
+  __pyx_t_4 = 0;
+  __pyx_t_4 = PyDict_New(); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_float64); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_dtype, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 141; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_6); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 141; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __pyx_v_data_np = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "glove/corpus_cython.pyx":142
- *         col_np = np.empty(no_collocations, dtype=np.int32)
- *         data_np = np.empty(no_collocations, dtype=np.float64)
- *         cdef int[:,] row_view = row_np             # <<<<<<<<<<<<<<
- *         cdef int[:,] col_view = col_np
- *         cdef double[:,] data_view = data_np
+  /* "glove/corpus_cython.pyx":154
+ *     col_np = np.empty(no_collocations, dtype=np.int32)
+ *     data_np = np.empty(no_collocations, dtype=np.float64)
+ *     cdef int[:] row_view = row_np             # <<<<<<<<<<<<<<
+ *     cdef int[:] col_view = col_np
+ *     cdef double[:] data_view = data_np
  */
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_int(__pyx_v_row_np);
-  if (unlikely(!__pyx_t_9.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 142; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_v_row_view = __pyx_t_9;
-  __pyx_t_9.memview = NULL;
-  __pyx_t_9.data = NULL;
+  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_ds_int(__pyx_v_row_np);
+  if (unlikely(!__pyx_t_6.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 154; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_v_row_view = __pyx_t_6;
+  __pyx_t_6.memview = NULL;
+  __pyx_t_6.data = NULL;
 
-  /* "glove/corpus_cython.pyx":143
- *         data_np = np.empty(no_collocations, dtype=np.float64)
- *         cdef int[:,] row_view = row_np
- *         cdef int[:,] col_view = col_np             # <<<<<<<<<<<<<<
- *         cdef double[:,] data_view = data_np
+  /* "glove/corpus_cython.pyx":155
+ *     data_np = np.empty(no_collocations, dtype=np.float64)
+ *     cdef int[:] row_view = row_np
+ *     cdef int[:] col_view = col_np             # <<<<<<<<<<<<<<
+ *     cdef double[:] data_view = data_np
  * 
  */
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_int(__pyx_v_col_np);
-  if (unlikely(!__pyx_t_9.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 143; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_v_col_view = __pyx_t_9;
-  __pyx_t_9.memview = NULL;
-  __pyx_t_9.data = NULL;
+  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_ds_int(__pyx_v_col_np);
+  if (unlikely(!__pyx_t_6.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 155; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_v_col_view = __pyx_t_6;
+  __pyx_t_6.memview = NULL;
+  __pyx_t_6.data = NULL;
 
-  /* "glove/corpus_cython.pyx":144
- *         cdef int[:,] row_view = row_np
- *         cdef int[:,] col_view = col_np
- *         cdef double[:,] data_view = data_np             # <<<<<<<<<<<<<<
+  /* "glove/corpus_cython.pyx":156
+ *     cdef int[:] row_view = row_np
+ *     cdef int[:] col_view = col_np
+ *     cdef double[:] data_view = data_np             # <<<<<<<<<<<<<<
  * 
- *         j = 0
+ *     j = 0
  */
-  __pyx_t_10 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_data_np);
-  if (unlikely(!__pyx_t_10.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 144; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_v_data_view = __pyx_t_10;
-  __pyx_t_10.memview = NULL;
-  __pyx_t_10.data = NULL;
+  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_data_np);
+  if (unlikely(!__pyx_t_7.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 156; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_v_data_view = __pyx_t_7;
+  __pyx_t_7.memview = NULL;
+  __pyx_t_7.data = NULL;
 
-  /* "glove/corpus_cython.pyx":146
- *         cdef double[:,] data_view = data_np
+  /* "glove/corpus_cython.pyx":158
+ *     cdef double[:] data_view = data_np
  * 
- *         j = 0             # <<<<<<<<<<<<<<
+ *     j = 0             # <<<<<<<<<<<<<<
  * 
- *         for row in range(rows):
+ *     for row in range(rows):
  */
   __pyx_v_j = 0;
 
-  /* "glove/corpus_cython.pyx":148
- *         j = 0
+  /* "glove/corpus_cython.pyx":160
+ *     j = 0
  * 
- *         for row in range(rows):             # <<<<<<<<<<<<<<
- *             for i in range(self.row_indices[row].size()):
+ *     for row in range(rows):             # <<<<<<<<<<<<<<
+ *         for i in range(deref(mat.indices)[row].size()):
  * 
  */
-  __pyx_t_7 = __pyx_v_rows;
-  for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
-    __pyx_v_row = __pyx_t_8;
+  __pyx_t_8 = __pyx_v_rows;
+  for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
+    __pyx_v_row = __pyx_t_9;
 
-    /* "glove/corpus_cython.pyx":149
+    /* "glove/corpus_cython.pyx":161
  * 
- *         for row in range(rows):
- *             for i in range(self.row_indices[row].size()):             # <<<<<<<<<<<<<<
+ *     for row in range(rows):
+ *         for i in range(deref(mat.indices)[row].size()):             # <<<<<<<<<<<<<<
  * 
- *                 row_view[j] = row
+ *             row_view[j] = row
  */
-    __pyx_t_11 = (__pyx_v_self->row_indices[__pyx_v_row]).size();
-    for (__pyx_t_12 = 0; __pyx_t_12 < __pyx_t_11; __pyx_t_12+=1) {
-      __pyx_v_i = __pyx_t_12;
+    __pyx_t_10 = ((*__pyx_v_mat->indices)[__pyx_v_row]).size();
+    for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
+      __pyx_v_i = __pyx_t_11;
 
-      /* "glove/corpus_cython.pyx":151
- *             for i in range(self.row_indices[row].size()):
+      /* "glove/corpus_cython.pyx":163
+ *         for i in range(deref(mat.indices)[row].size()):
  * 
- *                 row_view[j] = row             # <<<<<<<<<<<<<<
- *                 col_view[j] = self.row_indices[row][i]
- *                 data_view[j] = self.row_data[row][i]
+ *             row_view[j] = row             # <<<<<<<<<<<<<<
+ *             col_view[j] = deref(mat.indices)[row][i]
+ *             data_view[j] = deref(mat.data)[row][i]
+ */
+      __pyx_t_12 = __pyx_v_j;
+      *((int *) ( /* dim=0 */ (__pyx_v_row_view.data + __pyx_t_12 * __pyx_v_row_view.strides[0]) )) = __pyx_v_row;
+
+      /* "glove/corpus_cython.pyx":164
+ * 
+ *             row_view[j] = row
+ *             col_view[j] = deref(mat.indices)[row][i]             # <<<<<<<<<<<<<<
+ *             data_view[j] = deref(mat.data)[row][i]
+ * 
  */
       __pyx_t_13 = __pyx_v_j;
-      *((int *) ( /* dim=0 */ (__pyx_v_row_view.data + __pyx_t_13 * __pyx_v_row_view.strides[0]) )) = __pyx_v_row;
+      *((int *) ( /* dim=0 */ (__pyx_v_col_view.data + __pyx_t_13 * __pyx_v_col_view.strides[0]) )) = (((*__pyx_v_mat->indices)[__pyx_v_row])[__pyx_v_i]);
 
-      /* "glove/corpus_cython.pyx":152
+      /* "glove/corpus_cython.pyx":165
+ *             row_view[j] = row
+ *             col_view[j] = deref(mat.indices)[row][i]
+ *             data_view[j] = deref(mat.data)[row][i]             # <<<<<<<<<<<<<<
  * 
- *                 row_view[j] = row
- *                 col_view[j] = self.row_indices[row][i]             # <<<<<<<<<<<<<<
- *                 data_view[j] = self.row_data[row][i]
- * 
+ *             j += 1
  */
       __pyx_t_14 = __pyx_v_j;
-      *((int *) ( /* dim=0 */ (__pyx_v_col_view.data + __pyx_t_14 * __pyx_v_col_view.strides[0]) )) = ((__pyx_v_self->row_indices[__pyx_v_row])[__pyx_v_i]);
+      *((double *) ( /* dim=0 */ (__pyx_v_data_view.data + __pyx_t_14 * __pyx_v_data_view.strides[0]) )) = (((*__pyx_v_mat->data)[__pyx_v_row])[__pyx_v_i]);
 
-      /* "glove/corpus_cython.pyx":153
- *                 row_view[j] = row
- *                 col_view[j] = self.row_indices[row][i]
- *                 data_view[j] = self.row_data[row][i]             # <<<<<<<<<<<<<<
+      /* "glove/corpus_cython.pyx":167
+ *             data_view[j] = deref(mat.data)[row][i]
  * 
- *                 j += 1
- */
-      __pyx_t_15 = __pyx_v_j;
-      *((double *) ( /* dim=0 */ (__pyx_v_data_view.data + __pyx_t_15 * __pyx_v_data_view.strides[0]) )) = ((__pyx_v_self->row_data[__pyx_v_row])[__pyx_v_i]);
-
-      /* "glove/corpus_cython.pyx":155
- *                 data_view[j] = self.row_data[row][i]
+ *             j += 1             # <<<<<<<<<<<<<<
  * 
- *                 j += 1             # <<<<<<<<<<<<<<
- * 
- *         # Create and return the matrix.
+ *     # Create and return the matrix.
  */
       __pyx_v_j = (__pyx_v_j + 1);
     }
   }
 
-  /* "glove/corpus_cython.pyx":158
+  /* "glove/corpus_cython.pyx":170
  * 
- *         # Create and return the matrix.
- *         return sp.coo_matrix((data_np, (row_np, col_np)),             # <<<<<<<<<<<<<<
- *                              shape=(shape,
- *                                     shape),
+ *     # Create and return the matrix.
+ *     return sp.coo_matrix((data_np, (row_np, col_np)),             # <<<<<<<<<<<<<<
+ *                          shape=(shape,
+ *                                 shape),
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_sp); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 158; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_sp); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 170; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_coo_matrix); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 158; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_6);
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_coo_matrix); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 170; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 158; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 170; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_v_row_np);
   __Pyx_GIVEREF(__pyx_v_row_np);
@@ -2554,97 +2558,97 @@ static PyObject *__pyx_f_5glove_13corpus_cython_6Matrix_to_coo(struct __pyx_obj_
   __Pyx_INCREF(__pyx_v_col_np);
   __Pyx_GIVEREF(__pyx_v_col_np);
   PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_v_col_np);
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 158; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 170; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_3);
   __Pyx_INCREF(__pyx_v_data_np);
   __Pyx_GIVEREF(__pyx_v_data_np);
-  PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_v_data_np);
+  PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_v_data_np);
   __Pyx_GIVEREF(__pyx_t_2);
-  PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_2);
+  PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2);
   __pyx_t_2 = 0;
-  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 158; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 170; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_GIVEREF(__pyx_t_4);
-  PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_4);
-  __pyx_t_4 = 0;
-
-  /* "glove/corpus_cython.pyx":159
- *         # Create and return the matrix.
- *         return sp.coo_matrix((data_np, (row_np, col_np)),
- *                              shape=(shape,             # <<<<<<<<<<<<<<
- *                                     shape),
- *                              dtype=np.float64)
- */
-  __pyx_t_4 = PyDict_New(); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 159; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_shape); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 159; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_3);
-
-  /* "glove/corpus_cython.pyx":160
- *         return sp.coo_matrix((data_np, (row_np, col_np)),
- *                              shape=(shape,
- *                                     shape),             # <<<<<<<<<<<<<<
- *                              dtype=np.float64)
- * 
- */
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_shape); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 160; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_1);
-
-  /* "glove/corpus_cython.pyx":159
- *         # Create and return the matrix.
- *         return sp.coo_matrix((data_np, (row_np, col_np)),
- *                              shape=(shape,             # <<<<<<<<<<<<<<
- *                                     shape),
- *                              dtype=np.float64)
- */
-  __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 159; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_5);
   __Pyx_GIVEREF(__pyx_t_3);
-  PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_3);
-  __Pyx_GIVEREF(__pyx_t_1);
-  PyTuple_SET_ITEM(__pyx_t_5, 1, __pyx_t_1);
+  PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_3);
   __pyx_t_3 = 0;
-  __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_shape, __pyx_t_5) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 159; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "glove/corpus_cython.pyx":161
- *                              shape=(shape,
- *                                     shape),
- *                              dtype=np.float64)             # <<<<<<<<<<<<<<
- * 
- *     def __dealloc__(self):
+  /* "glove/corpus_cython.pyx":171
+ *     # Create and return the matrix.
+ *     return sp.coo_matrix((data_np, (row_np, col_np)),
+ *                          shape=(shape,             # <<<<<<<<<<<<<<
+ *                                 shape),
+ *                          dtype=np.float64)
  */
-  __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 161; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = PyDict_New(); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 171; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_shape); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 171; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_float64); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 161; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+
+  /* "glove/corpus_cython.pyx":172
+ *     return sp.coo_matrix((data_np, (row_np, col_np)),
+ *                          shape=(shape,
+ *                                 shape),             # <<<<<<<<<<<<<<
+ *                          dtype=np.float64)
+ * 
+ */
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_shape); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 172; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 159; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+
+  /* "glove/corpus_cython.pyx":171
+ *     # Create and return the matrix.
+ *     return sp.coo_matrix((data_np, (row_np, col_np)),
+ *                          shape=(shape,             # <<<<<<<<<<<<<<
+ *                                 shape),
+ *                          dtype=np.float64)
+ */
+  __pyx_t_15 = PyTuple_New(2); if (unlikely(!__pyx_t_15)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 171; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_15);
+  __Pyx_GIVEREF(__pyx_t_5);
+  PyTuple_SET_ITEM(__pyx_t_15, 0, __pyx_t_5);
+  __Pyx_GIVEREF(__pyx_t_1);
+  PyTuple_SET_ITEM(__pyx_t_15, 1, __pyx_t_1);
+  __pyx_t_5 = 0;
+  __pyx_t_1 = 0;
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_shape, __pyx_t_15) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 171; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+
+  /* "glove/corpus_cython.pyx":173
+ *                          shape=(shape,
+ *                                 shape),
+ *                          dtype=np.float64)             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_t_15 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_15)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 173; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_15);
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_15, __pyx_n_s_float64); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 173; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 171; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "glove/corpus_cython.pyx":158
+  /* "glove/corpus_cython.pyx":170
  * 
- *         # Create and return the matrix.
- *         return sp.coo_matrix((data_np, (row_np, col_np)),             # <<<<<<<<<<<<<<
- *                              shape=(shape,
- *                                     shape),
+ *     # Create and return the matrix.
+ *     return sp.coo_matrix((data_np, (row_np, col_np)),             # <<<<<<<<<<<<<<
+ *                          shape=(shape,
+ *                                 shape),
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 158; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 170; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "glove/corpus_cython.pyx":121
- *         return size
+  /* "glove/corpus_cython.pyx":139
  * 
- *     cpdef to_coo(self, int shape):             # <<<<<<<<<<<<<<
- *         """
- *         Convert to a shape by shape COO matrix.
+ * 
+ * cdef matrix_to_coo(SparseRowMatrix* mat, int shape):             # <<<<<<<<<<<<<<
+ *     """
+ *     Convert to a shape by shape COO matrix.
  */
 
   /* function exit code */
@@ -2654,10 +2658,10 @@ static PyObject *__pyx_f_5glove_13corpus_cython_6Matrix_to_coo(struct __pyx_obj_
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_XDECREF(__pyx_t_6);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_10, 1);
-  __Pyx_AddTraceback("glove.corpus_cython.Matrix.to_coo", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_6, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_7, 1);
+  __Pyx_XDECREF(__pyx_t_15);
+  __Pyx_AddTraceback("glove.corpus_cython.matrix_to_coo", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_row_np);
@@ -2671,130 +2675,15 @@ static PyObject *__pyx_f_5glove_13corpus_cython_6Matrix_to_coo(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* Python wrapper */
-static PyObject *__pyx_pw_5glove_13corpus_cython_6Matrix_3to_coo(PyObject *__pyx_v_self, PyObject *__pyx_arg_shape); /*proto*/
-static char __pyx_doc_5glove_13corpus_cython_6Matrix_2to_coo[] = "\n        Convert to a shape by shape COO matrix.\n        ";
-static PyObject *__pyx_pw_5glove_13corpus_cython_6Matrix_3to_coo(PyObject *__pyx_v_self, PyObject *__pyx_arg_shape) {
-  int __pyx_v_shape;
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("to_coo (wrapper)", 0);
-  assert(__pyx_arg_shape); {
-    __pyx_v_shape = __Pyx_PyInt_As_int(__pyx_arg_shape); if (unlikely((__pyx_v_shape == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 121; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-  }
-  goto __pyx_L4_argument_unpacking_done;
-  __pyx_L3_error:;
-  __Pyx_AddTraceback("glove.corpus_cython.Matrix.to_coo", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __Pyx_RefNannyFinishContext();
-  return NULL;
-  __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_5glove_13corpus_cython_6Matrix_2to_coo(((struct __pyx_obj_5glove_13corpus_cython_Matrix *)__pyx_v_self), ((int)__pyx_v_shape));
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_5glove_13corpus_cython_6Matrix_2to_coo(struct __pyx_obj_5glove_13corpus_cython_Matrix *__pyx_v_self, int __pyx_v_shape) {
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("to_coo", 0);
-  __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5glove_13corpus_cython_6Matrix_to_coo(__pyx_v_self, __pyx_v_shape, 1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 121; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_r = __pyx_t_1;
-  __pyx_t_1 = 0;
-  goto __pyx_L0;
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("glove.corpus_cython.Matrix.to_coo", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  __pyx_L0:;
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "glove/corpus_cython.pyx":163
- *                              dtype=np.float64)
- * 
- *     def __dealloc__(self):             # <<<<<<<<<<<<<<
- * 
- *         self.rows.clear()
- */
-
-/* Python wrapper */
-static void __pyx_pw_5glove_13corpus_cython_6Matrix_5__dealloc__(PyObject *__pyx_v_self); /*proto*/
-static void __pyx_pw_5glove_13corpus_cython_6Matrix_5__dealloc__(PyObject *__pyx_v_self) {
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("__dealloc__ (wrapper)", 0);
-  __pyx_pf_5glove_13corpus_cython_6Matrix_4__dealloc__(((struct __pyx_obj_5glove_13corpus_cython_Matrix *)__pyx_v_self));
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-}
-
-static void __pyx_pf_5glove_13corpus_cython_6Matrix_4__dealloc__(struct __pyx_obj_5glove_13corpus_cython_Matrix *__pyx_v_self) {
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("__dealloc__", 0);
-
-  /* "glove/corpus_cython.pyx":165
- *     def __dealloc__(self):
- * 
- *         self.rows.clear()             # <<<<<<<<<<<<<<
- *         self.row_indices.clear()
- *         self.row_data.clear()
- */
-  __pyx_v_self->rows.clear();
-
-  /* "glove/corpus_cython.pyx":166
- * 
- *         self.rows.clear()
- *         self.row_indices.clear()             # <<<<<<<<<<<<<<
- *         self.row_data.clear()
- * 
- */
-  __pyx_v_self->row_indices.clear();
-
-  /* "glove/corpus_cython.pyx":167
- *         self.rows.clear()
- *         self.row_indices.clear()
- *         self.row_data.clear()             # <<<<<<<<<<<<<<
+/* "glove/corpus_cython.pyx":176
  * 
  * 
- */
-  __pyx_v_self->row_data.clear();
-
-  /* "glove/corpus_cython.pyx":163
- *                              dtype=np.float64)
- * 
- *     def __dealloc__(self):             # <<<<<<<<<<<<<<
- * 
- *         self.rows.clear()
- */
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-}
-
-/* "glove/corpus_cython.pyx":170
- * 
- * 
- * cdef inline int words_to_ids(list words, vector[int]& word_ids,             # <<<<<<<<<<<<<<
+ * cdef int words_to_ids(list words, vector[int]& word_ids,             # <<<<<<<<<<<<<<
  *                       dictionary, int supplied, int ignore_missing):
  *     """
  */
 
-static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *__pyx_v_words, std::vector<int>  &__pyx_v_word_ids, PyObject *__pyx_v_dictionary, int __pyx_v_supplied, int __pyx_v_ignore_missing) {
+static int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *__pyx_v_words, std::vector<int>  &__pyx_v_word_ids, PyObject *__pyx_v_dictionary, int __pyx_v_supplied, int __pyx_v_ignore_missing) {
   int __pyx_v_word_id;
   PyObject *__pyx_v_word = NULL;
   int __pyx_r;
@@ -2815,7 +2704,7 @@ static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("words_to_ids", 0);
 
-  /* "glove/corpus_cython.pyx":189
+  /* "glove/corpus_cython.pyx":195
  *     cdef int word_id
  * 
  *     word_ids.resize(0)             # <<<<<<<<<<<<<<
@@ -2826,10 +2715,10 @@ static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *_
     __pyx_v_word_ids.resize(0);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 189; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 195; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
 
-  /* "glove/corpus_cython.pyx":191
+  /* "glove/corpus_cython.pyx":197
  *     word_ids.resize(0)
  * 
  *     if supplied == 1:             # <<<<<<<<<<<<<<
@@ -2839,7 +2728,7 @@ static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *_
   __pyx_t_1 = ((__pyx_v_supplied == 1) != 0);
   if (__pyx_t_1) {
 
-    /* "glove/corpus_cython.pyx":192
+    /* "glove/corpus_cython.pyx":198
  * 
  *     if supplied == 1:
  *         for word in words:             # <<<<<<<<<<<<<<
@@ -2848,28 +2737,28 @@ static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *_
  */
     if (unlikely(__pyx_v_words == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 192; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 198; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     }
     __pyx_t_2 = __pyx_v_words; __Pyx_INCREF(__pyx_t_2); __pyx_t_3 = 0;
     for (;;) {
       if (__pyx_t_3 >= PyList_GET_SIZE(__pyx_t_2)) break;
       #if CYTHON_COMPILING_IN_CPYTHON
-      __pyx_t_4 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_4); __pyx_t_3++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 192; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_4); __pyx_t_3++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 198; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       #else
-      __pyx_t_4 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 192; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 198; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_4);
       #endif
       __Pyx_XDECREF_SET(__pyx_v_word, __pyx_t_4);
       __pyx_t_4 = 0;
 
-      /* "glove/corpus_cython.pyx":196
+      /* "glove/corpus_cython.pyx":202
  *             # is missing from the supplied
  *             # dictionary.
  *             word_id = dictionary.get(word, -1)             # <<<<<<<<<<<<<<
  *             if word_id == -1 and ignore_missing == 0:
  *                 return -1
  */
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_dictionary, __pyx_n_s_get); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 196; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_dictionary, __pyx_n_s_get); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 202; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_5);
       __pyx_t_6 = NULL;
       __pyx_t_7 = 0;
@@ -2883,7 +2772,7 @@ static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *_
           __pyx_t_7 = 1;
         }
       }
-      __pyx_t_8 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_8)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 196; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_8 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_8)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 202; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_8);
       if (__pyx_t_6) {
         __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_6); __pyx_t_6 = NULL;
@@ -2894,15 +2783,15 @@ static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *_
       __Pyx_INCREF(__pyx_int_neg_1);
       __Pyx_GIVEREF(__pyx_int_neg_1);
       PyTuple_SET_ITEM(__pyx_t_8, 1+__pyx_t_7, __pyx_int_neg_1);
-      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_8, NULL); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 196; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_8, NULL); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 202; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 196; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 202; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __pyx_v_word_id = __pyx_t_9;
 
-      /* "glove/corpus_cython.pyx":197
+      /* "glove/corpus_cython.pyx":203
  *             # dictionary.
  *             word_id = dictionary.get(word, -1)
  *             if word_id == -1 and ignore_missing == 0:             # <<<<<<<<<<<<<<
@@ -2920,7 +2809,7 @@ static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *_
       __pyx_L7_bool_binop_done:;
       if (__pyx_t_1) {
 
-        /* "glove/corpus_cython.pyx":198
+        /* "glove/corpus_cython.pyx":204
  *             word_id = dictionary.get(word, -1)
  *             if word_id == -1 and ignore_missing == 0:
  *                 return -1             # <<<<<<<<<<<<<<
@@ -2931,7 +2820,7 @@ static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *_
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         goto __pyx_L0;
 
-        /* "glove/corpus_cython.pyx":197
+        /* "glove/corpus_cython.pyx":203
  *             # dictionary.
  *             word_id = dictionary.get(word, -1)
  *             if word_id == -1 and ignore_missing == 0:             # <<<<<<<<<<<<<<
@@ -2940,7 +2829,7 @@ static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *_
  */
       }
 
-      /* "glove/corpus_cython.pyx":200
+      /* "glove/corpus_cython.pyx":206
  *                 return -1
  * 
  *             word_ids.push_back(word_id)             # <<<<<<<<<<<<<<
@@ -2951,10 +2840,10 @@ static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *_
         __pyx_v_word_ids.push_back(__pyx_v_word_id);
       } catch(...) {
         __Pyx_CppExn2PyErr();
-        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 200; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 206; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       }
 
-      /* "glove/corpus_cython.pyx":192
+      /* "glove/corpus_cython.pyx":198
  * 
  *     if supplied == 1:
  *         for word in words:             # <<<<<<<<<<<<<<
@@ -2964,7 +2853,7 @@ static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *_
     }
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "glove/corpus_cython.pyx":191
+    /* "glove/corpus_cython.pyx":197
  *     word_ids.resize(0)
  * 
  *     if supplied == 1:             # <<<<<<<<<<<<<<
@@ -2974,7 +2863,7 @@ static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *_
     goto __pyx_L3;
   }
 
-  /* "glove/corpus_cython.pyx":203
+  /* "glove/corpus_cython.pyx":209
  * 
  *     else:
  *         for word in words:             # <<<<<<<<<<<<<<
@@ -2984,39 +2873,39 @@ static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *_
   /*else*/ {
     if (unlikely(__pyx_v_words == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 203; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 209; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     }
     __pyx_t_2 = __pyx_v_words; __Pyx_INCREF(__pyx_t_2); __pyx_t_3 = 0;
     for (;;) {
       if (__pyx_t_3 >= PyList_GET_SIZE(__pyx_t_2)) break;
       #if CYTHON_COMPILING_IN_CPYTHON
-      __pyx_t_4 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_4); __pyx_t_3++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 203; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_4); __pyx_t_3++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 209; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       #else
-      __pyx_t_4 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 203; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 209; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_4);
       #endif
       __Pyx_XDECREF_SET(__pyx_v_word, __pyx_t_4);
       __pyx_t_4 = 0;
 
-      /* "glove/corpus_cython.pyx":204
+      /* "glove/corpus_cython.pyx":210
  *     else:
  *         for word in words:
  *             word_id = dictionary.setdefault(word,             # <<<<<<<<<<<<<<
  *                                             len(dictionary))
  *             word_ids.push_back(word_id)
  */
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_dictionary, __pyx_n_s_setdefault); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 204; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_dictionary, __pyx_n_s_setdefault); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 210; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_5);
 
-      /* "glove/corpus_cython.pyx":205
+      /* "glove/corpus_cython.pyx":211
  *         for word in words:
  *             word_id = dictionary.setdefault(word,
  *                                             len(dictionary))             # <<<<<<<<<<<<<<
  *             word_ids.push_back(word_id)
  * 
  */
-      __pyx_t_7 = PyObject_Length(__pyx_v_dictionary); if (unlikely(__pyx_t_7 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 205; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __pyx_t_8 = PyInt_FromSsize_t(__pyx_t_7); if (unlikely(!__pyx_t_8)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 205; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_7 = PyObject_Length(__pyx_v_dictionary); if (unlikely(__pyx_t_7 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 211; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_8 = PyInt_FromSsize_t(__pyx_t_7); if (unlikely(!__pyx_t_8)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 211; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_8);
       __pyx_t_6 = NULL;
       __pyx_t_7 = 0;
@@ -3030,7 +2919,7 @@ static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *_
           __pyx_t_7 = 1;
         }
       }
-      __pyx_t_11 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 204; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_11 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 210; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_11);
       if (__pyx_t_6) {
         __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_11, 0, __pyx_t_6); __pyx_t_6 = NULL;
@@ -3041,23 +2930,23 @@ static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *_
       __Pyx_GIVEREF(__pyx_t_8);
       PyTuple_SET_ITEM(__pyx_t_11, 1+__pyx_t_7, __pyx_t_8);
       __pyx_t_8 = 0;
-      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_11, NULL); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 204; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_11, NULL); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 210; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-      /* "glove/corpus_cython.pyx":204
+      /* "glove/corpus_cython.pyx":210
  *     else:
  *         for word in words:
  *             word_id = dictionary.setdefault(word,             # <<<<<<<<<<<<<<
  *                                             len(dictionary))
  *             word_ids.push_back(word_id)
  */
-      __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 204; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 210; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __pyx_v_word_id = __pyx_t_9;
 
-      /* "glove/corpus_cython.pyx":206
+      /* "glove/corpus_cython.pyx":212
  *             word_id = dictionary.setdefault(word,
  *                                             len(dictionary))
  *             word_ids.push_back(word_id)             # <<<<<<<<<<<<<<
@@ -3068,10 +2957,10 @@ static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *_
         __pyx_v_word_ids.push_back(__pyx_v_word_id);
       } catch(...) {
         __Pyx_CppExn2PyErr();
-        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 206; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 212; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       }
 
-      /* "glove/corpus_cython.pyx":203
+      /* "glove/corpus_cython.pyx":209
  * 
  *     else:
  *         for word in words:             # <<<<<<<<<<<<<<
@@ -3083,7 +2972,7 @@ static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *_
   }
   __pyx_L3:;
 
-  /* "glove/corpus_cython.pyx":208
+  /* "glove/corpus_cython.pyx":214
  *             word_ids.push_back(word_id)
  * 
  *     return 0             # <<<<<<<<<<<<<<
@@ -3093,10 +2982,10 @@ static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *_
   __pyx_r = 0;
   goto __pyx_L0;
 
-  /* "glove/corpus_cython.pyx":170
+  /* "glove/corpus_cython.pyx":176
  * 
  * 
- * cdef inline int words_to_ids(list words, vector[int]& word_ids,             # <<<<<<<<<<<<<<
+ * cdef int words_to_ids(list words, vector[int]& word_ids,             # <<<<<<<<<<<<<<
  *                       dictionary, int supplied, int ignore_missing):
  *     """
  */
@@ -3117,12 +3006,12 @@ static CYTHON_INLINE int __pyx_f_5glove_13corpus_cython_words_to_ids(PyObject *_
   return __pyx_r;
 }
 
-/* "glove/corpus_cython.pyx":211
+/* "glove/corpus_cython.pyx":217
  * 
  * 
  * def construct_cooccurrence_matrix(corpus, dictionary, int supplied,             # <<<<<<<<<<<<<<
- *                                   int window_size, int ignore_missing,
- *                                   int max_map_size):
+ *                                   int window_size, int ignore_missing):
+ *     """
  */
 
 /* Python wrapper */
@@ -3135,7 +3024,6 @@ static PyObject *__pyx_pw_5glove_13corpus_cython_1construct_cooccurrence_matrix(
   int __pyx_v_supplied;
   int __pyx_v_window_size;
   int __pyx_v_ignore_missing;
-  int __pyx_v_max_map_size;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -3143,13 +3031,12 @@ static PyObject *__pyx_pw_5glove_13corpus_cython_1construct_cooccurrence_matrix(
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("construct_cooccurrence_matrix (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_corpus,&__pyx_n_s_dictionary,&__pyx_n_s_supplied,&__pyx_n_s_window_size,&__pyx_n_s_ignore_missing,&__pyx_n_s_max_map_size,0};
-    PyObject* values[6] = {0,0,0,0,0,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_corpus,&__pyx_n_s_dictionary,&__pyx_n_s_supplied,&__pyx_n_s_window_size,&__pyx_n_s_ignore_missing,0};
+    PyObject* values[5] = {0,0,0,0,0};
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
       const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
       switch (pos_args) {
-        case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
         case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
         case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
         case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
@@ -3166,33 +3053,28 @@ static PyObject *__pyx_pw_5glove_13corpus_cython_1construct_cooccurrence_matrix(
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_dictionary)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("construct_cooccurrence_matrix", 1, 6, 6, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 211; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("construct_cooccurrence_matrix", 1, 5, 5, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 217; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  2:
         if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_supplied)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("construct_cooccurrence_matrix", 1, 6, 6, 2); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 211; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("construct_cooccurrence_matrix", 1, 5, 5, 2); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 217; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  3:
         if (likely((values[3] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_window_size)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("construct_cooccurrence_matrix", 1, 6, 6, 3); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 211; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("construct_cooccurrence_matrix", 1, 5, 5, 3); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 217; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  4:
         if (likely((values[4] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_ignore_missing)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("construct_cooccurrence_matrix", 1, 6, 6, 4); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 211; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-        }
-        case  5:
-        if (likely((values[5] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_max_map_size)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("construct_cooccurrence_matrix", 1, 6, 6, 5); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 211; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("construct_cooccurrence_matrix", 1, 5, 5, 4); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 217; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "construct_cooccurrence_matrix") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 211; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "construct_cooccurrence_matrix") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 217; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 6) {
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 5) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
@@ -3200,32 +3082,30 @@ static PyObject *__pyx_pw_5glove_13corpus_cython_1construct_cooccurrence_matrix(
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
       values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
       values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
-      values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
     }
     __pyx_v_corpus = values[0];
     __pyx_v_dictionary = values[1];
-    __pyx_v_supplied = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_supplied == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 211; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-    __pyx_v_window_size = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_window_size == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 212; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-    __pyx_v_ignore_missing = __Pyx_PyInt_As_int(values[4]); if (unlikely((__pyx_v_ignore_missing == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 212; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-    __pyx_v_max_map_size = __Pyx_PyInt_As_int(values[5]); if (unlikely((__pyx_v_max_map_size == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 213; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_supplied = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_supplied == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 217; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_window_size = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_window_size == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 218; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_ignore_missing = __Pyx_PyInt_As_int(values[4]); if (unlikely((__pyx_v_ignore_missing == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 218; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("construct_cooccurrence_matrix", 1, 6, 6, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 211; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("construct_cooccurrence_matrix", 1, 5, 5, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 217; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("glove.corpus_cython.construct_cooccurrence_matrix", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(__pyx_self, __pyx_v_corpus, __pyx_v_dictionary, __pyx_v_supplied, __pyx_v_window_size, __pyx_v_ignore_missing, __pyx_v_max_map_size);
+  __pyx_r = __pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(__pyx_self, __pyx_v_corpus, __pyx_v_dictionary, __pyx_v_supplied, __pyx_v_window_size, __pyx_v_ignore_missing);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_corpus, PyObject *__pyx_v_dictionary, int __pyx_v_supplied, int __pyx_v_window_size, int __pyx_v_ignore_missing, int __pyx_v_max_map_size) {
-  struct __pyx_obj_5glove_13corpus_cython_Matrix *__pyx_v_matrix = 0;
+static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_corpus, PyObject *__pyx_v_dictionary, int __pyx_v_supplied, int __pyx_v_window_size, int __pyx_v_ignore_missing) {
+  struct __pyx_t_5glove_13corpus_cython_SparseRowMatrix *__pyx_v_matrix;
   PyObject *__pyx_v_words = 0;
   int __pyx_v_i;
   int __pyx_v_j;
@@ -3239,9 +3119,9 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
-  PyObject *__pyx_t_2 = NULL;
-  Py_ssize_t __pyx_t_3;
-  PyObject *(*__pyx_t_4)(PyObject *);
+  Py_ssize_t __pyx_t_2;
+  PyObject *(*__pyx_t_3)(PyObject *);
+  PyObject *__pyx_t_4 = NULL;
   int __pyx_t_5;
   int __pyx_t_6;
   int __pyx_t_7;
@@ -3252,27 +3132,16 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("construct_cooccurrence_matrix", 0);
 
-  /* "glove/corpus_cython.pyx":222
+  /* "glove/corpus_cython.pyx":227
  * 
  *     # Declare the cooccurrence map
- *     cdef Matrix matrix = Matrix(max_map_size)             # <<<<<<<<<<<<<<
+ *     cdef SparseRowMatrix* matrix = new_matrix()             # <<<<<<<<<<<<<<
  * 
  *     # String processing variables.
  */
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_max_map_size); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 222; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 222; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_GIVEREF(__pyx_t_1);
-  PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_1);
-  __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5glove_13corpus_cython_Matrix), __pyx_t_2, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 222; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_v_matrix = ((struct __pyx_obj_5glove_13corpus_cython_Matrix *)__pyx_t_1);
-  __pyx_t_1 = 0;
+  __pyx_v_matrix = __pyx_f_5glove_13corpus_cython_new_matrix();
 
-  /* "glove/corpus_cython.pyx":232
+  /* "glove/corpus_cython.pyx":237
  *     # Pre-allocate some reasonable size
  *     # for the word ids vector.
  *     word_ids.reserve(1000)             # <<<<<<<<<<<<<<
@@ -3281,7 +3150,7 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
  */
   __pyx_v_word_ids.reserve(0x3E8);
 
-  /* "glove/corpus_cython.pyx":235
+  /* "glove/corpus_cython.pyx":240
  * 
  *     # Iterate over the corpus.
  *     for words in corpus:             # <<<<<<<<<<<<<<
@@ -3289,99 +3158,99 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
  *         # Convert words to a numeric vector.
  */
   if (likely(PyList_CheckExact(__pyx_v_corpus)) || PyTuple_CheckExact(__pyx_v_corpus)) {
-    __pyx_t_1 = __pyx_v_corpus; __Pyx_INCREF(__pyx_t_1); __pyx_t_3 = 0;
-    __pyx_t_4 = NULL;
+    __pyx_t_1 = __pyx_v_corpus; __Pyx_INCREF(__pyx_t_1); __pyx_t_2 = 0;
+    __pyx_t_3 = NULL;
   } else {
-    __pyx_t_3 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_v_corpus); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_v_corpus); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_4 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   for (;;) {
-    if (likely(!__pyx_t_4)) {
+    if (likely(!__pyx_t_3)) {
       if (likely(PyList_CheckExact(__pyx_t_1))) {
-        if (__pyx_t_3 >= PyList_GET_SIZE(__pyx_t_1)) break;
+        if (__pyx_t_2 >= PyList_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_COMPILING_IN_CPYTHON
-        __pyx_t_2 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_3); __Pyx_INCREF(__pyx_t_2); __pyx_t_3++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_4 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         #else
-        __pyx_t_2 = PySequence_ITEM(__pyx_t_1, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-        __Pyx_GOTREF(__pyx_t_2);
+        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __Pyx_GOTREF(__pyx_t_4);
         #endif
       } else {
-        if (__pyx_t_3 >= PyTuple_GET_SIZE(__pyx_t_1)) break;
+        if (__pyx_t_2 >= PyTuple_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_COMPILING_IN_CPYTHON
-        __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_3); __Pyx_INCREF(__pyx_t_2); __pyx_t_3++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         #else
-        __pyx_t_2 = PySequence_ITEM(__pyx_t_1, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-        __Pyx_GOTREF(__pyx_t_2);
+        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __Pyx_GOTREF(__pyx_t_4);
         #endif
       }
     } else {
-      __pyx_t_2 = __pyx_t_4(__pyx_t_1);
-      if (unlikely(!__pyx_t_2)) {
+      __pyx_t_4 = __pyx_t_3(__pyx_t_1);
+      if (unlikely(!__pyx_t_4)) {
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(exc_type == PyExc_StopIteration || PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
         break;
       }
-      __Pyx_GOTREF(__pyx_t_2);
+      __Pyx_GOTREF(__pyx_t_4);
     }
-    if (!(likely(PyList_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "list", Py_TYPE(__pyx_t_2)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_XDECREF_SET(__pyx_v_words, ((PyObject*)__pyx_t_2));
-    __pyx_t_2 = 0;
+    if (!(likely(PyList_CheckExact(__pyx_t_4))||((__pyx_t_4) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "list", Py_TYPE(__pyx_t_4)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_XDECREF_SET(__pyx_v_words, ((PyObject*)__pyx_t_4));
+    __pyx_t_4 = 0;
 
-    /* "glove/corpus_cython.pyx":238
+    /* "glove/corpus_cython.pyx":243
  * 
  *         # Convert words to a numeric vector.
- *         error = words_to_ids(words, word_ids, dictionary, supplied, ignore_missing)             # <<<<<<<<<<<<<<
+ *         error = words_to_ids(words, word_ids, dictionary,             # <<<<<<<<<<<<<<
+ *                              supplied, ignore_missing)
  *         if error == -1:
- *             raise KeyError('Word missing from dictionary')
  */
     __pyx_v_error = __pyx_f_5glove_13corpus_cython_words_to_ids(__pyx_v_words, __pyx_v_word_ids, __pyx_v_dictionary, __pyx_v_supplied, __pyx_v_ignore_missing);
 
-    /* "glove/corpus_cython.pyx":239
- *         # Convert words to a numeric vector.
- *         error = words_to_ids(words, word_ids, dictionary, supplied, ignore_missing)
+    /* "glove/corpus_cython.pyx":245
+ *         error = words_to_ids(words, word_ids, dictionary,
+ *                              supplied, ignore_missing)
  *         if error == -1:             # <<<<<<<<<<<<<<
  *             raise KeyError('Word missing from dictionary')
- *         wordslen = word_ids.size()
+ * 
  */
     __pyx_t_5 = ((__pyx_v_error == -1L) != 0);
     if (__pyx_t_5) {
 
-      /* "glove/corpus_cython.pyx":240
- *         error = words_to_ids(words, word_ids, dictionary, supplied, ignore_missing)
+      /* "glove/corpus_cython.pyx":246
+ *                              supplied, ignore_missing)
  *         if error == -1:
  *             raise KeyError('Word missing from dictionary')             # <<<<<<<<<<<<<<
- *         wordslen = word_ids.size()
  * 
+ *         wordslen = word_ids.size()
  */
-      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_KeyError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_GOTREF(__pyx_t_2);
-      __Pyx_Raise(__pyx_t_2, 0, 0, 0);
-      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_KeyError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 246; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_GOTREF(__pyx_t_4);
+      __Pyx_Raise(__pyx_t_4, 0, 0, 0);
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 246; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-      /* "glove/corpus_cython.pyx":239
- *         # Convert words to a numeric vector.
- *         error = words_to_ids(words, word_ids, dictionary, supplied, ignore_missing)
+      /* "glove/corpus_cython.pyx":245
+ *         error = words_to_ids(words, word_ids, dictionary,
+ *                              supplied, ignore_missing)
  *         if error == -1:             # <<<<<<<<<<<<<<
  *             raise KeyError('Word missing from dictionary')
- *         wordslen = word_ids.size()
+ * 
  */
     }
 
-    /* "glove/corpus_cython.pyx":241
- *         if error == -1:
+    /* "glove/corpus_cython.pyx":248
  *             raise KeyError('Word missing from dictionary')
+ * 
  *         wordslen = word_ids.size()             # <<<<<<<<<<<<<<
  * 
  *         # Record co-occurrences in a moving window.
  */
     __pyx_v_wordslen = __pyx_v_word_ids.size();
 
-    /* "glove/corpus_cython.pyx":244
+    /* "glove/corpus_cython.pyx":251
  * 
  *         # Record co-occurrences in a moving window.
  *         for i in range(wordslen):             # <<<<<<<<<<<<<<
@@ -3392,7 +3261,7 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
     for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
       __pyx_v_i = __pyx_t_7;
 
-      /* "glove/corpus_cython.pyx":245
+      /* "glove/corpus_cython.pyx":252
  *         # Record co-occurrences in a moving window.
  *         for i in range(wordslen):
  *             outer_word = word_ids[i]             # <<<<<<<<<<<<<<
@@ -3401,7 +3270,7 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
  */
       __pyx_v_outer_word = (__pyx_v_word_ids[__pyx_v_i]);
 
-      /* "glove/corpus_cython.pyx":248
+      /* "glove/corpus_cython.pyx":255
  * 
  *             # Continue if we have an OOD token.
  *             if outer_word == -1:             # <<<<<<<<<<<<<<
@@ -3411,7 +3280,7 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
       __pyx_t_5 = ((__pyx_v_outer_word == -1L) != 0);
       if (__pyx_t_5) {
 
-        /* "glove/corpus_cython.pyx":249
+        /* "glove/corpus_cython.pyx":256
  *             # Continue if we have an OOD token.
  *             if outer_word == -1:
  *                 continue             # <<<<<<<<<<<<<<
@@ -3420,7 +3289,7 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
  */
         goto __pyx_L6_continue;
 
-        /* "glove/corpus_cython.pyx":248
+        /* "glove/corpus_cython.pyx":255
  * 
  *             # Continue if we have an OOD token.
  *             if outer_word == -1:             # <<<<<<<<<<<<<<
@@ -3429,7 +3298,7 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
  */
       }
 
-      /* "glove/corpus_cython.pyx":251
+      /* "glove/corpus_cython.pyx":258
  *                 continue
  * 
  *             window_stop = int_min(i + window_size + 1, wordslen)             # <<<<<<<<<<<<<<
@@ -3438,7 +3307,7 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
  */
       __pyx_v_window_stop = __pyx_f_5glove_13corpus_cython_int_min(((__pyx_v_i + __pyx_v_window_size) + 1), __pyx_v_wordslen);
 
-      /* "glove/corpus_cython.pyx":253
+      /* "glove/corpus_cython.pyx":260
  *             window_stop = int_min(i + window_size + 1, wordslen)
  * 
  *             for j in range(i, window_stop):             # <<<<<<<<<<<<<<
@@ -3449,7 +3318,7 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
       for (__pyx_t_9 = __pyx_v_i; __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
         __pyx_v_j = __pyx_t_9;
 
-        /* "glove/corpus_cython.pyx":254
+        /* "glove/corpus_cython.pyx":261
  * 
  *             for j in range(i, window_stop):
  *                 inner_word = word_ids[j]             # <<<<<<<<<<<<<<
@@ -3458,7 +3327,7 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
  */
         __pyx_v_inner_word = (__pyx_v_word_ids[__pyx_v_j]);
 
-        /* "glove/corpus_cython.pyx":256
+        /* "glove/corpus_cython.pyx":263
  *                 inner_word = word_ids[j]
  * 
  *                 if inner_word == -1:             # <<<<<<<<<<<<<<
@@ -3468,7 +3337,7 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
         __pyx_t_5 = ((__pyx_v_inner_word == -1L) != 0);
         if (__pyx_t_5) {
 
-          /* "glove/corpus_cython.pyx":257
+          /* "glove/corpus_cython.pyx":264
  * 
  *                 if inner_word == -1:
  *                     continue             # <<<<<<<<<<<<<<
@@ -3477,7 +3346,7 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
  */
           goto __pyx_L9_continue;
 
-          /* "glove/corpus_cython.pyx":256
+          /* "glove/corpus_cython.pyx":263
  *                 inner_word = word_ids[j]
  * 
  *                 if inner_word == -1:             # <<<<<<<<<<<<<<
@@ -3486,7 +3355,7 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
  */
         }
 
-        /* "glove/corpus_cython.pyx":260
+        /* "glove/corpus_cython.pyx":267
  * 
  *                 # Do nothing if the words are the same.
  *                 if inner_word == outer_word:             # <<<<<<<<<<<<<<
@@ -3496,7 +3365,7 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
         __pyx_t_5 = ((__pyx_v_inner_word == __pyx_v_outer_word) != 0);
         if (__pyx_t_5) {
 
-          /* "glove/corpus_cython.pyx":261
+          /* "glove/corpus_cython.pyx":268
  *                 # Do nothing if the words are the same.
  *                 if inner_word == outer_word:
  *                     continue             # <<<<<<<<<<<<<<
@@ -3505,7 +3374,7 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
  */
           goto __pyx_L9_continue;
 
-          /* "glove/corpus_cython.pyx":260
+          /* "glove/corpus_cython.pyx":267
  * 
  *                 # Do nothing if the words are the same.
  *                 if inner_word == outer_word:             # <<<<<<<<<<<<<<
@@ -3514,52 +3383,52 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
  */
         }
 
-        /* "glove/corpus_cython.pyx":263
+        /* "glove/corpus_cython.pyx":270
  *                     continue
  * 
  *                 if inner_word < outer_word:             # <<<<<<<<<<<<<<
- *                     matrix.increment(inner_word,
- *                                      outer_word,
+ *                     increment_matrix(matrix,
+ *                                      inner_word,
  */
         __pyx_t_5 = ((__pyx_v_inner_word < __pyx_v_outer_word) != 0);
         if (__pyx_t_5) {
 
-          /* "glove/corpus_cython.pyx":264
+          /* "glove/corpus_cython.pyx":271
  * 
  *                 if inner_word < outer_word:
- *                     matrix.increment(inner_word,             # <<<<<<<<<<<<<<
+ *                     increment_matrix(matrix,             # <<<<<<<<<<<<<<
+ *                                      inner_word,
  *                                      outer_word,
- *                                      1.0 / (j - i))
  */
-          ((struct __pyx_vtabstruct_5glove_13corpus_cython_Matrix *)__pyx_v_matrix->__pyx_vtab)->increment(__pyx_v_matrix, __pyx_v_inner_word, __pyx_v_outer_word, (1.0 / (__pyx_v_j - __pyx_v_i)));
+          __pyx_f_5glove_13corpus_cython_increment_matrix(__pyx_v_matrix, __pyx_v_inner_word, __pyx_v_outer_word, (1.0 / (__pyx_v_j - __pyx_v_i)));
 
-          /* "glove/corpus_cython.pyx":263
+          /* "glove/corpus_cython.pyx":270
  *                     continue
  * 
  *                 if inner_word < outer_word:             # <<<<<<<<<<<<<<
- *                     matrix.increment(inner_word,
- *                                      outer_word,
+ *                     increment_matrix(matrix,
+ *                                      inner_word,
  */
           goto __pyx_L13;
         }
 
-        /* "glove/corpus_cython.pyx":268
+        /* "glove/corpus_cython.pyx":276
  *                                      1.0 / (j - i))
  *                 else:
- *                     matrix.increment(outer_word,             # <<<<<<<<<<<<<<
+ *                     increment_matrix(matrix,             # <<<<<<<<<<<<<<
+ *                                      outer_word,
  *                                      inner_word,
- *                                      1.0 / (j - i))
  */
         /*else*/ {
 
-          /* "glove/corpus_cython.pyx":270
- *                     matrix.increment(outer_word,
+          /* "glove/corpus_cython.pyx":279
+ *                                      outer_word,
  *                                      inner_word,
  *                                      1.0 / (j - i))             # <<<<<<<<<<<<<<
  * 
  *     # Create the matrix.
  */
-          ((struct __pyx_vtabstruct_5glove_13corpus_cython_Matrix *)__pyx_v_matrix->__pyx_vtab)->increment(__pyx_v_matrix, __pyx_v_outer_word, __pyx_v_inner_word, (1.0 / (__pyx_v_j - __pyx_v_i)));
+          __pyx_f_5glove_13corpus_cython_increment_matrix(__pyx_v_matrix, __pyx_v_outer_word, __pyx_v_inner_word, (1.0 / (__pyx_v_j - __pyx_v_i)));
         }
         __pyx_L13:;
         __pyx_L9_continue:;
@@ -3567,7 +3436,7 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
       __pyx_L6_continue:;
     }
 
-    /* "glove/corpus_cython.pyx":235
+    /* "glove/corpus_cython.pyx":240
  * 
  *     # Iterate over the corpus.
  *     for words in corpus:             # <<<<<<<<<<<<<<
@@ -3577,21 +3446,30 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "glove/corpus_cython.pyx":273
+  /* "glove/corpus_cython.pyx":282
  * 
  *     # Create the matrix.
- *     mat = matrix.to_coo(len(dictionary))             # <<<<<<<<<<<<<<
+ *     mat = matrix_to_coo(matrix, len(dictionary))             # <<<<<<<<<<<<<<
+ *     free_matrix(matrix)
  * 
- *     return mat
  */
-  __pyx_t_3 = PyObject_Length(__pyx_v_dictionary); if (unlikely(__pyx_t_3 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 273; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_t_1 = ((struct __pyx_vtabstruct_5glove_13corpus_cython_Matrix *)__pyx_v_matrix->__pyx_vtab)->to_coo(__pyx_v_matrix, __pyx_t_3, 0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 273; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyObject_Length(__pyx_v_dictionary); if (unlikely(__pyx_t_2 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 282; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __pyx_f_5glove_13corpus_cython_matrix_to_coo(__pyx_v_matrix, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 282; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_mat = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "glove/corpus_cython.pyx":275
- *     mat = matrix.to_coo(len(dictionary))
+  /* "glove/corpus_cython.pyx":283
+ *     # Create the matrix.
+ *     mat = matrix_to_coo(matrix, len(dictionary))
+ *     free_matrix(matrix)             # <<<<<<<<<<<<<<
+ * 
+ *     return mat
+ */
+  __pyx_f_5glove_13corpus_cython_free_matrix(__pyx_v_matrix);
+
+  /* "glove/corpus_cython.pyx":285
+ *     free_matrix(matrix)
  * 
  *     return mat             # <<<<<<<<<<<<<<
  */
@@ -3600,22 +3478,21 @@ static PyObject *__pyx_pf_5glove_13corpus_cython_construct_cooccurrence_matrix(C
   __pyx_r = __pyx_v_mat;
   goto __pyx_L0;
 
-  /* "glove/corpus_cython.pyx":211
+  /* "glove/corpus_cython.pyx":217
  * 
  * 
  * def construct_cooccurrence_matrix(corpus, dictionary, int supplied,             # <<<<<<<<<<<<<<
- *                                   int window_size, int ignore_missing,
- *                                   int max_map_size):
+ *                                   int window_size, int ignore_missing):
+ *     """
  */
 
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_4);
   __Pyx_AddTraceback("glove.corpus_cython.construct_cooccurrence_matrix", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
-  __Pyx_XDECREF((PyObject *)__pyx_v_matrix);
   __Pyx_XDECREF(__pyx_v_words);
   __Pyx_XDECREF(__pyx_v_mat);
   __Pyx_XGIVEREF(__pyx_r);
@@ -15143,111 +15020,6 @@ static void __pyx_memoryview__slice_assign_scalar(char *__pyx_v_data, Py_ssize_t
 
   /* function exit code */
 }
-static struct __pyx_vtabstruct_5glove_13corpus_cython_Matrix __pyx_vtable_5glove_13corpus_cython_Matrix;
-
-static PyObject *__pyx_tp_new_5glove_13corpus_cython_Matrix(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_obj_5glove_13corpus_cython_Matrix *p;
-  PyObject *o;
-  if (likely((t->tp_flags & Py_TPFLAGS_IS_ABSTRACT) == 0)) {
-    o = (*t->tp_alloc)(t, 0);
-  } else {
-    o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_empty_tuple, 0);
-  }
-  if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_5glove_13corpus_cython_Matrix *)o);
-  p->__pyx_vtab = __pyx_vtabptr_5glove_13corpus_cython_Matrix;
-  new((void*)&(p->rows)) std::vector<std::unordered_map<int,float> > ();
-  new((void*)&(p->row_indices)) std::vector<std::vector<int> > ();
-  new((void*)&(p->row_data)) std::vector<std::vector<float> > ();
-  if (unlikely(__pyx_pw_5glove_13corpus_cython_6Matrix_1__cinit__(o, a, k) < 0)) {
-    Py_DECREF(o); o = 0;
-  }
-  return o;
-}
-
-static void __pyx_tp_dealloc_5glove_13corpus_cython_Matrix(PyObject *o) {
-  struct __pyx_obj_5glove_13corpus_cython_Matrix *p = (struct __pyx_obj_5glove_13corpus_cython_Matrix *)o;
-  #if PY_VERSION_HEX >= 0x030400a1
-  if (unlikely(Py_TYPE(o)->tp_finalize) && (!PyType_IS_GC(Py_TYPE(o)) || !_PyGC_FINALIZED(o))) {
-    if (PyObject_CallFinalizerFromDealloc(o)) return;
-  }
-  #endif
-  {
-    PyObject *etype, *eval, *etb;
-    PyErr_Fetch(&etype, &eval, &etb);
-    ++Py_REFCNT(o);
-    __pyx_pw_5glove_13corpus_cython_6Matrix_5__dealloc__(o);
-    --Py_REFCNT(o);
-    PyErr_Restore(etype, eval, etb);
-  }
-  __Pyx_call_destructor(p->rows);
-  __Pyx_call_destructor(p->row_indices);
-  __Pyx_call_destructor(p->row_data);
-  (*Py_TYPE(o)->tp_free)(o);
-}
-
-static PyMethodDef __pyx_methods_5glove_13corpus_cython_Matrix[] = {
-  {"to_coo", (PyCFunction)__pyx_pw_5glove_13corpus_cython_6Matrix_3to_coo, METH_O, __pyx_doc_5glove_13corpus_cython_6Matrix_2to_coo},
-  {0, 0, 0, 0}
-};
-
-static PyTypeObject __pyx_type_5glove_13corpus_cython_Matrix = {
-  PyVarObject_HEAD_INIT(0, 0)
-  "glove.corpus_cython.Matrix", /*tp_name*/
-  sizeof(struct __pyx_obj_5glove_13corpus_cython_Matrix), /*tp_basicsize*/
-  0, /*tp_itemsize*/
-  __pyx_tp_dealloc_5glove_13corpus_cython_Matrix, /*tp_dealloc*/
-  0, /*tp_print*/
-  0, /*tp_getattr*/
-  0, /*tp_setattr*/
-  #if PY_MAJOR_VERSION < 3
-  0, /*tp_compare*/
-  #endif
-  #if PY_MAJOR_VERSION >= 3
-  0, /*tp_as_async*/
-  #endif
-  0, /*tp_repr*/
-  0, /*tp_as_number*/
-  0, /*tp_as_sequence*/
-  0, /*tp_as_mapping*/
-  0, /*tp_hash*/
-  0, /*tp_call*/
-  0, /*tp_str*/
-  0, /*tp_getattro*/
-  0, /*tp_setattro*/
-  0, /*tp_as_buffer*/
-  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE, /*tp_flags*/
-  "\n    A sparse co-occurrence matrix storing\n    its data as a vector of maps.\n    ", /*tp_doc*/
-  0, /*tp_traverse*/
-  0, /*tp_clear*/
-  0, /*tp_richcompare*/
-  0, /*tp_weaklistoffset*/
-  0, /*tp_iter*/
-  0, /*tp_iternext*/
-  __pyx_methods_5glove_13corpus_cython_Matrix, /*tp_methods*/
-  0, /*tp_members*/
-  0, /*tp_getset*/
-  0, /*tp_base*/
-  0, /*tp_dict*/
-  0, /*tp_descr_get*/
-  0, /*tp_descr_set*/
-  0, /*tp_dictoffset*/
-  0, /*tp_init*/
-  0, /*tp_alloc*/
-  __pyx_tp_new_5glove_13corpus_cython_Matrix, /*tp_new*/
-  0, /*tp_free*/
-  0, /*tp_is_gc*/
-  0, /*tp_bases*/
-  0, /*tp_mro*/
-  0, /*tp_cache*/
-  0, /*tp_subclasses*/
-  0, /*tp_weaklist*/
-  0, /*tp_del*/
-  0, /*tp_version_tag*/
-  #if PY_VERSION_HEX >= 0x030400a1
-  0, /*tp_finalize*/
-  #endif
-};
 
 static PyObject *__pyx_tp_new_array(PyTypeObject *t, PyObject *a, PyObject *k) {
   struct __pyx_array_obj *p;
@@ -15990,7 +15762,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_mat, __pyx_k_mat, sizeof(__pyx_k_mat), 0, 0, 1, 1},
   {&__pyx_n_s_matrix, __pyx_k_matrix, sizeof(__pyx_k_matrix), 0, 0, 1, 1},
-  {&__pyx_n_s_max_map_size, __pyx_k_max_map_size, sizeof(__pyx_k_max_map_size), 0, 0, 1, 1},
   {&__pyx_n_s_memview, __pyx_k_memview, sizeof(__pyx_k_memview), 0, 0, 1, 1},
   {&__pyx_n_s_mode, __pyx_k_mode, sizeof(__pyx_k_mode), 0, 0, 1, 1},
   {&__pyx_n_s_name, __pyx_k_name, sizeof(__pyx_k_name), 0, 0, 1, 1},
@@ -16018,7 +15789,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_struct, __pyx_k_struct, sizeof(__pyx_k_struct), 0, 0, 1, 1},
   {&__pyx_n_s_supplied, __pyx_k_supplied, sizeof(__pyx_k_supplied), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
-  {&__pyx_n_s_to_coo, __pyx_k_to_coo, sizeof(__pyx_k_to_coo), 0, 0, 1, 1},
   {&__pyx_kp_s_unable_to_allocate_array_data, __pyx_k_unable_to_allocate_array_data, sizeof(__pyx_k_unable_to_allocate_array_data), 0, 0, 1, 0},
   {&__pyx_kp_s_unable_to_allocate_shape_and_str, __pyx_k_unable_to_allocate_shape_and_str, sizeof(__pyx_k_unable_to_allocate_shape_and_str), 0, 0, 1, 0},
   {&__pyx_n_s_unpack, __pyx_k_unpack, sizeof(__pyx_k_unpack), 0, 0, 1, 1},
@@ -16030,10 +15800,10 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 56; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_builtin_KeyError = __Pyx_GetBuiltinName(__pyx_n_s_KeyError); if (!__pyx_builtin_KeyError) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 56; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 72; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_builtin_KeyError = __Pyx_GetBuiltinName(__pyx_n_s_KeyError); if (!__pyx_builtin_KeyError) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 246; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) {__pyx_filename = __pyx_f[1]; __pyx_lineno = 129; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) {__pyx_filename = __pyx_f[1]; __pyx_lineno = 144; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) {__pyx_filename = __pyx_f[1]; __pyx_lineno = 147; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_builtin_Ellipsis = __Pyx_GetBuiltinName(__pyx_n_s_Ellipsis); if (!__pyx_builtin_Ellipsis) {__pyx_filename = __pyx_f[1]; __pyx_lineno = 359; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) {__pyx_filename = __pyx_f[1]; __pyx_lineno = 388; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -16048,14 +15818,14 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "glove/corpus_cython.pyx":240
- *         error = words_to_ids(words, word_ids, dictionary, supplied, ignore_missing)
+  /* "glove/corpus_cython.pyx":246
+ *                              supplied, ignore_missing)
  *         if error == -1:
  *             raise KeyError('Word missing from dictionary')             # <<<<<<<<<<<<<<
- *         wordslen = word_ids.size()
  * 
+ *         wordslen = word_ids.size()
  */
-  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_Word_missing_from_dictionary); if (unlikely(!__pyx_tuple_)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_Word_missing_from_dictionary); if (unlikely(!__pyx_tuple_)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 246; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
 
@@ -16205,17 +15975,17 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__14);
   __Pyx_GIVEREF(__pyx_tuple__14);
 
-  /* "glove/corpus_cython.pyx":211
+  /* "glove/corpus_cython.pyx":217
  * 
  * 
  * def construct_cooccurrence_matrix(corpus, dictionary, int supplied,             # <<<<<<<<<<<<<<
- *                                   int window_size, int ignore_missing,
- *                                   int max_map_size):
+ *                                   int window_size, int ignore_missing):
+ *     """
  */
-  __pyx_tuple__16 = PyTuple_Pack(17, __pyx_n_s_corpus, __pyx_n_s_dictionary, __pyx_n_s_supplied, __pyx_n_s_window_size, __pyx_n_s_ignore_missing, __pyx_n_s_max_map_size, __pyx_n_s_matrix, __pyx_n_s_words, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_outer_word, __pyx_n_s_inner_word, __pyx_n_s_wordslen, __pyx_n_s_window_stop, __pyx_n_s_error, __pyx_n_s_word_ids, __pyx_n_s_mat); if (unlikely(!__pyx_tuple__16)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 211; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_tuple__16 = PyTuple_Pack(16, __pyx_n_s_corpus, __pyx_n_s_dictionary, __pyx_n_s_supplied, __pyx_n_s_window_size, __pyx_n_s_ignore_missing, __pyx_n_s_matrix, __pyx_n_s_words, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_outer_word, __pyx_n_s_inner_word, __pyx_n_s_wordslen, __pyx_n_s_window_stop, __pyx_n_s_error, __pyx_n_s_word_ids, __pyx_n_s_mat); if (unlikely(!__pyx_tuple__16)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 217; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__16);
   __Pyx_GIVEREF(__pyx_tuple__16);
-  __pyx_codeobj__17 = (PyObject*)__Pyx_PyCode_New(6, 0, 17, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_maciej_Dropbox_code_glove, __pyx_n_s_construct_cooccurrence_matrix, 211, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__17)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 211; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_codeobj__17 = (PyObject*)__Pyx_PyCode_New(5, 0, 16, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_maciej_Dropbox_code_glove, __pyx_n_s_construct_cooccurrence_matrix, 217, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__17)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 217; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
   /* "View.MemoryView":278
  *         return self.name
@@ -16380,17 +16150,6 @@ PyMODINIT_FUNC PyInit_corpus_cython(void)
   /*--- Variable export code ---*/
   /*--- Function export code ---*/
   /*--- Type init code ---*/
-  __pyx_vtabptr_5glove_13corpus_cython_Matrix = &__pyx_vtable_5glove_13corpus_cython_Matrix;
-  __pyx_vtable_5glove_13corpus_cython_Matrix.compactify_row = (void (*)(struct __pyx_obj_5glove_13corpus_cython_Matrix *, int))__pyx_f_5glove_13corpus_cython_6Matrix_compactify_row;
-  __pyx_vtable_5glove_13corpus_cython_Matrix.add_row = (void (*)(struct __pyx_obj_5glove_13corpus_cython_Matrix *))__pyx_f_5glove_13corpus_cython_6Matrix_add_row;
-  __pyx_vtable_5glove_13corpus_cython_Matrix.increment = (void (*)(struct __pyx_obj_5glove_13corpus_cython_Matrix *, int, int, float))__pyx_f_5glove_13corpus_cython_6Matrix_increment;
-  __pyx_vtable_5glove_13corpus_cython_Matrix.size = (int (*)(struct __pyx_obj_5glove_13corpus_cython_Matrix *))__pyx_f_5glove_13corpus_cython_6Matrix_size;
-  __pyx_vtable_5glove_13corpus_cython_Matrix.to_coo = (PyObject *(*)(struct __pyx_obj_5glove_13corpus_cython_Matrix *, int, int __pyx_skip_dispatch))__pyx_f_5glove_13corpus_cython_6Matrix_to_coo;
-  if (PyType_Ready(&__pyx_type_5glove_13corpus_cython_Matrix) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 19; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_type_5glove_13corpus_cython_Matrix.tp_print = 0;
-  if (__Pyx_SetVtable(__pyx_type_5glove_13corpus_cython_Matrix.tp_dict, __pyx_vtabptr_5glove_13corpus_cython_Matrix) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 19; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (PyObject_SetAttrString(__pyx_m, "Matrix", (PyObject *)&__pyx_type_5glove_13corpus_cython_Matrix) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 19; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_ptype_5glove_13corpus_cython_Matrix = &__pyx_type_5glove_13corpus_cython_Matrix;
   if (PyType_Ready(&__pyx_type___pyx_array) < 0) {__pyx_filename = __pyx_f[1]; __pyx_lineno = 101; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_type___pyx_array.tp_print = 0;
   __pyx_array_type = &__pyx_type___pyx_array;
@@ -16443,7 +16202,7 @@ PyMODINIT_FUNC PyInit_corpus_cython(void)
  * import numpy as np
  * import scipy.sparse as sp             # <<<<<<<<<<<<<<
  * 
- * from cython.operator cimport dereference as deref
+ * from libc.stdlib cimport malloc, free
  */
   __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 6; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
@@ -16456,16 +16215,16 @@ PyMODINIT_FUNC PyInit_corpus_cython(void)
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_sp, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 6; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "glove/corpus_cython.pyx":211
+  /* "glove/corpus_cython.pyx":217
  * 
  * 
  * def construct_cooccurrence_matrix(corpus, dictionary, int supplied,             # <<<<<<<<<<<<<<
- *                                   int window_size, int ignore_missing,
- *                                   int max_map_size):
+ *                                   int window_size, int ignore_missing):
+ *     """
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_5glove_13corpus_cython_1construct_cooccurrence_matrix, NULL, __pyx_n_s_glove_corpus_cython); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 211; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_5glove_13corpus_cython_1construct_cooccurrence_matrix, NULL, __pyx_n_s_glove_corpus_cython); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 217; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_construct_cooccurrence_matrix, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 211; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_construct_cooccurrence_matrix, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 217; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "glove/corpus_cython.pyx":1
@@ -16648,145 +16407,6 @@ static PyObject *__Pyx_GetBuiltinName(PyObject *name) {
     return result;
 }
 
-static void __Pyx_RaiseDoubleKeywordsError(
-    const char* func_name,
-    PyObject* kw_name)
-{
-    PyErr_Format(PyExc_TypeError,
-        #if PY_MAJOR_VERSION >= 3
-        "%s() got multiple values for keyword argument '%U'", func_name, kw_name);
-        #else
-        "%s() got multiple values for keyword argument '%s'", func_name,
-        PyString_AsString(kw_name));
-        #endif
-}
-
-static int __Pyx_ParseOptionalKeywords(
-    PyObject *kwds,
-    PyObject **argnames[],
-    PyObject *kwds2,
-    PyObject *values[],
-    Py_ssize_t num_pos_args,
-    const char* function_name)
-{
-    PyObject *key = 0, *value = 0;
-    Py_ssize_t pos = 0;
-    PyObject*** name;
-    PyObject*** first_kw_arg = argnames + num_pos_args;
-    while (PyDict_Next(kwds, &pos, &key, &value)) {
-        name = first_kw_arg;
-        while (*name && (**name != key)) name++;
-        if (*name) {
-            values[name-argnames] = value;
-            continue;
-        }
-        name = first_kw_arg;
-        #if PY_MAJOR_VERSION < 3
-        if (likely(PyString_CheckExact(key)) || likely(PyString_Check(key))) {
-            while (*name) {
-                if ((CYTHON_COMPILING_IN_PYPY || PyString_GET_SIZE(**name) == PyString_GET_SIZE(key))
-                        && _PyString_Eq(**name, key)) {
-                    values[name-argnames] = value;
-                    break;
-                }
-                name++;
-            }
-            if (*name) continue;
-            else {
-                PyObject*** argname = argnames;
-                while (argname != first_kw_arg) {
-                    if ((**argname == key) || (
-                            (CYTHON_COMPILING_IN_PYPY || PyString_GET_SIZE(**argname) == PyString_GET_SIZE(key))
-                             && _PyString_Eq(**argname, key))) {
-                        goto arg_passed_twice;
-                    }
-                    argname++;
-                }
-            }
-        } else
-        #endif
-        if (likely(PyUnicode_Check(key))) {
-            while (*name) {
-                int cmp = (**name == key) ? 0 :
-                #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION >= 3
-                    (PyUnicode_GET_SIZE(**name) != PyUnicode_GET_SIZE(key)) ? 1 :
-                #endif
-                    PyUnicode_Compare(**name, key);
-                if (cmp < 0 && unlikely(PyErr_Occurred())) goto bad;
-                if (cmp == 0) {
-                    values[name-argnames] = value;
-                    break;
-                }
-                name++;
-            }
-            if (*name) continue;
-            else {
-                PyObject*** argname = argnames;
-                while (argname != first_kw_arg) {
-                    int cmp = (**argname == key) ? 0 :
-                    #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION >= 3
-                        (PyUnicode_GET_SIZE(**argname) != PyUnicode_GET_SIZE(key)) ? 1 :
-                    #endif
-                        PyUnicode_Compare(**argname, key);
-                    if (cmp < 0 && unlikely(PyErr_Occurred())) goto bad;
-                    if (cmp == 0) goto arg_passed_twice;
-                    argname++;
-                }
-            }
-        } else
-            goto invalid_keyword_type;
-        if (kwds2) {
-            if (unlikely(PyDict_SetItem(kwds2, key, value))) goto bad;
-        } else {
-            goto invalid_keyword;
-        }
-    }
-    return 0;
-arg_passed_twice:
-    __Pyx_RaiseDoubleKeywordsError(function_name, key);
-    goto bad;
-invalid_keyword_type:
-    PyErr_Format(PyExc_TypeError,
-        "%.200s() keywords must be strings", function_name);
-    goto bad;
-invalid_keyword:
-    PyErr_Format(PyExc_TypeError,
-    #if PY_MAJOR_VERSION < 3
-        "%.200s() got an unexpected keyword argument '%.200s'",
-        function_name, PyString_AsString(key));
-    #else
-        "%s() got an unexpected keyword argument '%U'",
-        function_name, key);
-    #endif
-bad:
-    return -1;
-}
-
-static void __Pyx_RaiseArgtupleInvalid(
-    const char* func_name,
-    int exact,
-    Py_ssize_t num_min,
-    Py_ssize_t num_max,
-    Py_ssize_t num_found)
-{
-    Py_ssize_t num_expected;
-    const char *more_or_less;
-    if (num_found < num_min) {
-        num_expected = num_min;
-        more_or_less = "at least";
-    } else {
-        num_expected = num_max;
-        more_or_less = "at most";
-    }
-    if (exact) {
-        more_or_less = "exactly";
-    }
-    PyErr_Format(PyExc_TypeError,
-                 "%.200s() takes %.8s %" CYTHON_FORMAT_SSIZE_T "d positional argument%.1s (%" CYTHON_FORMAT_SSIZE_T "d given)",
-                 func_name, more_or_less, num_expected,
-                 (num_expected == 1) ? "" : "s", num_found);
-}
-
 static CYTHON_INLINE void __Pyx_ErrRestore(PyObject *type, PyObject *value, PyObject *tb) {
 #if CYTHON_COMPILING_IN_CPYTHON
     PyObject *tmp_type, *tmp_value, *tmp_tb;
@@ -16854,6 +16474,23 @@ static void __Pyx_WriteUnraisable(const char *name, CYTHON_UNUSED int clineno,
 #endif
 }
 
+static CYTHON_INLINE PyObject *__Pyx_GetModuleGlobalName(PyObject *name) {
+    PyObject *result;
+#if CYTHON_COMPILING_IN_CPYTHON
+    result = PyDict_GetItem(__pyx_d, name);
+    if (likely(result)) {
+        Py_INCREF(result);
+    } else {
+#else
+    result = PyObject_GetItem(__pyx_d, name);
+    if (!result) {
+        PyErr_Clear();
+#endif
+        result = __Pyx_GetBuiltinName(name);
+    }
+    return result;
+}
+
 #if CYTHON_COMPILING_IN_CPYTHON
 static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw) {
     PyObject *result;
@@ -16872,76 +16509,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg
     return result;
 }
 #endif
-
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallMethO(PyObject *func, PyObject *arg) {
-    PyObject *self, *result;
-    PyCFunction cfunc;
-    cfunc = PyCFunction_GET_FUNCTION(func);
-    self = PyCFunction_GET_SELF(func);
-    if (unlikely(Py_EnterRecursiveCall((char*)" while calling a Python object")))
-        return NULL;
-    result = cfunc(self, arg);
-    Py_LeaveRecursiveCall();
-    if (unlikely(!result) && unlikely(!PyErr_Occurred())) {
-        PyErr_SetString(
-            PyExc_SystemError,
-            "NULL result without error in PyObject_Call");
-    }
-    return result;
-}
-#endif
-
-#if CYTHON_COMPILING_IN_CPYTHON
-static PyObject* __Pyx__PyObject_CallOneArg(PyObject *func, PyObject *arg) {
-    PyObject *result;
-    PyObject *args = PyTuple_New(1);
-    if (unlikely(!args)) return NULL;
-    Py_INCREF(arg);
-    PyTuple_SET_ITEM(args, 0, arg);
-    result = __Pyx_PyObject_Call(func, args, NULL);
-    Py_DECREF(args);
-    return result;
-}
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg) {
-#ifdef __Pyx_CyFunction_USED
-    if (likely(PyCFunction_Check(func) || PyObject_TypeCheck(func, __pyx_CyFunctionType))) {
-#else
-    if (likely(PyCFunction_Check(func))) {
-#endif
-        if (likely(PyCFunction_GET_FLAGS(func) & METH_O)) {
-            return __Pyx_PyObject_CallMethO(func, arg);
-        }
-    }
-    return __Pyx__PyObject_CallOneArg(func, arg);
-}
-#else
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg) {
-    PyObject *result;
-    PyObject *args = PyTuple_Pack(1, arg);
-    if (unlikely(!args)) return NULL;
-    result = __Pyx_PyObject_Call(func, args, NULL);
-    Py_DECREF(args);
-    return result;
-}
-#endif
-
-static CYTHON_INLINE PyObject *__Pyx_GetModuleGlobalName(PyObject *name) {
-    PyObject *result;
-#if CYTHON_COMPILING_IN_CPYTHON
-    result = PyDict_GetItem(__pyx_d, name);
-    if (likely(result)) {
-        Py_INCREF(result);
-    } else {
-#else
-    result = PyObject_GetItem(__pyx_d, name);
-    if (!result) {
-        PyErr_Clear();
-#endif
-        result = __Pyx_GetBuiltinName(name);
-    }
-    return result;
-}
 
 static CYTHON_INLINE int __Pyx_IsLittleEndian(void) {
   unsigned int n = 1;
@@ -17624,6 +17191,145 @@ static CYTHON_INLINE void __Pyx_XDEC_MEMVIEW(__Pyx_memviewslice *memslice,
     } else {
         memslice->memview = NULL;
     }
+}
+
+static void __Pyx_RaiseArgtupleInvalid(
+    const char* func_name,
+    int exact,
+    Py_ssize_t num_min,
+    Py_ssize_t num_max,
+    Py_ssize_t num_found)
+{
+    Py_ssize_t num_expected;
+    const char *more_or_less;
+    if (num_found < num_min) {
+        num_expected = num_min;
+        more_or_less = "at least";
+    } else {
+        num_expected = num_max;
+        more_or_less = "at most";
+    }
+    if (exact) {
+        more_or_less = "exactly";
+    }
+    PyErr_Format(PyExc_TypeError,
+                 "%.200s() takes %.8s %" CYTHON_FORMAT_SSIZE_T "d positional argument%.1s (%" CYTHON_FORMAT_SSIZE_T "d given)",
+                 func_name, more_or_less, num_expected,
+                 (num_expected == 1) ? "" : "s", num_found);
+}
+
+static void __Pyx_RaiseDoubleKeywordsError(
+    const char* func_name,
+    PyObject* kw_name)
+{
+    PyErr_Format(PyExc_TypeError,
+        #if PY_MAJOR_VERSION >= 3
+        "%s() got multiple values for keyword argument '%U'", func_name, kw_name);
+        #else
+        "%s() got multiple values for keyword argument '%s'", func_name,
+        PyString_AsString(kw_name));
+        #endif
+}
+
+static int __Pyx_ParseOptionalKeywords(
+    PyObject *kwds,
+    PyObject **argnames[],
+    PyObject *kwds2,
+    PyObject *values[],
+    Py_ssize_t num_pos_args,
+    const char* function_name)
+{
+    PyObject *key = 0, *value = 0;
+    Py_ssize_t pos = 0;
+    PyObject*** name;
+    PyObject*** first_kw_arg = argnames + num_pos_args;
+    while (PyDict_Next(kwds, &pos, &key, &value)) {
+        name = first_kw_arg;
+        while (*name && (**name != key)) name++;
+        if (*name) {
+            values[name-argnames] = value;
+            continue;
+        }
+        name = first_kw_arg;
+        #if PY_MAJOR_VERSION < 3
+        if (likely(PyString_CheckExact(key)) || likely(PyString_Check(key))) {
+            while (*name) {
+                if ((CYTHON_COMPILING_IN_PYPY || PyString_GET_SIZE(**name) == PyString_GET_SIZE(key))
+                        && _PyString_Eq(**name, key)) {
+                    values[name-argnames] = value;
+                    break;
+                }
+                name++;
+            }
+            if (*name) continue;
+            else {
+                PyObject*** argname = argnames;
+                while (argname != first_kw_arg) {
+                    if ((**argname == key) || (
+                            (CYTHON_COMPILING_IN_PYPY || PyString_GET_SIZE(**argname) == PyString_GET_SIZE(key))
+                             && _PyString_Eq(**argname, key))) {
+                        goto arg_passed_twice;
+                    }
+                    argname++;
+                }
+            }
+        } else
+        #endif
+        if (likely(PyUnicode_Check(key))) {
+            while (*name) {
+                int cmp = (**name == key) ? 0 :
+                #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION >= 3
+                    (PyUnicode_GET_SIZE(**name) != PyUnicode_GET_SIZE(key)) ? 1 :
+                #endif
+                    PyUnicode_Compare(**name, key);
+                if (cmp < 0 && unlikely(PyErr_Occurred())) goto bad;
+                if (cmp == 0) {
+                    values[name-argnames] = value;
+                    break;
+                }
+                name++;
+            }
+            if (*name) continue;
+            else {
+                PyObject*** argname = argnames;
+                while (argname != first_kw_arg) {
+                    int cmp = (**argname == key) ? 0 :
+                    #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION >= 3
+                        (PyUnicode_GET_SIZE(**argname) != PyUnicode_GET_SIZE(key)) ? 1 :
+                    #endif
+                        PyUnicode_Compare(**argname, key);
+                    if (cmp < 0 && unlikely(PyErr_Occurred())) goto bad;
+                    if (cmp == 0) goto arg_passed_twice;
+                    argname++;
+                }
+            }
+        } else
+            goto invalid_keyword_type;
+        if (kwds2) {
+            if (unlikely(PyDict_SetItem(kwds2, key, value))) goto bad;
+        } else {
+            goto invalid_keyword;
+        }
+    }
+    return 0;
+arg_passed_twice:
+    __Pyx_RaiseDoubleKeywordsError(function_name, key);
+    goto bad;
+invalid_keyword_type:
+    PyErr_Format(PyExc_TypeError,
+        "%.200s() keywords must be strings", function_name);
+    goto bad;
+invalid_keyword:
+    PyErr_Format(PyExc_TypeError,
+    #if PY_MAJOR_VERSION < 3
+        "%.200s() got an unexpected keyword argument '%.200s'",
+        function_name, PyString_AsString(key));
+    #else
+        "%s() got an unexpected keyword argument '%U'",
+        function_name, key);
+    #endif
+bad:
+    return -1;
 }
 
 #if PY_MAJOR_VERSION < 3
@@ -18368,6 +18074,59 @@ static PyObject* __Pyx_PyInt_AddObjC(PyObject *op1, PyObject *op2, CYTHON_UNUSED
 static CYTHON_INLINE void __Pyx_RaiseUnboundLocalError(const char *varname) {
     PyErr_Format(PyExc_UnboundLocalError, "local variable '%s' referenced before assignment", varname);
 }
+
+#if CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallMethO(PyObject *func, PyObject *arg) {
+    PyObject *self, *result;
+    PyCFunction cfunc;
+    cfunc = PyCFunction_GET_FUNCTION(func);
+    self = PyCFunction_GET_SELF(func);
+    if (unlikely(Py_EnterRecursiveCall((char*)" while calling a Python object")))
+        return NULL;
+    result = cfunc(self, arg);
+    Py_LeaveRecursiveCall();
+    if (unlikely(!result) && unlikely(!PyErr_Occurred())) {
+        PyErr_SetString(
+            PyExc_SystemError,
+            "NULL result without error in PyObject_Call");
+    }
+    return result;
+}
+#endif
+
+#if CYTHON_COMPILING_IN_CPYTHON
+static PyObject* __Pyx__PyObject_CallOneArg(PyObject *func, PyObject *arg) {
+    PyObject *result;
+    PyObject *args = PyTuple_New(1);
+    if (unlikely(!args)) return NULL;
+    Py_INCREF(arg);
+    PyTuple_SET_ITEM(args, 0, arg);
+    result = __Pyx_PyObject_Call(func, args, NULL);
+    Py_DECREF(args);
+    return result;
+}
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg) {
+#ifdef __Pyx_CyFunction_USED
+    if (likely(PyCFunction_Check(func) || PyObject_TypeCheck(func, __pyx_CyFunctionType))) {
+#else
+    if (likely(PyCFunction_Check(func))) {
+#endif
+        if (likely(PyCFunction_GET_FLAGS(func) & METH_O)) {
+            return __Pyx_PyObject_CallMethO(func, arg);
+        }
+    }
+    return __Pyx__PyObject_CallOneArg(func, arg);
+}
+#else
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg) {
+    PyObject *result;
+    PyObject *args = PyTuple_Pack(1, arg);
+    if (unlikely(!args)) return NULL;
+    result = __Pyx_PyObject_Call(func, args, NULL);
+    Py_DECREF(args);
+    return result;
+}
+#endif
 
 static int __Pyx_SetVtable(PyObject *dict, void *vtable) {
 #if PY_VERSION_HEX >= 0x02070000

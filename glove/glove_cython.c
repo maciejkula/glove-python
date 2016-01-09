@@ -5,7 +5,9 @@
     "distutils": {
         "depends": [], 
         "extra_compile_args": [
-            "-fopenmp"
+            "-fopenmp", 
+            "-ffast-math", 
+            "-march=native"
         ], 
         "extra_link_args": [
             "-fopenmp"
@@ -1732,26 +1734,26 @@ static PyObject *__pyx_pf_5glove_12glove_cython_fit_vectors(CYTHON_UNUSED PyObje
             if (__pyx_t_3 > 0)
             {
                 #ifdef _OPENMP
-                #pragma omp parallel num_threads(__pyx_v_no_threads) private(__pyx_t_19, __pyx_t_41, __pyx_t_13, __pyx_t_18, __pyx_t_31, __pyx_t_4, __pyx_t_23, __pyx_t_28, __pyx_t_38, __pyx_t_29, __pyx_t_16, __pyx_t_24, __pyx_t_12, __pyx_t_9, __pyx_t_14, __pyx_t_37, __pyx_t_30, __pyx_t_35, __pyx_t_25, __pyx_t_36, __pyx_t_42, __pyx_t_15, __pyx_t_17, __pyx_t_7, __pyx_t_26, __pyx_t_8, __pyx_t_34, __pyx_t_6, __pyx_t_40, __pyx_t_11, __pyx_t_33, __pyx_t_5, __pyx_t_20, __pyx_t_27, __pyx_t_22, __pyx_t_10, __pyx_t_39, __pyx_t_32, __pyx_t_21)
+                #pragma omp parallel num_threads(__pyx_v_no_threads) private(__pyx_t_18, __pyx_t_34, __pyx_t_31, __pyx_t_4, __pyx_t_17, __pyx_t_36, __pyx_t_7, __pyx_t_25, __pyx_t_10, __pyx_t_15, __pyx_t_16, __pyx_t_39, __pyx_t_22, __pyx_t_30, __pyx_t_20, __pyx_t_33, __pyx_t_40, __pyx_t_6, __pyx_t_9, __pyx_t_38, __pyx_t_23, __pyx_t_26, __pyx_t_28, __pyx_t_13, __pyx_t_21, __pyx_t_32, __pyx_t_41, __pyx_t_14, __pyx_t_19, __pyx_t_8, __pyx_t_35, __pyx_t_42, __pyx_t_5, __pyx_t_27, __pyx_t_29, __pyx_t_12, __pyx_t_37, __pyx_t_24, __pyx_t_11)
                 #endif /* _OPENMP */
                 {
                     #ifdef _OPENMP
-                    #pragma omp for lastprivate(__pyx_v_i) lastprivate(__pyx_v_word_a) firstprivate(__pyx_v_j) lastprivate(__pyx_v_j) lastprivate(__pyx_v_shuffle_index) lastprivate(__pyx_v_count) lastprivate(__pyx_v_loss) lastprivate(__pyx_v_gradient) lastprivate(__pyx_v_entry_weight) lastprivate(__pyx_v_learning_rate) lastprivate(__pyx_v_prediction) lastprivate(__pyx_v_word_b) schedule(dynamic)
+                    #pragma omp for lastprivate(__pyx_v_shuffle_index) lastprivate(__pyx_v_learning_rate) lastprivate(__pyx_v_gradient) lastprivate(__pyx_v_prediction) lastprivate(__pyx_v_entry_weight) lastprivate(__pyx_v_i) lastprivate(__pyx_v_count) lastprivate(__pyx_v_word_a) lastprivate(__pyx_v_word_b) firstprivate(__pyx_v_j) lastprivate(__pyx_v_j) lastprivate(__pyx_v_loss) schedule(dynamic)
                     #endif /* _OPENMP */
                     for (__pyx_t_2 = 0; __pyx_t_2 < __pyx_t_3; __pyx_t_2++){
                         {
                             __pyx_v_j = 0 + 1 * __pyx_t_2;
                             /* Initialize private variables to invalid values */
-                            __pyx_v_i = ((int)0xbad0bad0);
-                            __pyx_v_word_a = ((int)0xbad0bad0);
                             __pyx_v_shuffle_index = ((int)0xbad0bad0);
-                            __pyx_v_count = ((double)__PYX_NAN());
-                            __pyx_v_loss = ((double)__PYX_NAN());
-                            __pyx_v_gradient = ((double)__PYX_NAN());
-                            __pyx_v_entry_weight = ((double)__PYX_NAN());
                             __pyx_v_learning_rate = ((double)__PYX_NAN());
+                            __pyx_v_gradient = ((double)__PYX_NAN());
                             __pyx_v_prediction = ((double)__PYX_NAN());
+                            __pyx_v_entry_weight = ((double)__PYX_NAN());
+                            __pyx_v_i = ((int)0xbad0bad0);
+                            __pyx_v_count = ((double)__PYX_NAN());
+                            __pyx_v_word_a = ((int)0xbad0bad0);
                             __pyx_v_word_b = ((int)0xbad0bad0);
+                            __pyx_v_loss = ((double)__PYX_NAN());
 
                             /* "glove/glove_cython.pyx":62
  *         for j in prange(no_cooccurrences, num_threads=no_threads,
@@ -2157,7 +2159,7 @@ static PyObject *__pyx_pf_5glove_12glove_cython_fit_vectors(CYTHON_UNUSED PyObje
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5glove_12glove_cython_3transform_paragraph(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5glove_12glove_cython_2transform_paragraph[] = "\n    Compute a vector representation of a paragraph. This has\n    the effect of making the paragraph vector close to words\n    that occur in it. The representation should be more\n    similar to words that occur in it multiple times, and \n    less close to words that are common in the corpus (have\n    large word bias values).\n\n    This should be be similar to a tf-idf weighting.\n    ";
+static char __pyx_doc_5glove_12glove_cython_2transform_paragraph[] = "\n    Compute a vector representation of a paragraph. This has\n    the effect of making the paragraph vector close to words\n    that occur in it. The representation should be more\n    similar to words that occur in it multiple times, and\n    less close to words that are common in the corpus (have\n    large word bias values).\n\n    This should be be similar to a tf-idf weighting.\n    ";
 static PyMethodDef __pyx_mdef_5glove_12glove_cython_3transform_paragraph = {"transform_paragraph", (PyCFunction)__pyx_pw_5glove_12glove_cython_3transform_paragraph, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5glove_12glove_cython_2transform_paragraph};
 static PyObject *__pyx_pw_5glove_12glove_cython_3transform_paragraph(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   __Pyx_memviewslice __pyx_v_wordvec = { 0, 0, { 0 }, { 0 }, { 0 } };
