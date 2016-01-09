@@ -1,5 +1,7 @@
 # glove-python
 
+[![Circle CI](https://circleci.com/gh/maciejkula/glove-python.svg?style=svg)](https://circleci.com/gh/maciejkula/glove-python)
+
 A toy python implementation of [GloVe](http://www-nlp.stanford.edu/projects/glove/).
 
 Glove produces dense vector embeddings of words, where words that occur together are close in the resulting vector space.
