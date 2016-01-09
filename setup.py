@@ -8,7 +8,7 @@ from setuptools import Command, Extension, setup
 from setuptools.command.test import test as TestCommand
 
 
-def define_extensions():
+def define_extensions(cythonize=False):
 
     compile_args = ['-fopenmp',
                     '-ffast-math']
@@ -21,14 +21,23 @@ def define_extensions():
     if 'anaconda' not in sys.version.lower():
         compile_args.append('-march=native')
 
-    return [Extension("glove.glove_cython", ["glove/glove_cython.pyx"],
+    if cythonize:
+        glove_cython = "glove/glove_cython.pyx"
+        glove_metrics = "glove/metrics/accuracy_cython.pyx"
+        glove_corpus = "glove/corpus_cython.pyx"
+    else:
+        glove_cython = "glove/glove_cython.c"
+        glove_metrics = "glove/metrics/accuracy_cython.c"
+        glove_corpus = "glove/corpus_cython.cpp"
+
+    return [Extension("glove.glove_cython", [glove_cython],
                       extra_link_args=["-fopenmp"],
                       extra_compile_args=compile_args),
             Extension("glove.metrics.accuracy_cython",
-                      ["glove/metrics/accuracy_cython.pyx"],
+                      [glove_metrics],
                       extra_link_args=["-fopenmp"],
                       extra_compile_args=compile_args),
-            Extension("glove.corpus_cython", ["glove/corpus_cython.pyx"],
+            Extension("glove.corpus_cython", [glove_corpus],
                       language='C++',
                       libraries=["stdc++"],
                       extra_link_args=['-std=c++11'] + compile_args,
@@ -80,7 +89,7 @@ class Cythonize(Command):
         import Cython
         from Cython.Build import cythonize
 
-        cythonize(define_extensions())
+        cythonize(define_extensions(cythonize=True))
 
 
 class Clean(Command):
