@@ -40,8 +40,8 @@ def define_extensions(cythonize=False):
             Extension("glove.corpus_cython", [glove_corpus],
                       language='C++',
                       libraries=["stdc++"],
-                      extra_link_args=['-std=c++11'] + compile_args,
-                      extra_compile_args=['-std=c++11'] + compile_args)]
+                      extra_link_args=compile_args,
+                      extra_compile_args=compile_args)]
 
 
 def set_gcc():
@@ -137,7 +137,7 @@ class PyTest(TestCommand):
 
 setup(
     name='glove',
-    version='0.0.1',
+    version='0.1.0',
     description=('Python implementation of Global Vectors '
                  'for Word Representation (GloVe)'),
     long_description='',
@@ -148,6 +148,8 @@ setup(
     author='Maciej Kula',
     url='https://github.com/maciejkula/glove-python',
     license='Apache 2.0',
-    classifiers=['Development Status :: 3 - Alpha'],
+    classifiers=['Development Status :: 3 - Alpha',
+                 'License :: OSI Approved :: Apache Software License',
+                 'Topic :: Scientific/Engineering :: Artificial Intelligence'],
     ext_modules=define_extensions()
 )

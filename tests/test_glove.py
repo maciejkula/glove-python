@@ -63,13 +63,13 @@ def test_fitting():
                     epochs=0,
                     no_threads=2)
 
-    log_cooc_mat = corpus.matrix
+    log_cooc_mat = corpus.matrix.copy()
     log_cooc_mat.data = np.log(log_cooc_mat.data)
     log_cooc_mat = np.asarray(log_cooc_mat.todense())
 
     repr_matrix = _reproduce_input_matrix(glove_model)
 
-    assert ((repr_matrix - log_cooc_mat) ** 2).sum() > 3000.0
+    assert ((repr_matrix - log_cooc_mat) ** 2).sum() > 30000.0
 
     # Check that it is good with fitting
     glove_model = Glove(no_components=100, learning_rate=0.05)
@@ -77,10 +77,6 @@ def test_fitting():
                     epochs=500,
                     no_threads=2)
 
-    log_cooc_mat = corpus.matrix
-    log_cooc_mat.data = np.log(log_cooc_mat.data)
-    log_cooc_mat = np.asarray(log_cooc_mat.todense())
-
     repr_matrix = _reproduce_input_matrix(glove_model)
 
-    assert ((repr_matrix - log_cooc_mat) ** 2).sum() < 10.0
+    assert ((repr_matrix - log_cooc_mat) ** 2).sum() < 1500.0

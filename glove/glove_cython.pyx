@@ -42,7 +42,7 @@ def fit_vectors(double[:, ::1] wordvec,
     # number of cooccurrences.
     cdef int dim = wordvec.shape[1]
     cdef int no_cooccurrences = row.shape[0]
-    
+
     # Hold indices of current words and
     # the cooccurrence count.
     cdef int word_a, word_b
@@ -123,7 +123,7 @@ def transform_paragraph(double[:, ::1] wordvec,
     Compute a vector representation of a paragraph. This has
     the effect of making the paragraph vector close to words
     that occur in it. The representation should be more
-    similar to words that occur in it multiple times, and 
+    similar to words that occur in it multiple times, and
     less close to words that are common in the corpus (have
     large word bias values).
 
@@ -134,7 +134,7 @@ def transform_paragraph(double[:, ::1] wordvec,
     # number of cooccurrences.
     cdef int dim = wordvec.shape[1]
     cdef int no_cooccurrences = row.shape[0]
-    
+
     # Hold indices of current words and
     # the cooccurrence count.
     cdef int word_b, word_a
@@ -172,6 +172,6 @@ def transform_paragraph(double[:, ::1] wordvec,
             for i in range(dim):
                 learning_rate = initial_learning_rate / sqrt(sum_gradients[i])
                 gradient = loss * wordvec[word_b, i]
-                paragraphvec[i] = (paragraphvec[i] - learning_rate 
+                paragraphvec[i] = (paragraphvec[i] - learning_rate
                                    * gradient)
                 sum_gradients[i] += gradient ** 2
