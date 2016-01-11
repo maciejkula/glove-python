@@ -136,7 +136,7 @@ class PyTest(TestCommand):
 
 
 setup(
-    name='glove',
+    name='glove_python',
     version='0.1.0',
     description=('Python implementation of Global Vectors '
                  'for Word Representation (GloVe)'),
@@ -147,6 +147,7 @@ setup(
     cmdclass={'test': PyTest, 'cythonize': Cythonize, 'clean': Clean},
     author='Maciej Kula',
     url='https://github.com/maciejkula/glove-python',
+    download_url='https://github.com/maciejkula/glove-python/tarball/0.1.0',
     license='Apache 2.0',
     classifiers=['Development Status :: 3 - Alpha',
                  'License :: OSI Approved :: Apache Software License',

@@ -11,10 +11,11 @@ While this produces embeddings which are similar to [word2vec](https://code.goog
 The code uses asynchronous stochastic gradient descent, and is implemented in Cython. Most likely, it contains a tremendous amount of bugs.
 
 ## Installation
-1. Clone this repository.
-2. Make sure you have a compiler that supports `OpenMP` and `C++11`. On OSX, you'll need to install `gcc` from `brew` or `ports`.
-3. Run `python setup.py develop` to install in development mode; `python setup.py install` to install normally.
-4. `from glove import Glove, Corpus` should get you started.
+Install from pypi using pip: `pip install glove_python`.
+
+Note for OSX users: due to its use of OpenMP, glove-python does not compile under Clang. To install it, you will need a reasonably recent version of `gcc` (from Homebrew for instance). This should be picked up by `setup.py`; if it is not, please open an issue.
+
+Building with the default Python distribution included in OSX is also not supported; please try the version from Homebrew or Anaconda.
 
 ## Usage
 Producing the embeddings is a two-step process: creating a co-occurrence matrix from the corpus, and then using it to produce the embeddings. The `Corpus` class helps in constructing a corpus from an interable of tokens; the `Glove` class trains the embeddings (with a sklearn-esque API).
