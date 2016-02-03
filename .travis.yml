@@ -1,0 +1,10 @@
+os:
+  - osx
+before_install:
+  - brew tap homebrew/versions
+  - travis_wait brew reinstall gcc48 --without-multilib
+  - brew install python
+install:
+  - pip install -r requirements.txt
+  - pip install .
+script: py.test tests/
