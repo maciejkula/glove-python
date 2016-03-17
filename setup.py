@@ -141,7 +141,7 @@ setup(
     description=('Python implementation of Global Vectors '
                  'for Word Representation (GloVe)'),
     long_description='',
-    packages=["glove"],
+    packages=['glove', 'glove.metrics'],
     install_requires=['numpy', 'scipy'],
     tests_require=['pytest'],
     cmdclass={'test': PyTest, 'cythonize': Cythonize, 'clean': Clean},
