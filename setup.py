@@ -4,7 +4,7 @@ import platform
 import subprocess
 import sys
 
-from setuptools import Command, Extension, setup
+from setuptools import Command, Extension, setup, find_packages
 from setuptools.command.test import test as TestCommand
 
 
@@ -141,7 +141,7 @@ setup(
     description=('Python implementation of Global Vectors '
                  'for Word Representation (GloVe)'),
     long_description='',
-    packages=['glove', 'glove.metrics'],
+    packages=find_packages(),
     install_requires=['numpy', 'scipy'],
     tests_require=['pytest'],
     cmdclass={'test': PyTest, 'cythonize': Cythonize, 'clean': Clean},
