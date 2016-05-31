@@ -252,6 +252,11 @@ class Glove(object):
                 word = tokens[0]
                 entries = tokens[1:]
 
+                # handles duplicated word in glove.840B.300d
+                if word in dct:
+                    print('duplicated word {} at line {}, already seen at line {}'.format(
+                        word, i + 1, dct[word] + 1))
+                    continue
                 dct[word] = i
                 vectors.extend(float(x) for x in entries)
 
