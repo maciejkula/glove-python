@@ -9,7 +9,7 @@ from setuptools.command.test import test as TestCommand
 
 
 def define_extensions(cythonize=False):
-
+    set_gcc()
     compile_args = ['-fopenmp',
                     '-ffast-math']
 
