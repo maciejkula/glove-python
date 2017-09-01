@@ -30,28 +30,28 @@ If you want to process a wikipedia corpus, you can pass file from [here](http://
 Running this on my machine yields roughly the following results:
 
 ```
-In [1]: glove.most_similar('physics')
+In [1]: glove.most_similar('physics', number=4)
 Out[1]:
 [('biology', 0.89425889335342257),
  ('chemistry', 0.88913708236100086),
  ('quantum', 0.88859617025616333),
  ('mechanics', 0.88821824562025431)]
 
-In [4]: glove.most_similar('north')
+In [4]: glove.most_similar('north', number=4)
 Out[4]:
 [('west', 0.99047203572917908),
  ('south', 0.98655786905501008),
  ('east', 0.97914140138065575),
  ('coast', 0.97680427897282185)]
 
-In [6]: glove.most_similar('queen')
+In [6]: glove.most_similar('queen', number=4)
 Out[6]:
 [('anne', 0.88284931171714842),
  ('mary', 0.87615260138308615),
  ('elizabeth', 0.87362497374226267),
  ('prince', 0.87011034923161801)]
 
-In [19]: glove.most_similar('car')
+In [19]: glove.most_similar('car', number=4)
 Out[19]:
 [('race', 0.89549347066796814),
  ('driver', 0.89350343749207217),
