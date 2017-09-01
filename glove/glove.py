@@ -297,7 +297,7 @@ class Glove(object):
         except KeyError:
             raise Exception('Word not in dictionary')
 
-        return self._similarity_query(self.word_vectors[word_idx], number)[1:]
+        return self._similarity_query(self.word_vectors[word_idx], number + 1)[1:]
 
     def most_similar_paragraph(self, paragraph, number=5, **kwargs):
         """
