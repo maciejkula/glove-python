@@ -163,8 +163,8 @@ class Glove(object):
 
         random_state = check_random_state(self.random_state)
 
-        word_ids = np.array(cooccurrence.keys(), dtype=np.int32)
-        values = np.array(cooccurrence.values(), dtype=np.float64)
+        word_ids = np.array(list(cooccurrence.keys()), dtype=np.int32)
+        values = np.array(list(cooccurrence.values()), dtype=np.float64)
         shuffle_indices = np.arange(len(word_ids), dtype=np.int32)
 
         # Initialize the vector to mean of constituent word vectors
