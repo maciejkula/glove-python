@@ -218,6 +218,26 @@ class Glove(object):
                         savefile,
                         protocol=pickle.HIGHEST_PROTOCOL)
 
+    def save_word2vec_format(self, filename):
+        """
+        Serialize model to filename in word2vec .vec format.
+        """
+        with open(filename, 'w') as savefile:
+            (rows, cols) = self.word_vectors.shape
+            savefile.write(str(rows) + " " + str(cols) + "\n")
+            if hasattr(self.dictionary, 'iteritems'):
+                # Python 2 compat
+                items_iterator = self.dictionary.iteritems()
+            else:
+                items_iterator = self.dictionary.items()
+
+            for word, idx in items_iterator:
+                vector = self.word_vectors[idx]
+                vector_string = ""
+                for val_i in vector:
+                    vector_string += " " + str(val_i)
+                savefile.write((word + vector_string + "\n"))
+
     @classmethod
     def load(cls, filename):
         """
