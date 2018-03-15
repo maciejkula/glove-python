@@ -251,9 +251,10 @@ class Glove(object):
 
                 word = tokens[0]
                 entries = tokens[1:]
-
-                dct[word] = i
-                vectors.extend(float(x) for x in entries)
+                
+                if not word in dct:
+                    dct[word] = i
+                    vectors.extend(float(x) for x in entries)
 
         # Infer word vectors dimensions.
         no_components = len(entries)
