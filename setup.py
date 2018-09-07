@@ -142,7 +142,7 @@ setup(
                  'for Word Representation (GloVe)'),
     long_description='',
     packages=find_packages(),
-    install_requires=['numpy', 'scipy'],
+    install_requires=['numpy', 'scipy', 'gensim'],
     tests_require=['pytest'],
     cmdclass={'test': PyTest, 'cythonize': Cythonize, 'clean': Clean},
     author='Maciej Kula',
