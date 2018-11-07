@@ -71,8 +71,9 @@ class Glove(object):
         self.inverse_dictionary = None
 
         self.random_state = random_state
+        self.current_epoch = 0
 
-    def fit(self, matrix, epochs=5, no_threads=2, verbose=False):
+    def fit(self, matrix, epochs=5, no_threads=2, verbose=False, initial_epoch=0):
         """
         Estimate the word embeddings.
 
@@ -81,6 +82,8 @@ class Glove(object):
         - int epochs: number of training epochs
         - int no_threads: number of training threads
         - bool verbose: print progress messages if True
+        - int initial_epoch: Epoch at which to start training (useful for
+          resuming a previous training run).
         """
 
         shape = matrix.shape
@@ -93,11 +96,12 @@ class Glove(object):
             raise Exception('Coocurrence matrix must be in the COO format')
 
         random_state = check_random_state(self.random_state)
-        self.word_vectors = ((random_state.rand(shape[0],
-                                                self.no_components) - 0.5)
-                             / self.no_components)
-        self.word_biases = np.zeros(shape[0],
-                                    dtype=np.float64)
+        if initial_epoch == 0:
+            self.word_vectors = ((random_state.rand(shape[0],
+                                                    self.no_components) - 0.5)
+                                 / self.no_components)
+            self.word_biases = np.zeros(shape[0],
+                                        dtype=np.float64)
 
         self.vectors_sum_gradients = np.ones_like(self.word_vectors)
         self.biases_sum_gradients = np.ones_like(self.word_biases)
@@ -111,7 +115,7 @@ class Glove(object):
         for epoch in range(epochs):
 
             if verbose:
-                print('Epoch %s' % epoch)
+                print('Epoch %s' % self.current_epoch)
 
             # Shuffle the coocurrence matrix
             random_state.shuffle(shuffle_indices)
@@ -134,6 +138,7 @@ class Glove(object):
                 raise Exception('Non-finite values in word vectors. '
                                 'Try reducing the learning rate or the '
                                 'max_loss parameter.')
+            self.current_epoch += 1
 
     def transform_paragraph(self, paragraph, epochs=50, ignore_missing=False):
         """
