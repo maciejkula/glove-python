@@ -307,3 +307,22 @@ class Glove(object):
         paragraph_vector = self.transform_paragraph(paragraph, **kwargs)
 
         return self._similarity_query(paragraph_vector, number)
+
+    def word_vector_by_word(self, word):
+        """
+        Given a word returns its embedding vector representation
+        """
+
+        if self.word_vectors is None:
+            raise Exception('Model must be fit before querying')
+
+        if self.dictionary is None:
+            raise Exception('No word dictionary supplied')
+
+        try:
+            word_idx = self.dictionary[word]
+        except KeyError:
+            raise Exception('Word not in dictionary')
+
+        return self.word_vectors[word_idx]
+
