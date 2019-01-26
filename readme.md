@@ -59,6 +59,13 @@ Out[19]:
  ('racing', 0.83157724991920212)]
 ```
 
+You can also get the word vector representation:
+
+```
+In [20]: glove.word_vector_by_word('car')
+array([0.34795333, 0.63220108, 0.06546937, ... 0.66068305, 0.91771246, 0.01173065])
+```
+
 ## Development
 Pull requests are welcome.
 

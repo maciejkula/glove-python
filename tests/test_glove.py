@@ -5,6 +5,7 @@ from glove import Corpus, Glove
 
 from utils import generate_training_corpus
 
+import pytest
 
 def _reproduce_input_matrix(glove_model):
 
@@ -80,3 +81,50 @@ def test_fitting():
     repr_matrix = _reproduce_input_matrix(glove_model)
 
     assert ((repr_matrix - log_cooc_mat) ** 2).sum() < 1500.0
+
+def test_word_vector_by_word():
+    glove_model = Glove()
+    glove_model.word_vectors = [
+      [1, 2, 3],
+      [4, 5, 6]
+    ]
+    glove_model.dictionary = {
+      "first": 0,
+      "second": 1
+    }
+
+    result0 = glove_model.word_vector_by_word("first")
+
+    assert(result0 == [1, 2, 3])
+
+    result1 = glove_model.word_vector_by_word("second")
+
+    assert(result1 == [4, 5, 6])
+
+def test_word_vector_by_word_without_fitting():
+    glove_model = Glove()
+    glove_model.dictionary = {"word": 0}
+
+    with pytest.raises(Exception) as ex:
+        glove_model.word_vector_by_word("word")
+
+    assert(ex.value.message == "Model must be fit before querying")
+
+def test_word_vector_by_word_without_dictionary():
+    glove_model = Glove()
+    glove_model.word_vectors = [[1, 2, 3]]
+
+    with pytest.raises(Exception) as ex:
+        glove_model.word_vector_by_word("word")
+
+    assert(ex.value.message == "No word dictionary supplied")
+
+def test_word_vector_by_word_without_word():
+    glove_model = Glove()
+    glove_model.word_vectors = [[1, 2, 3]]
+    glove_model.dictionary = {"other": 0}
+
+    with pytest.raises(Exception) as ex:
+        glove_model.word_vector_by_word("word")
+
+    assert(ex.value.message == "Word not in dictionary")

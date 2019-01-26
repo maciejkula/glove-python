@@ -285,17 +285,7 @@ class Glove(object):
         Run a similarity query, retrieving number
         most similar words.
         """
-
-        if self.word_vectors is None:
-            raise Exception('Model must be fit before querying')
-
-        if self.dictionary is None:
-            raise Exception('No word dictionary supplied')
-
-        try:
-            word_idx = self.dictionary[word]
-        except KeyError:
-            raise Exception('Word not in dictionary')
+        word_idx = self._index_by_word(word)
 
         return self._similarity_query(self.word_vectors[word_idx], number)[1:]
 
@@ -307,3 +297,24 @@ class Glove(object):
         paragraph_vector = self.transform_paragraph(paragraph, **kwargs)
 
         return self._similarity_query(paragraph_vector, number)
+
+    def word_vector_by_word(self, word):
+        """
+        Given a word returns its embedding vector representation
+        """
+        word_idx = self._index_by_word(word)
+
+        return self.word_vectors[word_idx]
+
+    def _index_by_word(self, word):
+        if self.word_vectors is None:
+            raise Exception('Model must be fit before querying')
+
+        if self.dictionary is None:
+            raise Exception('No word dictionary supplied')
+
+        try:
+            return self.dictionary[word]
+        except KeyError:
+            raise Exception('Word not in dictionary')
+
