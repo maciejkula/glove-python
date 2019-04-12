@@ -12,6 +12,7 @@ except ImportError:
 import numpy as np
 import scipy.sparse as sp
 import numbers
+import sys
 
 from .glove_cython import fit_vectors, transform_paragraph
 
@@ -163,8 +164,12 @@ class Glove(object):
 
         random_state = check_random_state(self.random_state)
 
-        word_ids = np.array(cooccurrence.keys(), dtype=np.int32)
-        values = np.array(cooccurrence.values(), dtype=np.float64)
+        if (sys.version_info.major < 3):
+            word_ids = np.array(cooccurrence.keys(), dtype=np.int32)
+            values = np.array(cooccurrence.values(), dtype=np.float64)
+        else:
+            word_ids = np.array(list(cooccurrence.keys()), dtype=np.int32)
+            values = np.array(list(cooccurrence.values()), dtype=np.float64)
         shuffle_indices = np.arange(len(word_ids), dtype=np.int32)
 
         # Initialize the vector to mean of constituent word vectors
