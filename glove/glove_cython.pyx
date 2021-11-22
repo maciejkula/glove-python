@@ -1,9 +1,9 @@
 #!python
-#cython: boundscheck=False, wraparound=False, cdivision=True, initializedcheck=False
-
+#cython: boundscheck=False, wraparound=False, cdivision=True, initializedcheck=False, language_level=3
 import numpy as np
 import scipy.sparse as sp
 import collections
+import cython
 from cython.parallel import parallel, prange
 
 
@@ -29,7 +29,7 @@ def fit_vectors(double[:, ::1] wordvec,
                 double max_count,
                 double alpha,
                 double max_loss,
-                int no_threads):
+                int no_threads) -> cython.double:
     """
     Estimate GloVe word embeddings given the cooccurrence matrix.
     Modifies the word vector and word bias array in-place.
@@ -50,6 +50,9 @@ def fit_vectors(double[:, ::1] wordvec,
 
     # Loss and gradient variables.
     cdef double prediction, entry_weight, loss
+
+    # Define global loss
+    cdef double global_loss, loss_unweighted
 
     # Iteration variables
     cdef int i, j, shuffle_index
@@ -74,7 +77,11 @@ def fit_vectors(double[:, ::1] wordvec,
 
             # Compute loss and the example weight.
             entry_weight = double_min(1.0, (count / max_count)) ** alpha
-            loss = entry_weight * (prediction - c_log(count))
+            loss_unweighted = prediction - c_log(count)
+            loss = entry_weight * loss_unweighted
+
+            # Update the weighted global loss
+            global_loss += 0.5 * loss * loss_unweighted
 
             # Clip the loss for numerical stability.
             if loss < -max_loss:
@@ -106,6 +113,7 @@ def fit_vectors(double[:, ::1] wordvec,
             learning_rate = initial_learning_rate / sqrt(wordbias_sum_gradients[word_b])
             wordbias[word_b] -= learning_rate * loss
             wordbias_sum_gradients[word_b] += loss ** 2
+    return global_loss
 
 
 def transform_paragraph(double[:, ::1] wordvec,
@@ -118,7 +126,7 @@ def transform_paragraph(double[:, ::1] wordvec,
                         double initial_learning_rate,
                         double max_count,
                         double alpha,
-                        int epochs):
+                        int epochs)->float:
     """
     Compute a vector representation of a paragraph. This has
     the effect of making the paragraph vector close to words
