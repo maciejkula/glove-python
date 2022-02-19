@@ -110,13 +110,10 @@ class Glove(object):
 
         for epoch in range(epochs):
 
-            if verbose:
-                print('Epoch %s' % epoch)
-
             # Shuffle the coocurrence matrix
             random_state.shuffle(shuffle_indices)
 
-            fit_vectors(self.word_vectors,
+            global_loss = fit_vectors(self.word_vectors,
                         self.vectors_sum_gradients,
                         self.word_biases,
                         self.biases_sum_gradients,
@@ -129,6 +126,8 @@ class Glove(object):
                         self.alpha,
                         self.max_loss,
                         int(no_threads))
+            if verbose:
+                print('Epoch %s, global loss %s' % (epoch, global_loss))
 
             if not np.isfinite(self.word_vectors).all():
                 raise Exception('Non-finite values in word vectors. '
