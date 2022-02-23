@@ -12,6 +12,12 @@ The code uses asynchronous stochastic gradient descent, and is implemented in Cy
 
 ## Installation
 Install from pypi using pip: `pip install glove_python`.
+```Shell
+# Python 3.6 才能编译成功
+git clone git@github.com:feiwofeifeixiaowo/glove-python.git
+pip uninstall glove_python -y
+cd glove-python && python setup.py cythonize && pip install -e .
+```
 
 Note for OSX users: due to its use of OpenMP, glove-python does not compile under Clang. To install it, you will need a reasonably recent version of `gcc` (from Homebrew for instance). This should be picked up by `setup.py`; if it is not, please open an issue.
 
